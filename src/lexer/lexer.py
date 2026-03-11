@@ -6,6 +6,8 @@ class Lexer:
         'NUMBER', 'IDENTIFIER', 'EQUALS', 'SEMICOLON', 'LBRACE', 'RBRACE',
         'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 'QUOTE',
         'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'COLON',
+
+        'MAS', 'MENOS', 'MUL', 'DIV'
     ]
 
     reserved = {
@@ -19,13 +21,12 @@ class Lexer:
 
     t_COLON = r':'
     t_RELOP = r'==|!=|<|>|<=|>='
-    '''
-    Usar las palabras resevadas para los operadores
-    t_ = r'\+'
-    t_ = r'-'
-    t_ = r'\*'
-    t_ = r'/'
-    '''
+    
+    t_MAS = r'\+'
+    t_MENOS = r'-'
+    t_MUL = r'\*'
+    t_DIV = r'/'
+    
     t_EQUALS = r'='
     t_SEMICOLON = r';'
     t_LBRACE = r'\{'
@@ -68,8 +69,8 @@ class Lexer:
         r'\#.*'
         pass
 
-    def t_COMMENT_MULTILINE(sefl, t):
-        r'/\*(.|\n)*?\*/.'
+    def t_COMMENT_MULTILINE(self, t):
+        r'/\*(.|\n)*?\*/'
         t.lexer.lineno += t.value.count('\n')
         pass
 

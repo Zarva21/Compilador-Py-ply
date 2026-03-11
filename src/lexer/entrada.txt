@@ -1,0 +1,17 @@
+pikachu x = 10;
+y = 3.14;
+z = "hola";
+a = 'c';
+b = '@';
+@
+
+
+"hola
+cadena no cerrada
+'a'
+'ab'
+#ola
+#.ohla
+\*aaaa*/
+
+\*asdf
