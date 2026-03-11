@@ -1,5 +1,5 @@
 from lexer import Lexer
-from src.Extras.errores import Errors
+from lexer.errores import Errors
 
 # Leer archivo
 with open("entrada.txt", "r", encoding="utf-8") as f:
