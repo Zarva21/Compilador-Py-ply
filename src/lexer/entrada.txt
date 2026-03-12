@@ -5,13 +5,15 @@ a = 'c';
 b = '@';
 @
 
-
-"hola
-cadena no cerrada
+ENTEI
+entei
+EVEE
+evee
+EVEEEEE
 'a'
 'ab'
 #ola
 #.ohla
-\*aaaa*/
-
+/*aaaa*/
+"ola
 \*asdf

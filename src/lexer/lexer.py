@@ -12,7 +12,22 @@ class Lexer:
 
     reserved = {
         #Ejemplo, aqui se pone la lista de palabras reservadas 
-        'pikachu': 'PIKACHU',
+        
+        'entei': 'ENTEI',
+        'floatzel': 'FLOATZEL',
+        'Charizar' :'CHARIZAR',
+        'boofalant':'BOOFALANT',
+        'stantler' : 'STANTLER', 
+        'evee' : 'EVEE',
+        'ekans' : 'EKANS',
+        'wailord' : 'WAILORD',
+        'doduo' : 'DODUO',
+        'forretres' : 'FORRETRES',
+        'swello' : 'SWELLO',
+        'kecleon' : 'KECLEON',
+        'deoxys' : 'DEOXYS',
+        'breloom' : 'BRELOOM',
+        'pikachu': 'PIKACHU'
         
         }
     
