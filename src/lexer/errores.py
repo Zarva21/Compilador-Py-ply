@@ -2,8 +2,10 @@ class Errors:
     def __init__(self,content):
         self.errors = []  
         self.text=content
+
     def getText(self):
         return self.text
+    
     def encolar_error(self, error):
         self.errors.append(error)
 
