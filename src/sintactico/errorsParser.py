@@ -1,0 +1,120 @@
+def p_error(self, p):
+    if p:
+        try:
+            col = self.errors.find_column(p)
+            row = self.errors.find_line(p)
+            token = p.value.lower() if isinstance(p.value, str) else str(p.value)
+
+            # 1️⃣ IF mal formado
+            if p.type == 'EVEE':
+                self.errors.encolar_error(
+                    f"Error: se esperaba '(' después de EVEE (if) en fila {row}, col {col}."
+                )
+
+            # 2️⃣ ELSE mal ubicado
+            elif p.type == 'EKANS':
+                self.errors.encolar_error(
+                    f"Error: EKANS (else) fuera de lugar en fila {row}, col {col}. "
+                    f"¿Falta cerrar correctamente el bloque anterior?"
+                )
+
+            # 3️⃣ FOR mal formado
+            elif p.type == 'FORRETRES':
+                self.errors.encolar_error(
+                    f"Error: FORRETRES (for) mal formado en fila {row}, col {col}. "
+                    f"¿Faltan los ';' o los paréntesis?"
+                )
+
+            # 4️⃣ SWITCH mal formado
+            elif p.type == 'SWELLO':
+                self.errors.encolar_error(
+                    f"Error: SWELLO (switch) mal formado en fila {row}, col {col}."
+                )
+
+            # 5️⃣ CASE sin :
+            elif p.type == 'KECLEON':
+                self.errors.encolar_error(
+                    f"Error: falta ':' después del KECLEON (case) en fila {row}, col {col}."
+                )
+
+            # 6️⃣ DEFAULT mal ubicado
+            elif p.type == 'DEOXYS':
+                self.errors.encolar_error(
+                    f"Error: DEOXYS (default) debe ir al final del switch en fila {row}, col {col}."
+                )
+
+            # 7️⃣ BREAK fuera de ciclo
+            elif p.type == 'BRELOOM':
+                self.errors.encolar_error(
+                    f"Error: BRELOOM (break) fuera de un ciclo o switch en fila {row}, col {col}."
+                )
+
+            # 8️⃣ PRINT mal formado
+            elif p.type == 'PIKACHU':
+                self.errors.encolar_error(
+                    f"Error: PIKACHU (print) mal formado en fila {row}, col {col}. "
+                    f"¿Faltan paréntesis o punto y coma?"
+                )
+
+            # 9️⃣ FUNCTION mal formada
+            elif p.type == 'SUICUNE':
+                self.errors.encolar_error(
+                    f"Error: declaración de función SUICUNE mal formada en fila {row}, col {col}."
+                )
+
+            # 🔟 Tipo sin identificador
+            elif p.type in {'ENTEI', 'FLOATZEL', 'CHARIZAR', 'BOOFALANT', 'STANTLER', 'GARDEVOIR'}:
+                self.errors.encolar_error(
+                    f"Error: después del tipo '{token}' se esperaba un identificador en fila {row}, col {col}."
+                )
+
+            # 11️⃣ Paréntesis y llaves
+            elif p.type == 'LBRACE':
+                self.errors.encolar_error(
+                    f"Error: '{{' sin estructura válida anterior en fila {row}, col {col}."
+                )
+
+            elif p.type == 'RBRACE':
+                self.errors.encolar_error(
+                    f"Error: '}}' sin apertura correspondiente en fila {row}, col {col}."
+                )
+
+            elif p.type == 'LPAREN':
+                self.errors.encolar_error(
+                    f"Error: '(' sin cierre en fila {row}, col {col}."
+                )
+
+            elif p.type == 'RPAREN':
+                self.errors.encolar_error(
+                    f"Error: ')' sin apertura en fila {row}, col {col}."
+                )
+
+            # 12️⃣ Número inesperado
+            elif p.type == 'NUMBER':
+                self.errors.encolar_error(
+                    f"Error: número inesperado '{p.value}' en fila {row}, col {col}."
+                )
+
+            # 13️⃣ Identificador inesperado
+            elif p.type == 'IDENTIFIER':
+                self.errors.encolar_error(
+                    f"Error: identificador inesperado '{p.value}' en fila {row}, col {col}. "
+                    f"¿Falta un ';' o se cerró mal un bloque?"
+                )
+
+            # 🔴 Fallback
+            else:
+                self.errors.encolar_error(
+                    f"Error de sintaxis en '{token}' en fila {row}, col {col}."
+                )
+
+        except Exception as e:
+            self.errors.encolar_error(
+                "Error interno analizando token inesperado: " + str(e)
+            )
+
+    else:
+        self.errors.encolar_error(
+            "Error de sintaxis: final inesperado del archivo. "
+            "¿Falta cerrar una llave '}' o completar una instrucción?"
+        )

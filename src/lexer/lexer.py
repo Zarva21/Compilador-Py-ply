@@ -27,7 +27,10 @@ class Lexer:
         'kecleon' : 'KECLEON',
         'deoxys' : 'DEOXYS',
         'breloom' : 'BRELOOM',
-        'pikachu': 'PIKACHU'
+        'pikachu': 'PIKACHU',
+        'raikou' : 'RAIKOU',
+        'suicune': 'SUICUNE',
+        'gardevoir' : 'GARDEVOIR'
         
         }
     

@@ -1,5 +1,5 @@
 import ply.yacc as yacc
-from src.sintactic.errorsParser import p_error
+from src.sintactico.errorsParser import p_error
 
 class Parser: 
     def __init__(self,lexer,sintactic_errors, semantic_handler):
@@ -10,7 +10,7 @@ class Parser:
         self.tokens = lexer.tokens
         self.parser = yacc.yacc(module=self, debug=False, write_tables=False)
                
-        precedence = (
+    precedence = (
         ('left', 'MAS', 'MENOS'),
         ('left', 'MUL', 'DIV'),
     )
@@ -32,7 +32,7 @@ class Parser:
         p[0] = []    
 
     def p_statement(self, p):
-        '''statement : method_declaration
+        '''statement : function_declaration
                     | declaration
                     | assignment
                     | while_loop
@@ -42,6 +42,7 @@ class Parser:
                     | method_call SEMICOLON
                     | expression SEMICOLON
                     | break_statement
+                    | return_statement
                     | print_statement'''
         p[0] = p[1] if p[1] is not None else (lambda: None)  
 
@@ -118,7 +119,7 @@ class Parser:
 
 
     def p_do_while_loop(self, p):
-        'do_while_loop : WAILORD LBRACE program RBRACE WALKER LPAREN condition RPAREN SEMICOLON'
+        'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN condition RPAREN SEMICOLON'
         body = p[3] if isinstance(p[3], list) else []
         condition = p[7]
 
@@ -133,18 +134,12 @@ class Parser:
 
     def p_if_statement(self, p):
         '''if_statement : EVEE LPAREN condition RPAREN LBRACE program RBRACE
-                        | EVEE LPAREN condition RPAREN LBRACE program RBRACE ROBBEN LBRACE program RBRACE'''
+                        | EVEE LPAREN condition RPAREN LBRACE program RBRACE EKANS LBRACE program RBRACE'''
         condition = p[3]
         if_body = p[6]
         else_body = p[10] if len(p) > 8 else []
 
-        def scoped_if():
-            self.semantic.symbol_table.enter_scope()
-            action = self.semantic.handle_if(condition, if_body, else_body)
-            action()
-            self.semantic.symbol_table.exit_scope()
-
-        p[0] = scoped_if
+        p[0] = self.semantic.handle_if(condition, if_body, else_body)
 
     def p_condition(self, p):
         'condition : IDENTIFIER RELOP expression'
@@ -154,7 +149,7 @@ class Parser:
     #switch
 
     def p_switch_statement(self, p):
-        'statement : FORLAN LPAREN IDENTIFIER RPAREN LBRACE cases default_case RBRACE'
+        'statement : SWELLO LPAREN IDENTIFIER RPAREN LBRACE cases default_case RBRACE'
         print(f"Valor recibido para var_name en switch: {p[3]} | tipo: {type(p[3])}")
         p[0] = self.semantic.handle_switch(p[3], p[6], p[7])
 
@@ -237,63 +232,79 @@ class Parser:
         p[0] = self.semantic.handle_factor(p[1])
 
 
-    #Metodo
+    
+    # FUNCTION DECLARATION
+    
 
-    def p_factor_method_call(self, p):
-        'factor : method_call'
-        p[0] = p[1]  # esto es una función callable, no se debe pasar por handle_factor
+    def p_function_declaration(self, p):
+        '''
+        function_declaration :
+            SUICUNE type IDENTIFIER LPAREN RPAREN LBRACE program RBRACE
+        '''
 
-    def p_method_declaration(self, p):
-        'method_declaration : IDENTIFIER LPAREN RPAREN LBRACE program RBRACE'
-
-        method_name = p[1]
-        method_body = p[5]
+        return_type = p[2]
+        name = p[3]
+        body = p[7]
 
         def define():
-            print(f"Definiendo método '{method_name}' (tipo: {type(method_name)})")
-            print(f"Body del método (tipo: {type(method_body)}): {method_body}")
-            self.semantic.handle_method_declaration(method_name, method_body)()
+            self.semantic.handle_method_declaration(name, return_type, body)()
 
         p[0] = define
+
+    
+    # METHOD / FUNCTION CALL
+    
 
     def p_method_call(self, p):
         'method_call : IDENTIFIER LPAREN RPAREN'
 
         method_name = p[1]
-        if not isinstance(method_name, str):
-            self.errors.encolar_error(f"Error: nombre de método inválido: {method_name} (tipo: {type(method_name)})")
-            p[0] = lambda: None
-            return
-
-        def call_with_scope():
-            self.semantic.symbol_table.enter_scope()
-            action = self.semantic.handle_method_call(method_name)
-            action()
-            self.semantic.symbol_table.exit_scope()
-
-        p[0] = call_with_scope
-
-
-    #Funciones
+        p[0] = self.semantic.handle_method_call(method_name)
 
 
     
+    # TYPES
+    
+
+    def p_type(self, p):
+        '''
+        type : ENTEI
+            | FLOATZEL
+            | CHARIZAR
+            | BOOFALANT
+            | GARDEVOIR   # ESTE debe representar VOID
+        '''
+        p[0] = p[1]
 
 
+    
+    # RETURN
+    
+
+    def p_return_statement(self, p):
+        'return_statement : RAIKOU expression SEMICOLON'
+
+        value = p[2]
+
+        def do_return():
+            self.semantic.handle_return(value)
+
+        p[0] = do_return
 
 
-
-    def parse(self, data):
+    def parse(self, data, execute=True):
         self.lexer.lexer.input(data)
         parsed = self.parser.parse(data, lexer=self.lexer.lexer)
-        print(" Parsing completado. Ejecutando AST...")
-        self.semantic.symbol_table.enter_scope()
-        if parsed:
-            for stmt in parsed:
-                print(f"STMT Desde el parser:{stmt}")
-                if callable(stmt):
-                    stmt()
-        self.semantic.symbol_table.guardar_snapshot_final()
-        self.semantic.symbol_table.toHtml()
-        self.semantic.symbol_table.exit_scope()
+
+        print("Parsing completado.")
+
+        if execute:
+            print("Ejecutando AST...")
+            self.semantic.symbol_table.enter_scope()
+            if parsed:
+                for stmt in parsed:
+                    if callable(stmt):
+                        stmt()
+            self.semantic.symbol_table.exit_scope()
+
         return parsed
