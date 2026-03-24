@@ -99,6 +99,11 @@ class Parser:
         type_ = p[1]
         p[0] = self.semantic.handle_declaration(identifier, type_, scope, value)
 
+
+    def p_assignment(self, p):
+        'assignment : IDENTIFIER EQUALS expression SEMICOLON'
+        p[0] = self.semantic.handle_assignment(p[1], p[3])    
+
     #Condicionales
     #Ciclos
 
@@ -129,6 +134,21 @@ class Parser:
             return
 
         p[0] = self.semantic.handle_do_while(condition, body)
+
+
+    def p_while_loop(self, p):
+        'while_loop : WAILORD LPAREN condition RPAREN LBRACE program RBRACE'
+        body = p[6] if isinstance(p[6], list) else []
+        condition = p[3]
+
+        if not callable(condition):
+            self.errors.encolar_error("La condición del while no es válida.")
+            p[0] = lambda: None
+            return
+
+        p[0] = self.semantic.handle_while(condition, body)
+
+
 
     #IF
 
@@ -237,10 +257,7 @@ class Parser:
     
 
     def p_function_declaration(self, p):
-        '''
-        function_declaration :
-            SUICUNE type IDENTIFIER LPAREN RPAREN LBRACE program RBRACE
-        '''
+        '''function_declaration : SUICUNE type IDENTIFIER LPAREN RPAREN LBRACE program RBRACE'''
 
         return_type = p[2]
         name = p[3]
@@ -267,13 +284,11 @@ class Parser:
     
 
     def p_type(self, p):
-        '''
-        type : ENTEI
+        '''type : ENTEI
             | FLOATZEL
             | CHARIZAR
             | BOOFALANT
-            | GARDEVOIR   # ESTE debe representar VOID
-        '''
+            | GARDEVOIR'''
         p[0] = p[1]
 
 

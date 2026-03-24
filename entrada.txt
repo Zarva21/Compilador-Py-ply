@@ -5,45 +5,21 @@ a = 'c';
 b = '@';
 @
 
-ENTEI x = 10;
+entei x = 10;
 
-EVEE (x > 5) {
-    ENTEI y = 20;
-} EKANS {
-    ENTEI z = 30;
+evee (x > 5) {
+    entei y = 20;
+} ekans {
+    entei z = 30;
 }
 
-FORRETRES (ENTEI i = 0; i < 10; i = i + 1) {
-    PIKACHU(i);
+forretres (entei i = 0; i < 10; i = i + 1) {
+    pikachu(i);
 }
 
-SWELLO (x) {
-    KECLEON 1:
-        PIKACHU("uno");
-    DEOXYS:
-        PIKACHU("default");
-}
-
-
-
-
-ENTEI x = 10;
-
-EVEE (x > 5) {
-    ENTEI y = 20;
-}
-
-PIKACHU(x);
-
-
-ENTEI globalVar = 100;
-
-SUICUNE ENTEI test() {
-    ENTEI localVar = 50;
-    EVEE (localVar > 10) {
-        ENTEI inner = 1;
-    }
-    RAIKOU localVar;
+suicune entei test() {
+    entei localVar = 50;
+    raikou localVar;
 }
 
 test();

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte – entrada.txt</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+        .section h2.ok  { color: #27ae60; }
+        .section h2.err { color: #e74c3c; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover td { background: #f9f9f9; }
+        .badge-ok  { color: #27ae60; font-weight: bold; }
+        .badge-err { color: #e74c3c; font-weight: bold; }
+        .no-errors { color: #27ae60; font-style: italic; }
+
+        /* Estilos heredados de tu clase Errors */
+        .error-section h2 { color: #e74c3c; font-size: 1.1rem; margin-bottom: 12px; }
+        .error-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .error-table th { background: #c0392b; color: white; padding: 9px 14px; text-align: left; }
+        .error-table td { padding: 9px 14px; border-bottom: 1px solid #fdd; }
+        .error-table tr:hover td { background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+    <h1> Reporte del Compilador</h1>
+    <p class="subtitle">Archivo analizado: <strong>entrada.txt</strong></p>
+
+    <!-- ── TOKENS ── -->
+    <div class="section">
+        <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
+        <table><tr><th>Tipo</th><th>Valor</th></tr><tr><td>PIKACHU</td><td>pikachu</td></tr>
+<tr><td>IDENTIFIER</td><td>x</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>10</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>y</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>3.14</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>z</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>STRING_LITERAL</td><td>hola</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>a</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>CHAR_LITERAL</td><td>c</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>b</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>CHAR_LITERAL</td><td>@</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>x</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>10</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>EVEE</td><td>evee</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>IDENTIFIER</td><td>x</td></tr>
+<tr><td>RELOP</td><td>></td></tr>
+<tr><td>NUMBER</td><td>5</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>LBRACE</td><td>{</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>y</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>20</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RBRACE</td><td>}</td></tr>
+<tr><td>EKANS</td><td>ekans</td></tr>
+<tr><td>LBRACE</td><td>{</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>z</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>30</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RBRACE</td><td>}</td></tr>
+<tr><td>FORRETRES</td><td>forretres</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>i</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>0</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>i</td></tr>
+<tr><td>RELOP</td><td><</td></tr>
+<tr><td>NUMBER</td><td>10</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>i</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>IDENTIFIER</td><td>i</td></tr>
+<tr><td>MAS</td><td>+</td></tr>
+<tr><td>NUMBER</td><td>1</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>LBRACE</td><td>{</td></tr>
+<tr><td>PIKACHU</td><td>pikachu</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>IDENTIFIER</td><td>i</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RBRACE</td><td>}</td></tr>
+<tr><td>SUICUNE</td><td>suicune</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>test</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>LBRACE</td><td>{</td></tr>
+<tr><td>ENTEI</td><td>entei</td></tr>
+<tr><td>IDENTIFIER</td><td>localVar</td></tr>
+<tr><td>EQUALS</td><td>=</td></tr>
+<tr><td>NUMBER</td><td>50</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RAIKOU</td><td>raikou</td></tr>
+<tr><td>IDENTIFIER</td><td>localVar</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RBRACE</td><td>}</td></tr>
+<tr><td>IDENTIFIER</td><td>test</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>IDENTIFIER</td><td>PIKACHU</td></tr>
+<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>IDENTIFIER</td><td>globalVar</td></tr>
+<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>SEMICOLON</td><td>;</td></tr>
+</table>
+    </div>
+
+    <!-- ── ERRORES LÉXICOS ── -->
+    <div class="section">
+        <h2 class="err"> Errores Léxicos</h2>
+        <div class="error-section"><h2 style="color: red;">Errores Léxicos</h2><table class="error-table"><tr><th>#</th><th>Descripción del Error</th></tr><tr><td>1</td><td>Error léxico: carácter no reconocido '@' en la fila 6 y columna 1.</td></tr></table></div>
+    </div>
+
+    <!-- ── ERRORES SINTÁCTICOS ── -->
+    <div class="section">
+        <h2 class="err"> Errores Sintácticos</h2>
+        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Descripción del Error</th></tr><tr><td>1</td><td>Error: identificador inesperado 'x' en fila 1, col 9. ¿Falta un ';' o se cerró mal un bloque?</td></tr><tr><td>2</td><td>Error: identificador inesperado 'globalVar' en fila 26, col 9. ¿Falta un ';' o se cerró mal un bloque?</td></tr></table></div>
+    </div>
+
+</body>
+</html>
