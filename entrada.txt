@@ -1,22 +1,18 @@
-# Error lexico @
-entei x = 10;
-entei y = @5;
+entei d = 2;
 
-# Error lexico, cadena no cerrada
-Charizar nombre = "hola mundo;
+# Error sintactico, declaracion sin punto y coma
+entei z = 99
 
-# Error lexico, caracter no valio
-stantler letra = 'ab';
+# Error sintactico, asignacion sin punto y coma
+x = 50
 
-# Error lexico, se espera entei
-int x = 5;
+# Error sintactico, pikachu sin parentesis
+pikachu x;
 
-# Error lexico, se espera evee
-evae (x > 5) {
+# Error sintactico, if sin parentesis
+evee x > 3 {
     pikachu(x);
 }
 
-/*
-  Santi gay, este comentario se debe de ingnorar
-*/
-entei d = 2;
+# Error sintactico, llave de cierre sin apertura
+}

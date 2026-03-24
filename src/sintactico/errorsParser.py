@@ -170,11 +170,31 @@ def p_error(self, p):
 
             # ── 16. Identificador inesperado ──
             elif p.type == 'IDENTIFIER':
-                self.errors.encolar_error(
-                    f"Error sintáctico: identificador inesperado '{p.value}' "
-                    f"en fila {row}, col {col}. "
-                    f"¿Falta un ';', un tipo de dato, o se cerró mal un bloque?"
-                )
+                texto = self.errors.getText()
+                lineas = texto.split('\n')
+                
+                # Buscar hacia atrás la última línea con contenido real (no vacía ni comentario)
+                linea_anterior = ''
+                for i in range(row - 2, -1, -1):
+                    candidata = lineas[i].strip()
+                    if candidata and not candidata.startswith('#') and not candidata.startswith('/*'):
+                        linea_anterior = candidata
+                        num_linea = i + 1
+                        break
+                
+                if linea_anterior and not linea_anterior.endswith(';') \
+                and not linea_anterior.endswith('{') \
+                and not linea_anterior.endswith('}'):
+                    self.errors.encolar_error(
+                        f"Error sintáctico: falta ';' al final de la línea {num_linea}. "
+                        f"Línea problemática: '{linea_anterior}'"
+                    )
+                else:
+                    self.errors.encolar_error(
+                        f"Error sintáctico: identificador inesperado '{p.value}' "
+                        f"en fila {row}, col {col}. "
+                        f"¿Falta un ';', un tipo de dato, o se cerró mal un bloque?"
+                    )
 
             # ── 17. Punto y coma inesperado ──
             elif p.type == 'SEMICOLON':

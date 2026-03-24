@@ -74,33 +74,24 @@
     <div class="section">
         <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
         <table><tr><th>Tipo</th><th>Valor</th></tr><tr><td>ENTEI</td><td>entei</td></tr>
-<tr><td>IDENTIFIER</td><td>x</td></tr>
+<tr><td>IDENTIFIER</td><td>d</td></tr>
 <tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>NUMBER</td><td>10</td></tr>
+<tr><td>NUMBER</td><td>2</td></tr>
 <tr><td>SEMICOLON</td><td>;</td></tr>
 <tr><td>ENTEI</td><td>entei</td></tr>
-<tr><td>IDENTIFIER</td><td>y</td></tr>
+<tr><td>IDENTIFIER</td><td>z</td></tr>
 <tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>NUMBER</td><td>5</td></tr>
-<tr><td>SEMICOLON</td><td>;</td></tr>
-<tr><td>CHARIZAR</td><td>Charizar</td></tr>
-<tr><td>IDENTIFIER</td><td>nombre</td></tr>
-<tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>STANTLER</td><td>stantler</td></tr>
-<tr><td>IDENTIFIER</td><td>letra</td></tr>
-<tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>SEMICOLON</td><td>;</td></tr>
-<tr><td>IDENTIFIER</td><td>int</td></tr>
+<tr><td>NUMBER</td><td>99</td></tr>
 <tr><td>IDENTIFIER</td><td>x</td></tr>
 <tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>NUMBER</td><td>5</td></tr>
+<tr><td>NUMBER</td><td>50</td></tr>
+<tr><td>PIKACHU</td><td>pikachu</td></tr>
+<tr><td>IDENTIFIER</td><td>x</td></tr>
 <tr><td>SEMICOLON</td><td>;</td></tr>
-<tr><td>IDENTIFIER</td><td>evae</td></tr>
-<tr><td>LPAREN</td><td>(</td></tr>
+<tr><td>EVEE</td><td>evee</td></tr>
 <tr><td>IDENTIFIER</td><td>x</td></tr>
 <tr><td>RELOP</td><td>></td></tr>
-<tr><td>NUMBER</td><td>5</td></tr>
-<tr><td>RPAREN</td><td>)</td></tr>
+<tr><td>NUMBER</td><td>3</td></tr>
 <tr><td>LBRACE</td><td>{</td></tr>
 <tr><td>PIKACHU</td><td>pikachu</td></tr>
 <tr><td>LPAREN</td><td>(</td></tr>
@@ -108,24 +99,20 @@
 <tr><td>RPAREN</td><td>)</td></tr>
 <tr><td>SEMICOLON</td><td>;</td></tr>
 <tr><td>RBRACE</td><td>}</td></tr>
-<tr><td>ENTEI</td><td>entei</td></tr>
-<tr><td>IDENTIFIER</td><td>d</td></tr>
-<tr><td>EQUALS</td><td>=</td></tr>
-<tr><td>NUMBER</td><td>2</td></tr>
-<tr><td>SEMICOLON</td><td>;</td></tr>
+<tr><td>RBRACE</td><td>}</td></tr>
 </table>
     </div>
 
     <!-- ── ERRORES LÉXICOS ── -->
     <div class="section">
         <h2 class="err"> Errores Léxicos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Léxicos</h2><table class="error-table"><tr><th>#</th><th>Descripción del Error</th></tr><tr><td>1</td><td>Error léxico: carácter no reconocido '@' en la fila 3 y columna 11.</td></tr><tr><td>2</td><td>Error léxico: cadena no cerrada en fila 6, col 19. ¿Olvidaste el '"' de cierre?</td></tr><tr><td>3</td><td>Error léxico: carácter inválido ''ab'' en fila 9, columna 18.</td></tr><tr><td>4</td><td>Error léxico: 'int' no reconocido en fila 12, col 1. ¿Quisiste escribir 'entei'?</td></tr><tr><td>5</td><td>Error léxico: 'evae' no reconocido en fila 15, col 1. ¿Quisiste escribir 'evee'?</td></tr></table></div>
+        <p style='color: green;'>No se encontraron errores.</p>
     </div>
 
     <!-- ── ERRORES SINTÁCTICOS ── -->
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Descripción del Error</th></tr><tr><td>1</td><td>Error sintáctico: después del tipo 'stantler' se esperaba un identificador en fila 9, col 1. Sintaxis correcta: stantler nombreVariable = valor ;</td></tr><tr><td>2</td><td>Error sintáctico: identificador inesperado 'x' en fila 15, col 7. ¿Falta un ';', un tipo de dato, o se cerró mal un bloque?</td></tr></table></div>
+        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Descripción del Error</th></tr><tr><td>1</td><td>Error sintáctico: falta ';' al final de la línea 4. Línea problemática: 'entei z = 99'</td></tr><tr><td>2</td><td>Error sintáctico: identificador inesperado 'x' en fila 13, col 6. ¿Falta un ';', un tipo de dato, o se cerró mal un bloque?</td></tr><tr><td>3</td><td>Error sintáctico: '}' sin apertura correspondiente en fila 15, col 1.</td></tr></table></div>
     </div>
 
 </body>
