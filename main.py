@@ -6,13 +6,13 @@ import sys
 # ──────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.Extras.errores import Errors          # tu clase Errors
-from src.lexer.lexer import Lexer            # tu clase Lexer
-from src.sintactico.parser import Parser      # tu clase Parser
+from src.Extras.errores import Errors          
+from src.lexer.lexer import Lexer            
+from src.sintactico.parser import Parser      
 
-# ──────────────────────────────────────────────
+
 # Generador del reporte HTML
-# ──────────────────────────────────────────────
+
 
 def generar_tabla_tokens(tokens, filas_tokens):
     if not tokens:
@@ -124,9 +124,9 @@ def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
     return html
 
 
-# ──────────────────────────────────────────────
+
 # Menú principal de consola
-# ──────────────────────────────────────────────
+
 
 def menu():
     print("=" * 50)
@@ -176,7 +176,7 @@ def analizar():
         from src.semantico.semantic import SemanticHandler   # ajusta el import si es distinto
         semantic = SemanticHandler(parse_errors)
     except ImportError:
-        # Semántica aún no disponible: usamos un handler mínimo
+        # Semántica aún no disponible, usar dummy
         semantic = _DummySemantic()
 
     parser = Parser(lexer, parse_errors, semantic)
@@ -202,7 +202,7 @@ def analizar():
 
 
 # ──────────────────────────────────────────────
-# Handler semántico mínimo (placeholder)
+# Handler semántico mínimo (placeholder) 
 # Se usa cuando la semántica aún no está lista
 # ──────────────────────────────────────────────
 
@@ -239,5 +239,7 @@ class _DummySemantic:
 
 
 # ──────────────────────────────────────────────
+# Punto de entrada
+    
 if __name__ == "__main__":
     menu()

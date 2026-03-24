@@ -1,7 +1,66 @@
 import ply.lex as lex
 
+# Implementación del Lexer con sugerencias léxicas usando Levenshtein para palabras reservadas mal escritas.
+def distancia_levenshtein(s1, s2):
+    """Calcula qué tan diferentes son dos palabras (menor = más parecidas)."""
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(m + 1): dp[i][0] = i
+    for j in range(n + 1): dp[0][j] = j
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+    return dp[m][n]
+
+def sugerir_palabra_reservada(palabra, reservadas, umbral=3):
+    """Devuelve la palabra reservada más cercana si está dentro del umbral."""
+    mejor = None
+    menor_dist = umbral + 1
+    for reservada in reservadas:
+        dist = distancia_levenshtein(palabra.lower(), reservada)
+        if dist < menor_dist:
+            menor_dist = dist
+            mejor = reservada
+    return mejor if menor_dist <= umbral else None
+
+
+
 #Se indica para cada token
 class Lexer:
+
+    
+
+
+    
+    SUGERENCIAS_LEXICAS = {
+    'int':      'entei',
+    'float':    'floatzel',
+    'string':   'charizar',
+    'bool':     'boofalant',
+    'char':     'stantler',
+    'if':       'evee',
+    'else':     'ekans',
+    'for':      'forretres',
+    'while':    'wailord',
+    'do':       'doduo',
+    'switch':   'swello',
+    'case':     'kecleon',
+    'default':  'deoxys',
+    'break':    'breloom',
+    'print':    'pikachu',
+    'return':   'raikou',
+    'function': 'suicune',
+    'void':     'gardevoir',
+    'println':  'pikachu',
+    'printf':   'pikachu',
+    'cout':     'pikachu',
+}
+
+
+
     tokens = [
         'NUMBER', 'IDENTIFIER', 'EQUALS', 'SEMICOLON', 'LBRACE', 'RBRACE',
         'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 'QUOTE',
@@ -80,6 +139,22 @@ class Lexer:
     def t_IDENTIFIER(self, t):
         r'[a-zA-Z_][a-zA-Z0-9_]*'
         t.type = self.reserved.get(t.value, 'IDENTIFIER')
+
+        if t.type == 'IDENTIFIER':
+            # Primero revisa si es una palabra de otro lenguaje (int, if, etc.)
+            sugerencia = self.SUGERENCIAS_LEXICAS.get(t.value.lower())
+            
+            # Si no, usa Levenshtein para ver si se parece a una palabra reservada
+            if not sugerencia:
+                sugerencia = sugerir_palabra_reservada(t.value, self.reserved.keys(), umbral=2)
+            
+            if sugerencia:
+                fila, col = self.get_pos(t)
+                self.encolar_error_unico(
+                    f"Error léxico: '{t.value}' no reconocido en fila {fila}, col {col}. "
+                    f"¿Quisiste escribir '{sugerencia}'?"
+                )
+
         return t
 
     #Comentarios 

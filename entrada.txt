@@ -7,6 +7,9 @@ b = '@';
 
 entei x = 10;
 
+ente x = 10;
+
+
 evee (x > 5) {
     entei y = 20;
 } ekans {
