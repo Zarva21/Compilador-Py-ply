@@ -211,13 +211,23 @@ class Parser:
     def p_break_statement(self, p):
         'break_statement : BRELOOM SEMICOLON'
         p[0] = self.semantic.handle_break()
+
+
     def p_error(self, p):
         try:
             p_error(self, p)
         except Exception as e:
             print("Error al llamar al metodo p_error:", e)
 
+    def p_statement_error(self, p):
+        'statement : error SEMICOLON'
+        # Se recupera en el siguiente punto y coma
+        p[0] = None
 
+    def p_block_error(self, p):
+        'statement : error RBRACE'
+        # Se recupera en la siguiente llave de cierre
+        p[0] = None
 
 
     #Operadores de +-*/

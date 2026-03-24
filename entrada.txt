@@ -1,29 +1,22 @@
-pikachu x = 10;
-y = 3.14;
-z = "hola";
-a = 'c';
-b = '@';
-@
-
+# Error lexico @
 entei x = 10;
+entei y = @5;
 
-ente x = 10;
+# Error lexico, cadena no cerrada
+Charizar nombre = "hola mundo;
 
+# Error lexico, caracter no valio
+stantler letra = 'ab';
 
-evee (x > 5) {
-    entei y = 20;
-} ekans {
-    entei z = 30;
+# Error lexico, se espera entei
+int x = 5;
+
+# Error lexico, se espera evee
+evae (x > 5) {
+    pikachu(x);
 }
 
-forretres (entei i = 0; i < 10; i = i + 1) {
-    pikachu(i);
-}
-
-suicune entei test() {
-    entei localVar = 50;
-    raikou localVar;
-}
-
-test();
-PIKACHU(globalVar);
+/*
+  Santi gay, este comentario se debe de ingnorar
+*/
+entei d = 2;

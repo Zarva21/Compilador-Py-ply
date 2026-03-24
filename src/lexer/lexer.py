@@ -63,7 +63,7 @@ class Lexer:
 
     tokens = [
         'NUMBER', 'IDENTIFIER', 'EQUALS', 'SEMICOLON', 'LBRACE', 'RBRACE',
-        'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 'QUOTE',
+        'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 
         'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'COLON',
 
         'MAS', 'MENOS', 'MUL', 'DIV'
@@ -114,7 +114,7 @@ class Lexer:
     t_LT = r'<'
     t_DOT = r'\.'
     t_COMMA = r','
-    t_QUOTE = r'"'
+    
 
 
     #Es para espacios y tabs
@@ -213,14 +213,21 @@ class Lexer:
 
     #Reglas
 
-    def t_STRING_LITERAL_UNCLOSED(self, t):
-        r'"([^\\"]|\\.)*$'
-        fila, col = self.get_pos(t)
-        self.encolar_error_unico(f"Error léxico: cadena de texto no cerrada en la fila {fila} y columna {col}.")
-        t.lexer.skip(1)
-
     def t_STRING_LITERAL(self, t):
-        r'"([^\\"]|\\.)*"'
+        r'"([^"\n\\]|\\.)*("?)'
+        # Verificar si cerró correctamente
+        if not t.value.endswith('"') or t.value.count('"') < 2:
+            fila, col = self.get_pos(t)
+            self.encolar_error_unico(
+                f"Error léxico: cadena no cerrada en fila {fila}, col {col}. "
+                f"¿Olvidaste el '\"' de cierre?"
+            )
+            # Saltar hasta fin de línea
+            while t.lexer.lexpos < len(t.lexer.lexdata) and t.lexer.lexdata[t.lexer.lexpos] != '\n':
+                t.lexer.lexpos += 1
+            return None  # No retornar token, era inválido
+        
+        # Cadena válida — quitar las comillas
         t.value = t.value[1:-1]
         if t.value.strip() == "":
             fila, col = self.get_pos(t)
