@@ -17,7 +17,12 @@ from src.sintactico.parser import Parser
 def generar_tabla_tokens(tokens, filas_tokens):
     if not tokens:
         return "<p class='no-errors'>No se encontraron tokens.</p>"
-    return f"<table><tr><th>Tipo</th><th>Valor</th></tr>{filas_tokens}</table>"
+    return (
+        "<table>"
+        "<tr><th>#</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th></tr>"
+        f"{filas_tokens}"
+        "</table>"
+    )
 
 
 def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
@@ -25,8 +30,9 @@ def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
 
     # Filas de la tabla de tokens
     filas_tokens = ""
-    for tipo, valor in tokens:
-        filas_tokens += f"<tr><td>{tipo}</td><td>{valor}</td></tr>\n"
+    for i, tok in enumerate(tokens, start=1):
+        tipo, valor, fila, col = tok
+        filas_tokens += f"<tr><td>{i}</td><td>{tipo}</td><td>{valor}</td><td>{fila}</td><td>{col}</td></tr>\n"
 
     html = f"""<!DOCTYPE html>
 <html lang="es">

@@ -225,7 +225,7 @@ def p_error(self, p):
                     and not linea_anterior.endswith('{') \
                     and not linea_anterior.endswith('}'):
                         self.errors.encolar_error(
-                            f"Error sintáctico: falta ';' al final de la línea {num_linea}. "
+                            f"Error sintáctico: falta ';' al final de la línea {num_linea}, {col}. "
                             f"Línea problemática: '{linea_anterior}'"
                         )
                     else:

@@ -123,14 +123,6 @@ class Lexer:
 #Especificar los Tokens
 
 
-    def tokenize(self, data):
-        self.lexer.input(data)
-        tokens = []
-        for tok in self.lexer:
-            fila, col = self.get_pos(tok)
-            tokens.append((tok.type, tok.value, fila, col))
-        return tokens
-
     #Ejecutar el lexer
     def __init__(self, errors):
         self.errors = errors
@@ -139,10 +131,11 @@ class Lexer:
 
     def tokenize(self, data):
         self.lexer.input(data)
-        tokens = [(tok.type, tok.value) for tok in self.lexer]
+        tokens = []
+        for tok in self.lexer:
+            fila, col = self.get_pos(tok)
+            tokens.append((tok.type, tok.value, fila, col))
         return tokens
-
-
 
     #Revisa para las palabras reservadas
     def t_IDENTIFIER(self, t):
@@ -195,8 +188,9 @@ class Lexer:
 
         #manejo de errores 
     def get_pos(self, t):
-        fila = t.lexer.lexdata[:t.lexpos].count('\n') + 1
-        last_newline = t.lexer.lexdata.rfind('\n', 0, t.lexpos)
+        lexdata = self.lexer.lexdata
+        fila = lexdata[:t.lexpos].count('\n') + 1
+        last_newline = lexdata.rfind('\n', 0, t.lexpos)
         columna = t.lexpos + 1 if last_newline < 0 else t.lexpos - last_newline
         return fila, columna
 

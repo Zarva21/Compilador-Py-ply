@@ -18,7 +18,7 @@ forretres (entei i = 0; i < 10; i = i + 1) {
     pikachu(i);
 }
 
-swello (x) {
+swello  {
     kecleon 1:
         pikachu("uno");
     deoxys:
