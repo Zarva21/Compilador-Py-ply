@@ -31,6 +31,7 @@ class Parser:
         'program : '
         p[0] = []    
 
+    #Statement es todo lo que se puede hacer, desde declaraciones, asignaciones, ciclos, condicionales, etc.
     def p_statement(self, p):
         '''statement : function_declaration
                     | declaration
@@ -55,6 +56,17 @@ class Parser:
     def p_print_statement(self, p):
         'print_statement : PIKACHU LPAREN expression RPAREN SEMICOLON'
         p[0] = self.semantic.handle_print(p[3])
+
+    def p_print_error(self, p):
+        'print_statement : PIKACHU IDENTIFIER SEMICOLON'
+        fila = self.errors.find_line(p.slice[2])
+        col  = self.errors.find_column(p.slice[2])
+        self.errors.encolar_error(
+            f"Error sintáctico: 'pikachu' mal formado en fila {fila}, col {col}. "
+            f"Sintaxis correcta: pikachu( expresion );"
+        )
+        p[0] = None
+
 
     def p_for_init(self, p):
         '''for_init : declaration_no_semicolon

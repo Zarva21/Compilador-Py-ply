@@ -122,6 +122,15 @@ class Lexer:
 
 #Especificar los Tokens
 
+
+    def tokenize(self, data):
+        self.lexer.input(data)
+        tokens = []
+        for tok in self.lexer:
+            fila, col = self.get_pos(tok)
+            tokens.append((tok.type, tok.value, fila, col))
+        return tokens
+
     #Ejecutar el lexer
     def __init__(self, errors):
         self.errors = errors

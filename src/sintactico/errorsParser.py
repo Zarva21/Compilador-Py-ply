@@ -18,6 +18,7 @@ SINTAXIS_CORRECTA = {
     'GARDEVOIR': 'gardevoir nombreFuncion() { ... }',
 }
 
+
 def p_error(self, p):
     if p:
         try:
@@ -135,12 +136,30 @@ def p_error(self, p):
                     f"Sintaxis correcta: {sintaxis}"
                 )
 
-            # ── 14. Paréntesis y llaves ──
+            # ── 14. Llaves ──
             elif p.type == 'LBRACE':
-                self.errors.encolar_error(
-                    f"Error sintáctico: '{{' sin estructura válida anterior "
-                    f"en fila {row}, col {col}."
+                # Revisar si viene después de evee/wailord/forretres sin paréntesis
+                texto = self.errors.getText()
+                lineas = texto.split('\n')
+                linea_actual = lineas[row - 1].strip() if row <= len(lineas) else ''
+
+                estructuras = ['evee', 'wailord', 'forretres', 'doduo', 'swello']
+                estructura_detectada = next(
+                    (e for e in estructuras if linea_actual.startswith(e)), None
                 )
+
+                if estructura_detectada and '(' not in linea_actual:
+                    sint = SINTAXIS_CORRECTA.get(estructura_detectada.upper(), '')
+                    self.errors.encolar_error(
+                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis "
+                        f"en fila {row}, col {col}. "
+                        f"Sintaxis correcta: {sint}"
+                    )
+                else:
+                    self.errors.encolar_error(
+                        f"Error sintáctico: '{{' sin estructura válida anterior "
+                        f"en fila {row}, col {col}."
+                    )
 
             elif p.type == 'RBRACE':
                 self.errors.encolar_error(
@@ -172,36 +191,91 @@ def p_error(self, p):
             elif p.type == 'IDENTIFIER':
                 texto = self.errors.getText()
                 lineas = texto.split('\n')
-                
-                # Buscar hacia atrás la última línea con contenido real (no vacía ni comentario)
-                linea_anterior = ''
-                for i in range(row - 2, -1, -1):
-                    candidata = lineas[i].strip()
-                    if candidata and not candidata.startswith('#') and not candidata.startswith('/*'):
-                        linea_anterior = candidata
-                        num_linea = i + 1
-                        break
-                
-                if linea_anterior and not linea_anterior.endswith(';') \
-                and not linea_anterior.endswith('{') \
-                and not linea_anterior.endswith('}'):
+
+                # Verificar si la línea ACTUAL empieza con evee sin paréntesis
+                linea_actual = lineas[row - 1].strip() if row <= len(lineas) else ''
+                estructuras_sin_paren = ['evee', 'wailord', 'forretres', 'doduo', 'swello']
+                estructura_detectada = next(
+                    (e for e in estructuras_sin_paren if linea_actual.startswith(e)), None
+                )
+
+                if estructura_detectada and '(' not in linea_actual:
+                    sint = SINTAXIS_CORRECTA.get(estructura_detectada.upper(), '')
                     self.errors.encolar_error(
-                        f"Error sintáctico: falta ';' al final de la línea {num_linea}. "
-                        f"Línea problemática: '{linea_anterior}'"
+                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis "
+                        f"en fila {row}, col {col}. "
+                        f"Sintaxis correcta: {sint}"
                     )
                 else:
-                    self.errors.encolar_error(
-                        f"Error sintáctico: identificador inesperado '{p.value}' "
-                        f"en fila {row}, col {col}. "
-                        f"¿Falta un ';', un tipo de dato, o se cerró mal un bloque?"
-                    )
+                    # Buscar hacia atrás la última línea con contenido real
+                    linea_anterior = ''
+                    num_linea = row - 1
+                    for i in range(row - 2, -1, -1):
+                        candidata = lineas[i].strip()
+                        if candidata \
+                        and not candidata.startswith('#') \
+                        and not candidata.startswith('/*') \
+                        and not candidata.startswith('*'):
+                            linea_anterior = candidata
+                            num_linea = i + 1
+                            break
+
+                    if linea_anterior \
+                    and not linea_anterior.endswith(';') \
+                    and not linea_anterior.endswith('{') \
+                    and not linea_anterior.endswith('}'):
+                        self.errors.encolar_error(
+                            f"Error sintáctico: falta ';' al final de la línea {num_linea}. "
+                            f"Línea problemática: '{linea_anterior}'"
+                        )
+                    else:
+                        self.errors.encolar_error(
+                            f"Error sintáctico: identificador inesperado '{p.value}' "
+                            f"en fila {row}, col {col}. "
+                            f"¿Falta un ';', un tipo de dato, o se cerró mal un bloque?"
+                        )
 
             # ── 17. Punto y coma inesperado ──
             elif p.type == 'SEMICOLON':
-                self.errors.encolar_error(
-                    f"Error sintáctico: ';' inesperado en fila {row}, col {col}. "
-                    f"¿Sobra un ';' o falta completar la instrucción?"
+                # Revisar si viene después de un bloque } — es el caso "evee (...) {...};"
+                texto = self.errors.getText()
+                lineas = texto.split('\n')
+                linea_actual = lineas[row - 1].strip() if row <= len(lineas) else ''
+
+                if linea_actual == '};' or linea_actual == '}':
+                    self.errors.encolar_error(
+                        f"Error sintáctico: ';' después de '}}' en fila {row}, col {col}. "
+                        f"Los bloques no llevan ';' al final."
+                    )
+                else:
+                    self.errors.encolar_error(
+                        f"Error sintáctico: ';' inesperado en fila {row}, col {col}. "
+                        f"¿Sobra un ';' o falta completar la instrucción?"
+                    )
+
+            # ── 18. RELOP inesperado ──
+            elif p.type == 'RELOP':
+                texto = self.errors.getText()
+                lineas = texto.split('\n')
+                linea_actual = lineas[row - 1].strip() if row <= len(lineas) else ''
+
+                estructuras = ['evee', 'wailord', 'forretres']
+                estructura_detectada = next(
+                    (e for e in estructuras if linea_actual.startswith(e)), None
                 )
+
+                if estructura_detectada and '(' not in linea_actual:
+                    sint = SINTAXIS_CORRECTA.get(estructura_detectada.upper(), '')
+                    self.errors.encolar_error(
+                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis "
+                        f"en fila {row}, col {col}. "
+                        f"Sintaxis correcta: {sint}"
+                    )
+                else:
+                    self.errors.encolar_error(
+                        f"Error sintáctico: operador relacional '{p.value}' inesperado "
+                        f"en fila {row}, col {col}."
+                    )
 
             # ── Fallback ──
             else:

@@ -142,11 +142,15 @@ def menu():
         if opcion == "1":
             analizar()
         elif opcion == "2":
-            print("\n¡Hasta luego! ")
+            print("\nCerrando el compilador.")
             break
         else:
             print("Opción no válida, intenta de nuevo.")
 
+# ──────────────────────────────────────────────
+# Función principal de análisis
+# Aquí se orquesta todo el proceso: léxico, sintáctico y generación de HTML
+# Se mantiene simple para que el menú sea claro y el código modular
 
 def analizar():
     ruta = input("\nIngresa la ruta del archivo a analizar: ").strip()
@@ -193,12 +197,14 @@ def analizar():
     with open(salida, "w", encoding="utf-8") as f:
         f.write(html)
 
+
+
     total_errores = len(lex_errors.errors) + len(parse_errors.errors)
     print(f"   Errores léxicos:     {len(lex_errors.errors)}")
     print(f"   Errores sintácticos: {len(parse_errors.errors)}")
     print(f"\nReporte generado: {salida}")
     if total_errores == 0:
-        print(" ¡Sin errores!")
+        print("¡Análisis completado sin errores!")
 
 
 # ──────────────────────────────────────────────

@@ -1,18 +1,50 @@
-entei d = 2;
 
-# Error sintactico, declaracion sin punto y coma
-entei z = 99
 
-# Error sintactico, asignacion sin punto y coma
-x = 50
+y = 3.14;
+z = "hola";
+a = 'c';
+b = '@';
 
-# Error sintactico, pikachu sin parentesis
-pikachu x;
+@
+entei x = 10
 
-# Error sintactico, if sin parentesis
-evee x > 3 {
-    pikachu(x);
+eveo (x > 5) {
+    entei y = 20;
+} ekans {
+    entei z = 30;
 }
 
-# Error sintactico, llave de cierre sin apertura
+forretres (entei i = 0; i < 10; i = i + 1) {
+    pikachu(i);
 }
+
+swello (x) {
+    kecleon 1:
+        pikachu("uno");
+    deoxys:
+        pikachu("default");
+}
+
+
+
+
+entei x = 10;
+x = 20;
+
+
+pikachu(x);
+
+
+entei globalvar = 100;
+
+suicune entei test() {
+    entei localvar = 50;
+    evee (localvar > 10) {
+        entei inner = 1;
+    }
+    raikou localvar;
+}
+
+ 
+test();
+pikachu(globalvar);
