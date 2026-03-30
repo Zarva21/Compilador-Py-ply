@@ -1,22 +1,21 @@
 import ply.yacc as yacc
 from src.sintactico.errorsParser import p_error
 
-class Parser: 
+
+class Parser:
     def __init__(self, lexer, sintactic_errors, semantic_handler):
-        self.lexer = lexer
-        self.errors = sintactic_errors
+        self.lexer   = lexer
+        self.errors  = sintactic_errors
         self.semantic = semantic_handler
-        self.tokens = lexer.tokens
-        self.parser = yacc.yacc(module=self, debug=False, write_tables=False)
+        self.tokens  = lexer.tokens
+        self.parser  = yacc.yacc(module=self, debug=False, write_tables=False)
 
     precedence = (
         ('left', 'MAS', 'MENOS'),
         ('left', 'MUL', 'DIV'),
     )
 
-    # ─────────────────────────────────────────
-    # Programa
-    # ─────────────────────────────────────────
+    # ── Programa ──────────────────────────────
 
     def p_program(self, p):
         '''program : statement
@@ -32,9 +31,7 @@ class Parser:
         'program : '
         p[0] = []
 
-    # ─────────────────────────────────────────
-    # Statement
-    # ─────────────────────────────────────────
+    # ── Statement ─────────────────────────────
 
     def p_statement(self, p):
         '''statement : function_declaration
@@ -52,9 +49,7 @@ class Parser:
                      | print_statement'''
         p[0] = p[1] if p[1] is not None else (lambda: None)
 
-    # ─────────────────────────────────────────
-    # Print
-    # ─────────────────────────────────────────
+    # ── Print ─────────────────────────────────
 
     def p_print_statement(self, p):
         'print_statement : PIKACHU LPAREN expression RPAREN SEMICOLON'
@@ -70,9 +65,7 @@ class Parser:
         )
         p[0] = None
 
-    # ─────────────────────────────────────────
-    # Declaraciones
-    # ─────────────────────────────────────────
+    # ── Declaraciones ─────────────────────────
 
     def p_declaration(self, p):
         '''declaration : ENTEI IDENTIFIER SEMICOLON
@@ -103,9 +96,7 @@ class Parser:
         type_      = p[1]
         p[0] = self.semantic.handle_declaration(identifier, type_, scope, value)
 
-    # ─────────────────────────────────────────
-    # Asignación
-    # ─────────────────────────────────────────
+    # ── Asignación ────────────────────────────
 
     def p_assignment(self, p):
         'assignment : IDENTIFIER EQUALS expression SEMICOLON'
@@ -115,9 +106,7 @@ class Parser:
         'assignment_no_semicolon : IDENTIFIER EQUALS expression'
         p[0] = self.semantic.handle_assignment(p[1], p[3])
 
-    # ─────────────────────────────────────────
-    # Ciclos
-    # ─────────────────────────────────────────
+    # ── Ciclos ────────────────────────────────
 
     def p_for_init(self, p):
         '''for_init : declaration_no_semicolon
@@ -126,10 +115,8 @@ class Parser:
 
     def p_for_loop(self, p):
         'for_loop : FORRETRES LPAREN for_init SEMICOLON condition SEMICOLON assignment_no_semicolon RPAREN LBRACE program RBRACE'
-        init      = p[3]
-        condition = p[5]
-        update    = p[7]
-        body      = p[10] if isinstance(p[10], list) else []
+        init = p[3]; condition = p[5]; update = p[7]
+        body = p[10] if isinstance(p[10], list) else []
         if not callable(condition):
             self.errors.encolar_error("La condición del for no es válida.")
             p[0] = lambda: None
@@ -138,7 +125,7 @@ class Parser:
 
     def p_do_while_loop(self, p):
         'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN condition RPAREN SEMICOLON'
-        body      = p[3] if isinstance(p[3], list) else []
+        body = p[3] if isinstance(p[3], list) else []
         condition = p[7]
         if not callable(condition):
             self.errors.encolar_error("La condición del do-while no es válida.")
@@ -148,7 +135,7 @@ class Parser:
 
     def p_while_loop(self, p):
         'while_loop : WAILORD LPAREN condition RPAREN LBRACE program RBRACE'
-        body      = p[6] if isinstance(p[6], list) else []
+        body = p[6] if isinstance(p[6], list) else []
         condition = p[3]
         if not callable(condition):
             self.errors.encolar_error("La condición del while no es válida.")
@@ -156,9 +143,7 @@ class Parser:
             return
         p[0] = self.semantic.handle_while(condition, body)
 
-    # ─────────────────────────────────────────
-    # If / else
-    # ─────────────────────────────────────────
+    # ── If / else ─────────────────────────────
 
     def p_if_statement(self, p):
         '''if_statement : EVEE LPAREN condition RPAREN LBRACE program RBRACE
@@ -172,9 +157,7 @@ class Parser:
         'condition : IDENTIFIER RELOP expression'
         p[0] = self.semantic.evaluate_condition_dynamic(p[1], p[2], p[3])
 
-    # ─────────────────────────────────────────
-    # Switch
-    # ─────────────────────────────────────────
+    # ── Switch ────────────────────────────────
 
     def p_switch_statement(self, p):
         'switch_statement : SWELLO LPAREN IDENTIFIER RPAREN LBRACE cases default_case RBRACE'
@@ -183,10 +166,7 @@ class Parser:
     def p_cases(self, p):
         '''cases : case
                  | cases case'''
-        if len(p) == 2:
-            p[0] = [p[1]]
-        else:
-            p[0] = p[1] + [p[2]]
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
 
     def p_case(self, p):
         'case : KECLEON value COLON program'
@@ -207,9 +187,7 @@ class Parser:
                  | CHAR_LITERAL'''
         p[0] = p[1]
 
-    # ─────────────────────────────────────────
-    # Break / Return
-    # ─────────────────────────────────────────
+    # ── Break / Return ────────────────────────
 
     def p_break_statement(self, p):
         'break_statement : BRELOOM SEMICOLON'
@@ -222,45 +200,35 @@ class Parser:
             self.semantic.handle_return(value)
         p[0] = do_return
 
-    # ─────────────────────────────────────────
-    # Expresiones
-    # ─────────────────────────────────────────
+    # ── Expresiones ───────────────────────────
 
     def p_expression(self, p):
         '''expression : expression MAS term
                       | expression MENOS term
                       | term'''
-        if len(p) == 4:
-            p[0] = (p[1], p[2], p[3])
-        else:
-            p[0] = p[1]
+        p[0] = (p[1], p[2], p[3]) if len(p) == 4 else p[1]
 
     def p_term(self, p):
         '''term : term MUL factor
                 | term DIV factor
                 | factor'''
-        if len(p) == 4:
-            p[0] = (p[1], p[2], p[3])
-        else:
-            p[0] = p[1]
+        p[0] = (p[1], p[2], p[3]) if len(p) == 4 else p[1]
 
     def p_factor(self, p):
         '''factor : NUMBER
-                | IDENTIFIER
-                | STRING_LITERAL
-                | CHAR_LITERAL
-                | LPAREN expression RPAREN
-                | method_call'''
+                  | IDENTIFIER
+                  | STRING_LITERAL
+                  | CHAR_LITERAL
+                  | LPAREN expression RPAREN
+                  | method_call'''
         if len(p) == 4:
-            p[0] = p[2]                          
-        elif len(p) == 2 and not isinstance(p[1], str):
-            p[0] = p[1]                         
+            p[0] = p[2]                        # (expression)
+        elif len(p) == 2 and callable(p[1]):
+            p[0] = p[1]                        # method_call ya es callable
         else:
             p[0] = self.semantic.handle_factor(p[1])
 
-    # ─────────────────────────────────────────
-    # Funciones — declaración con y sin parámetros
-    # ─────────────────────────────────────────
+    # ── Funciones ─────────────────────────────
 
     def p_function_declaration(self, p):
         '''function_declaration : SUICUNE type IDENTIFIER LPAREN params RPAREN LBRACE program RBRACE
@@ -271,37 +239,38 @@ class Parser:
         token_type = p.slice[1].type
 
         if token_type == 'GARDEVOIR':
-            name = p[2]
-            params = p[4] if len(p) == 9 else []
-            body = p[7] if len(p) == 9 else p[6]
+            name        = p[2]
             return_type = 'gardevoir'
+            if len(p) == 9:   # con params
+                params = p[4]
+                body   = p[7]
+            else:             # sin params
+                params = []
+                body   = p[6]
         else:
-            name = p[3]
+            name        = p[3]
             return_type = p[2]
-            params = p[5] if len(p) == 10 else []
-            body = p[8] if len(p) == 10 else p[7]
+            if len(p) == 10:  # con params
+                params = p[5]
+                body   = p[8]
+            else:             # sin params
+                params = []
+                body   = p[7]
+
+        # ── Registrar INMEDIATAMENTE en self.methods (primera pasada) ──
+        self.semantic.register_function(name, return_type, params, body)
 
         def define():
-            self.semantic.handle_method_declaration(
-                name,
-                return_type,
-                body,
-                params
-            )()
+            self.semantic.execute_function_declaration(name)
 
         p[0] = define
 
-    # ─────────────────────────────────────────
-    # Parámetros de función
-    # ─────────────────────────────────────────
+    # ── Parámetros ────────────────────────────
 
     def p_params(self, p):
         '''params : param
                   | params COMMA param'''
-        if len(p) == 2:
-            p[0] = [p[1]]
-        else:
-            p[0] = p[1] + [p[3]]
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
     def p_param(self, p):
         '''param : ENTEI IDENTIFIER
@@ -309,11 +278,9 @@ class Parser:
                  | CHARIZAR IDENTIFIER
                  | BOOFALANT IDENTIFIER
                  | STANTLER IDENTIFIER'''
-        p[0] = (p[1], p[2])   # (tipo, nombre)
+        p[0] = (p[1], p[2])
 
-    # ─────────────────────────────────────────
-    # Llamada a función — con y sin argumentos
-    # ─────────────────────────────────────────
+    # ── Llamada a función ─────────────────────
 
     def p_method_call(self, p):
         '''method_call : IDENTIFIER LPAREN args RPAREN
@@ -322,21 +289,12 @@ class Parser:
         args        = p[3] if len(p) == 5 else []
         p[0] = self.semantic.handle_method_call(method_name, args)
 
-    # ─────────────────────────────────────────
-    # Argumentos de llamada
-    # ─────────────────────────────────────────
-
     def p_args(self, p):
         '''args : expression
                 | args COMMA expression'''
-        if len(p) == 2:
-            p[0] = [p[1]]
-        else:
-            p[0] = p[1] + [p[3]]
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
-    # ─────────────────────────────────────────
-    # Tipos
-    # ─────────────────────────────────────────
+    # ── Tipos ─────────────────────────────────
 
     def p_type(self, p):
         '''type : ENTEI
@@ -346,17 +304,11 @@ class Parser:
                 | GARDEVOIR'''
         p[0] = p[1]
 
-    # ─────────────────────────────────────────
-    # Vacío
-    # ─────────────────────────────────────────
-
     def p_empty(self, p):
         'empty :'
         p[0] = []
 
-    # ─────────────────────────────────────────
-    # Error
-    # ─────────────────────────────────────────
+    # ── Error ─────────────────────────────────
 
     def p_error(self, p):
         if p is None:
@@ -370,23 +322,29 @@ class Parser:
         except Exception as e:
             print("Error al llamar al metodo p_error:", e)
 
-    # ─────────────────────────────────────────
-    # Parse
-    # ─────────────────────────────────────────
+    # ── Parse ─────────────────────────────────
 
     def parse(self, data, execute=True):
         self.lexer.lexer.input(data)
         parsed = self.parser.parse(data, lexer=self.lexer.lexer)
-
         print("Parsing completado.")
 
-        if execute:
+        if execute and parsed:
             print("Ejecutando AST...")
             self.semantic.symbol_table.enter_scope()
-            if parsed:
-                for stmt in parsed:
+
+            # ── Primera pasada: solo declaraciones de función ──
+            for stmt in parsed:
+                if hasattr(stmt, '__is_function_decl__') and stmt.__is_function_decl__:
                     if callable(stmt):
                         stmt()
+
+            # ── Segunda pasada: resto del código ──
+            for stmt in parsed:
+                if not (hasattr(stmt, '__is_function_decl__') and stmt.__is_function_decl__):
+                    if callable(stmt):
+                        stmt()
+
             self.semantic.symbol_table.exit_scope()
 
         return parsed

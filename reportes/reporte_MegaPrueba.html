@@ -154,13 +154,89 @@
 
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Error</td><td>Error: Método 'cuadrado' no está definido.</td><td>-</td><td>-</td></tr>
-</table></div>
+        <p style='color: green;'>No se encontraron errores.</p>
     </div>
 
-    <div class="section"><h2 class="err"> Código Intermedio</h2><p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p></div>
-    <div class="section"><h2 class="err"> Código C++ Generado</h2><p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p></div>
     
+    <div class="section">
+        <h2 class="ok"> Código Intermedio</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>contador = 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>function entei cuadrado(entei n):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>// INICIO WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>L0:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>t0 = contador &lt; 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>if !(t0) goto L1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>param contador</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>param contador</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>valor = call cuadrado(contador)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>// SWITCH_START valor</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>// CASE 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// BREAK</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>// CASE 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>// BREAK</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>// DEFAULT</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>// SWITCH_END</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>contador = contador + 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>// FIN WHILE</td></tr>
+
+        </table>
+    </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Código C++ Generado</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>#include &lt;iostream&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>#include &lt;string&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>int cuadrado(int n) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    if (contador &lt; 5) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    auto valor = cuadrado(contador);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>    cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>    cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    contador = contador + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>int main() {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>    int contador;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>    int valor;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>        contador = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>}</td></tr>
+
+        </table>
+    </div>aja
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        
+        <style>
+            .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+            .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
+            .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
+            .sym-table tr:hover td { background:#f9f9f9; }
+        </style>
+        <table class="sym-table">
+            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+        <tr><td>contador</td><td>entei</td><td>global</td><td>1</td></tr><tr><td>valor</td><td>entei</td><td>global</td><td>t1</td></tr></table>
+    </div>
 
 </body>
 </html>

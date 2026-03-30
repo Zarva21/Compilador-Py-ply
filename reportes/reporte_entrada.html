@@ -191,32 +191,15 @@
     <div class="section">
         <h2 class="ok"> Tabla de Símbolos</h2>
         
-        <html>
-        <head>
-            <title>Tabla de Símbolos</title>
-            <link rel="stylesheet" href="./css/styles.css">
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; }
-                h1 { color: #333; }
-                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; }
-            </style>
-        </head>
-        <body>
-            <h1>Tabla de Símbolos</h1>
-            <table>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Tipo</th>
-                    <th>Ámbito</th>
-                    <th>Valor</th>
-                </tr>
-        <tr><td>x</td><td>entei</td><td>global</td><td>10</td></tr><tr><td>y</td><td>floatzel</td><td>global</td><td>3.14</td></tr><tr><td>z</td><td>stantler</td><td>global</td><td>hola</td></tr><tr><td>a</td><td>entei</td><td>global</td><td>20</td></tr><tr><td>b</td><td>entei</td><td>global</td><td>30</td></tr><tr><td>globalvar</td><td>entei</td><td>global</td><td>100</td></tr>
-            </table>
-        </body>
-        </html>
-        
+        <style>
+            .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+            .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
+            .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
+            .sym-table tr:hover td { background:#f9f9f9; }
+        </style>
+        <table class="sym-table">
+            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+        <tr><td>x</td><td>entei</td><td>global</td><td>10</td></tr><tr><td>y</td><td>floatzel</td><td>global</td><td>3.14</td></tr><tr><td>z</td><td>stantler</td><td>global</td><td>hola</td></tr><tr><td>a</td><td>entei</td><td>global</td><td>20</td></tr><tr><td>b</td><td>entei</td><td>global</td><td>30</td></tr><tr><td>globalvar</td><td>entei</td><td>global</td><td>100</td></tr></table>
     </div>
 
 </body>

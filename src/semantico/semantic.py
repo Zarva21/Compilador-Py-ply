@@ -18,12 +18,37 @@ from src.semantico.handle import _save_iteration_state
 
 class Semantic:
     def __init__(self, symbol_table, errors, lexer, interCodeGenerator):
-        self.symbol_table       = symbol_table
-        self.errors             = errors
-        self.lexer              = lexer
-        self.methods            = {}       # nombre → {return_type, params, body}
+        self.symbol_table        = symbol_table
+        self.errors              = errors
+        self.lexer               = lexer
+        self.methods             = {}   # nombre → {return_type, params, body}
         self.intercode_generator = interCodeGenerator
-        self.en_funcion         = False
+        self.en_funcion          = False
+
+    # ── Registro inmediato de función (durante parseo) ────────────────────
+    def register_function(self, name, return_type, params, body):
+        """
+        Registra la función en self.methods INMEDIATAMENTE durante el parseo,
+        antes de que el AST se ejecute. Así las llamadas la encuentran siempre.
+        """
+        self.methods[name] = {
+            'return_type': return_type,
+            'params':      params or [],
+            'body':        body,
+        }
+        print(f"[REGISTRO] Función '{name}' registrada con params={params}")
+
+    def execute_function_declaration(self, name):
+        """
+        Ejecuta la declaración de función (emite código intermedio).
+        Se llama en la primera pasada del AST.
+        """
+        if name not in self.methods:
+            return
+        info = self.methods[name]
+        handle_method_declaration(self, name, info['body'])()
+
+    # ── Delegación a handle.py ────────────────────────────────────────────
 
     def handle_declaration(self, name, var_type, scope, value=None):
         return handle_declaration(self, name, var_type, scope, value)
@@ -71,26 +96,12 @@ class Semantic:
         return handle_while(self, condition_fn, body)
 
     def handle_method_declaration(self, name, return_type, body, params=None):
-        """
-        Registra la función con su tipo de retorno y parámetros,
-        luego delega la generación de código a handle.py.
-        """
-        params = params or []
-        # Guardar metadata de la función
-        self.methods[name] = {
-            'return_type': return_type,
-            'params':      params,
-            'body':        body,
-        }
+        """Compatibilidad — registra y delega."""
+        self.register_function(name, return_type, params or [], body)
         return handle_method_declaration(self, name, body)
 
     def handle_method_call(self, name, args=None):
-        """
-        Llama a la función registrando los argumentos en la tabla de símbolos
-        según los parámetros declarados.
-        """
-        args = args or []
-        return handle_method_call(self, name, args)
+        return handle_method_call(self, name, args or [])
 
     def handle_if(self, condition_fn, if_body, else_body):
         return handle_if(self, condition_fn, if_body, else_body)
@@ -100,15 +111,28 @@ class Semantic:
 
     def handle_break(self):
         def action():
-            end_label = "END_SWITCH_LABEL"
-            self.intercode_generator.emit(f"goto {end_label}")
+            self.intercode_generator.emit("goto END_SWITCH_LABEL")
         return action
 
     def handle_return(self, value):
-        """Emite la instrucción de retorno al código intermedio."""
         def action():
-            val = self._get_value(value) if isinstance(value, str) else value
+            # Evaluar expresiones recursivamente
+            def evaluar(val):
+                if isinstance(val, tuple) and len(val) == 3:
+                    l, op, r = val
+                    lv = evaluar(l)
+                    rv = evaluar(r)
+                    temp = self.intercode_generator.new_temp()
+                    self.intercode_generator.emit(f"{temp} = {l} {op} {r}")
+                    return temp
+                elif isinstance(val, str):
+                    sym = self.symbol_table.get_symbol(val)
+                    return sym['value'] if sym else val
+                return val
+
+            val = evaluar(value)
             self.intercode_generator.emit(f"raikou {val}")
+
         return action
 
     def getInterCode(self):
