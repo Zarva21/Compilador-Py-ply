@@ -246,13 +246,15 @@ class Parser:
 
     def p_factor(self, p):
         '''factor : NUMBER
-                  | IDENTIFIER
-                  | STRING_LITERAL
-                  | CHAR_LITERAL
-                  | LPAREN expression RPAREN
-                  | method_call''' 
+                | IDENTIFIER
+                | STRING_LITERAL
+                | CHAR_LITERAL
+                | LPAREN expression RPAREN
+                | method_call'''
         if len(p) == 4:
-            p[0] = p[2]
+            p[0] = p[2]                          
+        elif len(p) == 2 and not isinstance(p[1], str):
+            p[0] = p[1]                         
         else:
             p[0] = self.semantic.handle_factor(p[1])
 

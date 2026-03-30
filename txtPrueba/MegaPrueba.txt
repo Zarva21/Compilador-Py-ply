@@ -1,29 +1,29 @@
 /* Programa completo de prueba */
 
-Entei contador = 0;
+entei contador = 0;
 
-Suicune Entei cuadrado(Entei n) {
-    Raikou n MUL n;
+suicune entei cuadrado(entei n) {
+    raikou n * n;
 }
 
-Wailord (contador < 5) {
+wailord (contador < 5) {
 
-    Entei valor = cuadrado(contador);
+    entei valor = cuadrado(contador);
 
-    Swello (valor) {
+    swello (valor) {
 
-        Kecleon 0:
-            Pikachu(valor);
-            Breloom;
+        kecleon 0:
+            pikachu(valor);
+            breloom;
 
-        Kecleon 1:
-            Pikachu(valor);
-            Breloom;
+        kecleon 1:
+            pikachu(valor);
+            breloom;
 
-        Deoxys:
-            Pikachu(valor);
-            Breloom;
+        deoxys:
+            pikachu(valor);
+            breloom;
     }
 
-    contador = contador MAS 1;
+    contador = contador + 1;
 }

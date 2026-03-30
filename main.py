@@ -281,7 +281,12 @@ def analizar():
     )
 
     nombre_base = os.path.splitext(nombre)[0]
-    salida = f"reporte_{nombre_base}.html"
+
+    carpeta_salida = "reportes"
+    os.makedirs(carpeta_salida, exist_ok=True)  # crea la carpeta si no existe
+
+    salida = os.path.join(carpeta_salida, f"reporte_{nombre_base}.html")
+
     with open(salida, "w", encoding="utf-8") as f:
         f.write(html)
 

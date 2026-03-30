@@ -117,24 +117,24 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
     def action():
         actual_scope = 'local' if self.en_funcion else 'global'
 
-        # ── Verificar redeclaración ──
-        existing = self.symbol_table.get_symbol(name)
-        if existing is not None:
-            existing_type = existing.get('type', '?')
+        # ── Verificar redeclaración SOLO en scope actual ──
+        current = self.symbol_table.current_scope()
+
+        if current is not None and name in current:
+            existing_type = current[name].get('type', '?')
             if existing_type != var_type:
                 self.errors.encolar_error(
                     f"Error semántico: variable '{name}' ya fue declarada como "
-                    f"'{existing_type}' y no puede redeclararse como '{var_type}'. "
-                    f"Usa un nombre diferente o elimina la redeclaración."
+                    f"'{existing_type}' en este bloque."
                 )
             else:
                 self.errors.encolar_error(
-                    f"Error semántico: variable '{name}' ya fue declarada. "
-                    f"¿Quisiste hacer una asignación? Usa '{name} = valor;' sin el tipo."
+                    f"Error semántico: variable '{name}' ya fue declarada en este bloque. "
+                    f"¿Quisiste hacer una asignación?"
                 )
             return
 
-        # Evaluar valor inicial
+        # ── Evaluar valor inicial ──
         if isinstance(value, (int, float, bool, str)):
             evaluated_value = value
         elif isinstance(value, tuple) and len(value) == 3:
@@ -145,11 +145,9 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
         else:
             evaluated_value = self._get_value(value)
 
-        # Guardar en tabla de símbolos
+        # Guardar en tabla
         self.symbol_table.add_symbol(name, var_type, actual_scope, evaluated_value)
-        print(f"Declaración ({actual_scope}): {name} = {evaluated_value}")
 
-        # Generar código intermedio
         if evaluated_value is not None:
             self.intercode_generator.emit(f"{name} = {evaluated_value}")
 
@@ -158,10 +156,10 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
 
 def handle_print(self, value):
     def action():
-        print(f"[DEBUG] Recibido en handle_print: {value} (tipo: {type(value)})")
-        val = self._get_value(value) if isinstance(value, str) else value
-        self.intercode_generator.emit(f"cout << {val} << endl")
-        print(f"Salida: {val}")
+        if isinstance(value, str):
+            self.intercode_generator.emit(f"cout << {value} << endl")
+        else:
+            self.intercode_generator.emit(f"cout << {value} << endl")
     return action
 
 
@@ -303,19 +301,30 @@ def handle_if(self, condition_fn, if_body, else_body):
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {false_label}")
 
-        # Bloque IF verdadero
+        # ───── BLOQUE IF ─────
+        self.symbol_table.enter_scope()  
+
         for stmt in if_body:
             if callable(stmt):
                 stmt()
+
+        self.symbol_table.exit_scope()   
+
         self.intercode_generator.emit(f"goto {end_label}")
 
-        # Bloque ELSE — solo UNA vez el false_label
+        # ───── BLOQUE ELSE ─────
         self.intercode_generator.emit(f"{false_label}:")
+
         if else_body:
             self.intercode_generator.emit("// ELSE")
+
+            self.symbol_table.enter_scope()   
+
             for stmt in else_body:
                 if callable(stmt):
                     stmt()
+
+            self.symbol_table.exit_scope()   
 
         self.intercode_generator.emit(f"{end_label}:")
         self.intercode_generator.emit("// FIN IF")
@@ -325,7 +334,7 @@ def handle_if(self, condition_fn, if_body, else_body):
 
 def handle_method_call(self, name, args=None):
     args = args or []
-
+    print("Métodos registrados actualmente:", self.methods)
     def call_with_scope():
         if name not in self.methods:
             self.errors.encolar_error(f"Error: Método '{name}' no está definido.")
@@ -399,8 +408,7 @@ def handle_method_declaration(self, name, body):
             )
             return
 
-        # Solo registrar, NO ejecutar
-        self.methods[name] = body
+        
 
         self.intercode_generator.emit(f"function {name}:")
         self.intercode_generator.emit("end")

@@ -1,9 +1,9 @@
-Entei edad = 20;
-Floatzel promedio = 8.5;
-Charizar letra = 'A';
-Boofalant activo = true;
-Stantler nombre = "Red";
+entei edad = 20;
+floatzel promedio = 8.5;
+charizar letra = 'A';
+boofalant activo = true;
+stantler nombre = "Red";
 
-Pikachu(edad);
-Pikachu(promedio);
-Pikachu(nombre);
+pikachu(edad);
+pikachu(promedio);
+pikachu(nombre);
