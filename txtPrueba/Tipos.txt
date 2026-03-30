@@ -1,0 +1,9 @@
+Entei edad = 20;
+Floatzel promedio = 8.5;
+Charizar letra = 'A';
+Boofalant activo = true;
+Stantler nombre = "Red";
+
+Pikachu(edad);
+Pikachu(promedio);
+Pikachu(nombre);

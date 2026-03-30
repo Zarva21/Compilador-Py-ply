@@ -1,50 +1,18 @@
 
-
-y = 3.14;
-z = "hola";
-a = 'c';
-b = '@';
-
-@
-entei x = 10
-
-eveo (x > 5) {
-    entei y = 20;
-} ekans {
-    entei z = 30;
-}
-
-forretres (entei i = 0; i < 10; i = i + 1) {
-    pikachu(i);
-}
-
-swello  {
-    kecleon 1:
-        pikachu("uno");
-    deoxys:
-        pikachu("default");
-}
-
-
-
-
 entei x = 10;
-x = 20;
-
-
 pikachu(x);
 
 
-entei globalvar = 100;
+floatzel y = 3.14;
+stantler z = "hola";
 
-suicune entei test() {
-    entei localvar = 50;
-    evee (localvar > 10) {
-        entei inner = 1;
-    }
-    raikou localvar;
+
+evee (x > 5) {
+    entei a = 20;
+} ekans {
+    entei b = 30;
 }
 
- 
-test();
-pikachu(globalvar);
+
+
+entei globalvar = 100;

@@ -1,0 +1,17 @@
+suicune entei sumar(entei a, entei b) {
+    entei resultado = a + b;
+    raikou resultado;
+}
+
+gardevoir imprimirMensaje() {
+    stantler mensaje = "Hola";
+    pikachu(mensaje);
+}
+
+entei x = 10;
+entei y = 20;
+
+entei total = sumar(x, y);
+pikachu(total);
+
+imprimirMensaje();

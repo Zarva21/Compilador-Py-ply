@@ -1,0 +1,18 @@
+#. Variables básicas
+entei x = 5;
+entei y = 3;
+entei resultado = 0;
+
+resultado = x + y;
+pikachu(resultado);
+
+evee (resultado > 5) {
+    entei bandera = 1;
+} ekans {
+    entei bandera2 = 0;
+}
+
+wailord (x > 0) {
+    x = x - 1;
+    pikachu(x);
+}

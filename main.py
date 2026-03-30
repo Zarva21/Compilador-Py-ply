@@ -1,18 +1,15 @@
 import os
 import sys
 
-# ──────────────────────────────────────────────
-# Ajuste de path para que funcione desde raíz
-# ──────────────────────────────────────────────
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.Extras.errores import Errors          
-from src.lexer.lexer import Lexer            
-from src.sintactico.parser import Parser      
+from src.Extras.errores import Errors
+from src.lexer.lexer import Lexer
+from src.sintactico.parser import Parser
 
-
+# ──────────────────────────────────────────────
 # Generador del reporte HTML
-
+# ──────────────────────────────────────────────
 
 def generar_tabla_tokens(tokens, filas_tokens):
     if not tokens:
@@ -25,14 +22,67 @@ def generar_tabla_tokens(tokens, filas_tokens):
     )
 
 
-def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
-    """Genera el HTML completo del reporte."""
+def generar_seccion_codigo(codigo):
+    """Genera un bloque de código con estilo oscuro."""
+    if not codigo:
+        return "<p style='color:green;font-style:italic;'>No hay código generado.</p>"
+    lineas = ""
+    for i, linea in enumerate(codigo, start=1):
+        linea_escaped = linea.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        lineas += (
+            f"<tr>"
+            f"<td style='color:#999;user-select:none;padding-right:16px;width:40px'>{i}</td>"
+            f"<td>{linea_escaped}</td>"
+            f"</tr>\n"
+        )
+    return f"""
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            {lineas}
+        </table>
+    </div>"""
 
-    # Filas de la tabla de tokens
+
+def generar_html(tokens, lex_errors_html, parse_errors_html,
+                 intercode, cpp_code, sym_table_html,
+                 archivo_fuente, hay_errores):
+
+    # Filas de tokens
     filas_tokens = ""
     for i, tok in enumerate(tokens, start=1):
         tipo, valor, fila, col = tok
-        filas_tokens += f"<tr><td>{i}</td><td>{tipo}</td><td>{valor}</td><td>{fila}</td><td>{col}</td></tr>\n"
+        valor_escaped = str(valor).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+        filas_tokens += (
+            f"<tr><td>{i}</td><td>{tipo}</td>"
+            f"<td>{valor_escaped}</td><td>{fila}</td><td>{col}</td></tr>\n"
+        )
+
+    # Secciones de código solo si no hay errores
+    if not hay_errores:
+        seccion_intercode = f"""
+    <div class="section">
+        <h2 class="ok"> Código Intermedio</h2>
+        {generar_seccion_codigo(intercode)}
+    </div>"""
+
+        seccion_cpp = f"""
+    <div class="section">
+        <h2 class="ok"> Código C++ Generado</h2>
+        {generar_seccion_codigo(cpp_code)}aja
+    </div>"""
+
+        seccion_tabla = f"""
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        {sym_table_html if sym_table_html else
+         "<p style='color:green;font-style:italic;'>Tabla vacía.</p>"}
+    </div>"""
+    else:
+        msg = "<p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p>"
+        seccion_intercode = f'<div class="section"><h2 class="err"> Código Intermedio</h2>{msg}</div>'
+        seccion_cpp       = f'<div class="section"><h2 class="err"> Código C++ Generado</h2>{msg}</div>'
+        seccion_tabla     = ""
 
     html = f"""<!DOCTYPE html>
 <html lang="es">
@@ -89,11 +139,7 @@ def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
             border-bottom: 1px solid #eee;
         }}
         tr:hover td {{ background: #f9f9f9; }}
-        .badge-ok  {{ color: #27ae60; font-weight: bold; }}
-        .badge-err {{ color: #e74c3c; font-weight: bold; }}
         .no-errors {{ color: #27ae60; font-style: italic; }}
-
-        /* Estilos heredados de tu clase Errors */
         .error-section h2 {{ color: #e74c3c; font-size: 1.1rem; margin-bottom: 12px; }}
         .error-table {{ width: 100%; border-collapse: collapse; font-size: 0.9rem; }}
         .error-table th {{ background: #c0392b; color: white; padding: 9px 14px; text-align: left; }}
@@ -103,26 +149,27 @@ def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
 </head>
 <body>
 
-    <h1> Reporte del Compilador</h1>
+    <h1> Reporte del Compilador Pokémon</h1>
     <p class="subtitle">Archivo analizado: <strong>{archivo_fuente}</strong></p>
 
-    <!-- ── TOKENS ── -->
     <div class="section">
         <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
         {generar_tabla_tokens(tokens, filas_tokens)}
     </div>
 
-    <!-- ── ERRORES LÉXICOS ── -->
     <div class="section">
         <h2 class="err"> Errores Léxicos</h2>
         {lex_errors_html}
     </div>
 
-    <!-- ── ERRORES SINTÁCTICOS ── -->
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
         {parse_errors_html}
     </div>
+
+    {seccion_intercode}
+    {seccion_cpp}
+    {seccion_tabla}
 
 </body>
 </html>
@@ -130,9 +177,9 @@ def generar_html(tokens, lex_errors_html, parse_errors_html, archivo_fuente):
     return html
 
 
-
+# ──────────────────────────────────────────────
 # Menú principal de consola
-
+# ──────────────────────────────────────────────
 
 def menu():
     print("=" * 50)
@@ -153,10 +200,6 @@ def menu():
         else:
             print("Opción no válida, intenta de nuevo.")
 
-# ──────────────────────────────────────────────
-# Función principal de análisis
-# Aquí se orquesta todo el proceso: léxico, sintáctico y generación de HTML
-# Se mantiene simple para que el menú sea claro y el código modular
 
 def analizar():
     ruta = input("\nIngresa la ruta del archivo a analizar: ").strip()
@@ -172,55 +215,90 @@ def analizar():
     print(f"\nAnalizando: {nombre} ...")
 
     # ── Análisis léxico ──
-    lex_errors   = Errors(contenido)
-    lexer        = Lexer(lex_errors)
-    tokens       = lexer.tokenize(contenido)
-
+    lex_errors = Errors(contenido)
+    lexer      = Lexer(lex_errors)
+    tokens     = lexer.tokenize(contenido)
     print(f"   Tokens encontrados: {len(tokens)}")
 
-    # ── Análisis sintáctico ──
+    # ── Análisis sintáctico + semántico ──
     parse_errors = Errors(contenido)
+    intercode    = []
+    cpp_code     = []
+    sym_html     = ""
 
     try:
-        # Importación tardía para evitar errores si no existe semántica
-        from src.semantico.semantic import SemanticHandler   # ajusta el import si es distinto
-        semantic = SemanticHandler(parse_errors)
-    except ImportError:
-        # Semántica aún no disponible, usar dummy
-        semantic = _DummySemantic()
+        from src.semantico.semantic import Semantic
+        from src.semantico.symbolTable import SymbolTable
+        from src.intercode.interCodeGenerador import interCodeGenerator
+        from src.codeGen.codeGen import ccodeGen
 
-    parser = Parser(lexer, parse_errors, semantic)
-    parser.parse(contenido, execute=False)   # execute=False evita correr el AST sin semántica real
+        sym_table = SymbolTable()
+        codegen   = interCodeGenerator()
+        semantic  = Semantic(sym_table, parse_errors, lexer, codegen)
+
+        parser = Parser(lexer, parse_errors, semantic)
+        parser.parse(contenido, execute=True)
+
+        hay_errores = bool(lex_errors.errors or parse_errors.errors)
+
+        if not hay_errores:
+            # Optimizar
+            semantic.optimize_intermediate_code()
+            intercode = codegen.get_code()
+
+            # Generar C++
+            sym_flat = sym_table.to_flat_dict()
+            gen = ccodeGen(intercode, sym_flat)
+            gen.generate()
+            cpp_code = gen.get_cpp_code().splitlines()
+
+            # Guardar .cpp
+            nombre_base = os.path.splitext(nombre)[0]
+            cpp_path = f"{nombre_base}.cpp"
+            with open(cpp_path, "w", encoding="utf-8") as f:
+                f.write(gen.get_cpp_code())
+            print(f"   Código C++ guardado: {cpp_path}")
+
+            # Tabla de símbolos
+            sym_html = sym_table.toHtml()
+        else:
+            intercode = codegen.get_code()
+
+    except ImportError as e:
+        print(f"   Semántica no disponible ({e}), usando modo básico...")
+        semantic = _DummySemantic()
+        parser   = Parser(lexer, parse_errors, semantic)
+        parser.parse(contenido, execute=False)
+        hay_errores = bool(lex_errors.errors or parse_errors.errors)
 
     # ── Generar HTML ──
     lex_html   = lex_errors.errorHtml("Léxicos")
     parse_html = parse_errors.errorHtml("Sintácticos")
-    html       = generar_html(tokens, lex_html, parse_html, nombre)
+    html = generar_html(
+        tokens, lex_html, parse_html,
+        intercode, cpp_code, sym_html,
+        nombre, hay_errores
+    )
 
-    # ── Guardar HTML ──
-    nombre_base   = os.path.splitext(nombre)[0]
-    salida        = f"reporte_{nombre_base}.html"
+    nombre_base = os.path.splitext(nombre)[0]
+    salida = f"reporte_{nombre_base}.html"
     with open(salida, "w", encoding="utf-8") as f:
         f.write(html)
 
-
-
-    total_errores = len(lex_errors.errors) + len(parse_errors.errors)
     print(f"   Errores léxicos:     {len(lex_errors.errors)}")
     print(f"   Errores sintácticos: {len(parse_errors.errors)}")
     print(f"\nReporte generado: {salida}")
-    if total_errores == 0:
+    if not hay_errores:
         print("¡Análisis completado sin errores!")
 
-
+    print(f"IR recibido por ccodeGen ({len(intercode)} líneas):")
+    for l in intercode:
+        print(f"  '{l}'")
 # ──────────────────────────────────────────────
-# Handler semántico mínimo (placeholder) 
-# Se usa cuando la semántica aún no está lista
+# Handler semántico mínimo (placeholder)
 # ──────────────────────────────────────────────
 
 class _DummySemantic:
-    """Implementación vacía para que el parser no explote sin semántica real."""
-
     class _SymTable:
         scope_stack = []
         def enter_scope(self): pass
@@ -232,26 +310,24 @@ class _DummySemantic:
     def _noop(self, *a, **kw):
         return lambda: None
 
-    handle_print             = _noop
-    handle_assignment        = _noop
-    handle_declaration       = _noop
-    handle_for               = _noop
-    handle_do_while          = _noop
-    handle_if                = _noop
-    handle_switch            = _noop
-    handle_break             = _noop
-    handle_return            = _noop
-    handle_method_declaration= _noop
-    handle_method_call       = _noop
-    handle_factor            = lambda self, v: v
-    handle_while            = _noop
+    handle_print              = _noop
+    handle_assignment         = _noop
+    handle_declaration        = _noop
+    handle_for                = _noop
+    handle_do_while           = _noop
+    handle_if                 = _noop
+    handle_switch             = _noop
+    handle_break              = _noop
+    handle_return             = _noop
+    handle_method_declaration = _noop
+    handle_method_call        = _noop
+    handle_while              = _noop
+    handle_factor             = lambda self, v: v
 
     def evaluate_condition_dynamic(self, *a, **kw):
         return lambda: False
 
 
 # ──────────────────────────────────────────────
-# Punto de entrada
-    
 if __name__ == "__main__":
     menu()

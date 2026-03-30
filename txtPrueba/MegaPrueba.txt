@@ -1,0 +1,29 @@
+/* Programa completo de prueba */
+
+Entei contador = 0;
+
+Suicune Entei cuadrado(Entei n) {
+    Raikou n MUL n;
+}
+
+Wailord (contador < 5) {
+
+    Entei valor = cuadrado(contador);
+
+    Swello (valor) {
+
+        Kecleon 0:
+            Pikachu(valor);
+            Breloom;
+
+        Kecleon 1:
+            Pikachu(valor);
+            Breloom;
+
+        Deoxys:
+            Pikachu(valor);
+            Breloom;
+    }
+
+    contador = contador MAS 1;
+}

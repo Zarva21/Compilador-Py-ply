@@ -1,0 +1,16 @@
+Entei opcion = 2;
+
+Swello (opcion) {
+
+    Kecleon 1:
+        Pikachu(opcion);
+        Breloom;
+
+    Kecleon 2:
+        Pikachu(opcion);
+        Breloom;
+
+    Deoxys:
+        Pikachu(0);
+        Breloom;
+}

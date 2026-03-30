@@ -1,0 +1,10 @@
+Entei i = 0;
+
+Doduo {
+    Pikachu(i);
+    i = i MAS 1;
+} Wailord (i < 3);
+
+Forretres (Entei j = 0; j < 5; j = j MAS 1) {
+    Pikachu(j);
+}
