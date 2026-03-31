@@ -9,15 +9,16 @@ class ccodeGen:
     }
 
     def __init__(self, ir, symbol_table=None):
-        self.ir           = ir
-        self.symbol_table = symbol_table or {}
-        self.cpp_code     = []
-        self.indent_level = 2
+        self.ir               = ir
+        self.symbol_table     = symbol_table or {}
+        self.cpp_code         = []
+        self.indent_level     = 2
         self.temp_conditions  = {}
         self.label_to_index   = {}
         self._next_is_while   = False
         self._next_is_for     = False
         self._next_is_dowhile = False
+        self._declared_vars   = set()  # variables ya declaradas en main
 
         for idx, line in enumerate(self.ir):
             stripped = line.strip()
@@ -43,29 +44,20 @@ class ccodeGen:
         return right
 
     def _parse_function_header(self, line):
-        """
-        Parsea líneas como:
-          'function entei cuadrado(entei n):'
-          'function gardevoir imprimirMensaje():'
-        Retorna (ret_cpp, fname, params_cpp) o None si no matchea.
-        """
-        # Quitar 'function ' al inicio y ':' al final
+        """Parsea 'function entei cuadrado(entei n):' → (ret_cpp, fname, params_cpp)"""
         content = line[len('function '):]
         if content.endswith(':'):
             content = content[:-1].strip()
 
-        # Separar tipo de retorno
-        parts = content.split(None, 1)  # ['entei', 'cuadrado(entei n)']
+        parts = content.split(None, 1)
         if len(parts) < 2:
             return None
 
         ret_raw = parts[0].strip()
         rest    = parts[1].strip()
-
         ret_cpp = self.TIPOS.get(ret_raw.lower(), 'void')
 
-        # Separar nombre y parámetros
-        paren_open = rest.find('(')
+        paren_open  = rest.find('(')
         paren_close = rest.rfind(')')
         if paren_open == -1:
             return None
@@ -73,52 +65,26 @@ class ccodeGen:
         fname      = rest[:paren_open].strip()
         params_raw = rest[paren_open+1:paren_close].strip()
 
-        # Traducir parámetros
         params_cpp = ''
         if params_raw:
             param_list = []
             for param in params_raw.split(','):
-                param = param.strip()
+                param   = param.strip()
                 p_parts = param.split()
                 if len(p_parts) == 2:
-                    p_type, p_name = p_parts
-                    p_cpp = self.TIPOS.get(p_type.lower(), 'auto')
-                    param_list.append(f'{p_cpp} {p_name}')
+                    p_cpp = self.TIPOS.get(p_parts[0].lower(), 'auto')
+                    param_list.append(f'{p_cpp} {p_parts[1]}')
                 else:
                     param_list.append(param)
             params_cpp = ', '.join(param_list)
 
         return ret_cpp, fname, params_cpp
 
-    def _translate_call(self, line):
-        """
-        Traduce líneas de IR como:
-          't1 = call cuadrado(contador)'
-          't0 = call imprimirMensaje()'
-          'call nombre()'
-        """
-        # Con asignación: 'tX = call nombre(args)'
-        if '= call ' in line:
-            left, right = line.split('= call ', 1)
-            left = left.strip()
-            right = right.strip()
-            return f'{left} = {right}'
-
-        # Sin asignación: 'call nombre(args)'
-        if line.startswith('call '):
-            return line[5:].strip()
-
-        return line
-
     def generate(self):
-        open_blocks = []
-        in_function = False
-        functions_code = []   # código de funciones para poner ANTES de main
-
-        # ── Paso 1: separar IR de funciones del IR de main ──
-        func_ir   = []
-        main_ir   = []
-        in_func   = False
+        # ── Separar IR en funciones y main ──
+        func_ir = []
+        main_ir = []
+        in_func = False
 
         for line in self.ir:
             stripped = line.strip()
@@ -133,7 +99,7 @@ class ccodeGen:
             else:
                 main_ir.append(stripped)
 
-        # ── Paso 2: extraer temporales de condición (solo del main_ir) ──
+        # ── Extraer temporales de condición del main ──
         filtered_main = []
         for line in main_ir:
             if ('=' in line
@@ -148,7 +114,21 @@ class ccodeGen:
                     continue
             filtered_main.append(line)
 
-        # ── Paso 3: generar funciones C++ ──
+        # ── También extraer temporales de condición de funciones ──
+        for line in func_ir:
+            if ('=' in line
+                    and not line.startswith('if')
+                    and not line.startswith('goto')
+                    and not line.endswith(':')
+                    and not line.startswith('//')):
+                parts = line.split('=', 1)
+                if len(parts) == 2:
+                    left, right = map(str.strip, parts)
+                    rel_ops = ['<', '>', '==', '!=', '<=', '>=']
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
+                        self.temp_conditions[left] = right
+
+        # ── Generar funciones C++ ──
         func_cpp = self._generate_functions(func_ir)
 
         # ── Cabecera ──
@@ -159,24 +139,24 @@ class ccodeGen:
             '',
         ]
 
-        # ── Funciones antes de main ──
-        self.cpp_code.extend(func_cpp)
         if func_cpp:
+            self.cpp_code.extend(func_cpp)
             self.cpp_code.append('')
 
         # ── main ──
         self.cpp_code.append('int main() {')
 
-        # Declarar variables globales
+        # Declarar variables globales (solo una vez)
         for var_name, info in sorted(self.symbol_table.items()):
             cpp_t = self.TIPOS.get(info.get('type', '').lower(), 'auto')
             self.cpp_code.append(f'    {cpp_t} {var_name};')
+            self._declared_vars.add(var_name)
         self.cpp_code.append('')
 
-        # ── Paso 4: recorrer main IR ──
+        # ── Procesar main IR ──
+        open_blocks = []
         self._process_ir(filtered_main, open_blocks)
 
-        # Cerrar bloques abiertos
         while open_blocks:
             open_blocks.pop()
             self.indent_level -= 1
@@ -186,10 +166,24 @@ class ccodeGen:
         self.cpp_code.append('}')
 
     def _generate_functions(self, func_ir):
-        """Genera código C++ para todas las funciones."""
         result = []
-        i = 0
+        i      = 0
         indent = 1
+        func_temp_conditions = {}
+
+        # Pre-extraer temporales de condición de funciones
+        for line in func_ir:
+            if ('=' in line
+                    and not line.startswith('if')
+                    and not line.startswith('goto')
+                    and not line.endswith(':')
+                    and not line.startswith('//')):
+                parts = line.split('=', 1)
+                if len(parts) == 2:
+                    left, right = map(str.strip, parts)
+                    rel_ops = ['<', '>', '==', '!=', '<=', '>=']
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
+                        func_temp_conditions[left] = right
 
         while i < len(func_ir):
             line = func_ir[i]
@@ -199,11 +193,10 @@ class ccodeGen:
                 if parsed:
                     ret_cpp, fname, params_cpp = parsed
                     result.append(f'{ret_cpp} {fname}({params_cpp}) {{')
-                    indent = 1
                 else:
-                    # Fallback
                     fname = line[len('function '):-1].strip()
                     result.append(f'void {fname}() {{')
+                indent = 1
                 i += 1
                 continue
 
@@ -213,102 +206,62 @@ class ccodeGen:
                 i += 1
                 continue
 
-            # Temporales de condición dentro de función
+            # Saltar temporales de condición
             if ('=' in line
                     and not line.startswith('if')
                     and not line.startswith('goto')
                     and not line.endswith(':')
                     and not line.startswith('//')):
-                left, right = map(str.strip, line.split('=', 1))
-                rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
-                    self.temp_conditions[left] = right
-                    i += 1
-                    continue
+                parts = line.split('=', 1)
+                if len(parts) == 2:
+                    left, right = map(str.strip, parts)
+                    rel_ops = ['<', '>', '==', '!=', '<=', '>=']
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
+                        i += 1
+                        continue
 
             prefix = '    ' * indent
-            translated = self._translate_line(line, i, func_ir, indent)
+            translated = self._translate_func_line(line, func_temp_conditions)
             if translated is not None:
                 result.append(f'{prefix}{translated}')
             i += 1
 
         return result
 
-    def _translate_line(self, line, idx, ir_list, indent_lvl):
-        """Traduce una línea de IR a C++. Retorna string o None para ignorar."""
-
-        # Etiquetas — ignorar
+    def _translate_func_line(self, line, temp_conds):
         if line.endswith(':') and not line.startswith('if'):
             return None
-
-        # Comentarios de estructura — ignorar en funciones
-        if line.startswith('//') or line.startswith('#'):
+        if line.startswith('//') or line.startswith('param '):
             return None
-
-        # raikou → return
-        if line.startswith('raikou '):
-            val = line[len('raikou '):].strip()
-            return f'return {val};'
-
-        # cout
-        if line.startswith('cout'):
-            return f'{line};'
-
-        # call con asignación: 'tX = call nombre(args)'
-        if '= call ' in line:
-            left, right = line.split('= call ', 1)
-            left  = left.strip()
-            right = right.strip()
-            # Determinar tipo del temporal
-            return f'auto {left} = {right};'
-
-        # call sin asignación
-        if line.startswith('call '):
-            return f'{line[5:].strip()};'
-
-        # param — ignorar (ya están en firma)
-        if line.startswith('param '):
-            return None
-
-        # goto — ignorar en funciones
         if line.startswith('goto'):
             return None
-
-        # if !(cond) goto
+        if line.startswith('raikou '):
+            return f'return {line[len("raikou "):].strip()};'
+        if line.startswith('cout'):
+            return f'{line};'
+        if '= call ' in line:
+            left, right = line.split('= call ', 1)
+            return f'auto {left.strip()} = {right.strip()};'
+        if line.startswith('call '):
+            return f'{line[5:].strip()};'
         if line.startswith('if !('):
             cond_raw  = line[5:line.index(') goto')].strip()
-            cond_real = self.temp_conditions.get(cond_raw, cond_raw)
+            cond_real = temp_conds.get(cond_raw, cond_raw)
             return f'if ({cond_real}) {{'
-
-        # if (cond) goto
-        if line.startswith('if ('):
-            cond_raw  = line[4:line.index(') goto')].strip()
-            cond_real = self.temp_conditions.get(cond_raw, cond_raw)
-            return f'}} while ({cond_real});'
-
-        # Asignaciones
         if '=' in line and not line.startswith('if'):
             left, right = map(str.strip, line.split('=', 1))
-
-            # Saltar temporales de condición
-            if left.startswith('t') and left[1:].isdigit() and left in self.temp_conditions:
+            if left.startswith('t') and left[1:].isdigit() and left in temp_conds:
                 return None
-
-            # Temporales de expresión — declarar como auto
             if left.startswith('t') and left[1:].isdigit():
                 return f'auto {left} = {right};'
-
             return f'{left} = {right};'
-
         return f'{line};'
 
     def _process_ir(self, filtered_ir, open_blocks):
-        """Procesa el IR de main y agrega a self.cpp_code."""
         i = 0
         while i < len(filtered_ir):
             line = filtered_ir[i]
 
-            # Comentarios de estructura
             if line.startswith('//'):
                 tag = line.strip()
 
@@ -402,15 +355,15 @@ class ccodeGen:
                 else:
                     i += 1; continue
 
-            # Etiquetas — ignorar
+            # Etiquetas
             if line.endswith(':') and not line.startswith('if'):
                 i += 1; continue
 
-            # param — ignorar
+            # param
             if line.startswith('param '):
                 i += 1; continue
 
-            # if !(cond) goto label
+            # if !(cond) goto
             if line.startswith('if !('):
                 cond_raw  = line[5:line.index(') goto')].strip()
                 target    = line.split('goto')[1].strip()
@@ -466,12 +419,16 @@ class ccodeGen:
                 self.cpp_code.append(f'{self._indent()}return {val};')
                 i += 1; continue
 
-            # call con asignación: 'tX = call nombre(args)'
+            # call con asignación — NO redeclarar si ya existe
             if '= call ' in line:
                 left, right = line.split('= call ', 1)
                 left  = left.strip()
                 right = right.strip()
-                self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
+                # Si la variable ya está declarada arriba, solo asignar
+                if left in self._declared_vars:
+                    self.cpp_code.append(f'{self._indent()}{left} = {right};')
+                else:
+                    self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
                 i += 1; continue
 
             # call sin asignación
@@ -492,20 +449,7 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
                     i += 1; continue
 
-                # Fix shadowing string
-                global_info = self.symbol_table.get(left, {})
-                global_cpp  = self.TIPOS.get(global_info.get('type', '').lower(), 'auto')
-                is_numeric  = False
-                try:
-                    float(right.strip('"'))
-                    is_numeric = True
-                except ValueError:
-                    pass
-
-                if global_cpp == 'string' and is_numeric and not right.startswith('"'):
-                    self.cpp_code.append(f'{self._indent()}int {left}_local = {right};')
-                    i += 1; continue
-
+                # Variables normales
                 right = self._add_string_quotes(left, right)
                 self.cpp_code.append(f'{self._indent()}{left} = {right};')
                 i += 1; continue

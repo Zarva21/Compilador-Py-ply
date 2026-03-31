@@ -53,8 +53,7 @@ def _get_value(self, item):
     if isinstance(item, str):
         symbol = self.symbol_table.get_symbol(item)
         if symbol is None:
-            # No reportar error aquí — puede ser un identificador válido en IR
-            return item
+            return item  # retornar nombre simbólico para IR
         return symbol['value']
     return item
 
@@ -64,15 +63,13 @@ def handle_assignment(self, name, value):
         # ── Generar IR ──
         if isinstance(value, tuple) and len(value) == 3:
             left, op, right = value
-            # Resolver operandos para IR (usar nombre simbólico, no valor real)
-            left_ir  = left  if isinstance(left,  (int, float, str)) else left
-            right_ir = right if isinstance(right, (int, float, str)) else right
             temp = self.intercode_generator.new_temp()
-            self.intercode_generator.emit(f"{temp} = {left_ir} {op} {right_ir}")
+            self.intercode_generator.emit(f"{temp} = {left} {op} {right}")
             self.intercode_generator.emit(f"{name} = {temp}")
         elif callable(value):
-            result = value()
-            self.intercode_generator.emit(f"{name} = {result if result else value}")
+            result = value()  # ya emitió el call IR
+            if result:
+                self.intercode_generator.emit(f"{name} = {result}")
         else:
             self.intercode_generator.emit(f"{name} = {value}")
 
@@ -82,17 +79,14 @@ def handle_assignment(self, name, value):
             self.errors.encolar_error(f"Error: Variable '{name}' no declarada.")
             return
 
-        # Evaluar valor real para tabla
         def evaluar(val):
             if isinstance(val, tuple) and len(val) == 3:
                 l, op, r = val
                 lv = evaluar(l)
                 rv = evaluar(r)
-                if lv is None or rv is None:
-                    return None
-                return self._apply_operator(lv, op, rv)
+                return self._apply_operator(lv, op, rv) if lv is not None and rv is not None else None
             elif callable(val):
-                return val()
+                return None  # no evaluar llamadas a función en modo compilador
             elif isinstance(val, str):
                 s = self.symbol_table.get_symbol(val)
                 return s['value'] if s else None
@@ -121,7 +115,7 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
             self.errors.encolar_error(msg)
             return
 
-        # Evaluar valor para tabla (semántica)
+        # Evaluar valor para tabla (solo literales, no llamadas)
         def evaluar(val):
             if isinstance(val, (int, float, bool, str)):
                 return val
@@ -131,10 +125,7 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 rv = evaluar(r)
                 return self._apply_operator(lv, op, rv) if lv is not None and rv is not None else None
             elif callable(val):
-                return val()
-            elif isinstance(val, str):
-                s = self.symbol_table.get_symbol(val)
-                return s['value'] if s else None
+                return None  # no evaluar en modo compilador
             return None
 
         evaluated_value = evaluar(value)
@@ -148,8 +139,10 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 self.intercode_generator.emit(f"{temp} = {l} {op} {r}")
                 self.intercode_generator.emit(f"{name} = {temp}")
             elif callable(value):
+                # El call ya emite su propio IR — solo asignar el resultado
                 result = value()
-                self.intercode_generator.emit(f"{name} = {result if result else '?'}")
+                if result:
+                    self.intercode_generator.emit(f"{name} = {result}")
             else:
                 self.intercode_generator.emit(f"{name} = {value}")
 
@@ -158,7 +151,6 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
 
 def handle_print(self, value):
     def action():
-        # Resolver el nombre simbólico para el IR
         if isinstance(value, tuple) and len(value) == 3:
             l, op, r = value
             temp = self.intercode_generator.new_temp()
@@ -170,37 +162,13 @@ def handle_print(self, value):
 
 
 def evaluate_condition_dynamic(self, left, op, right):
-    """
-    Retorna una función de condición que:
-    - Emite el IR de la condición UNA SOLA VEZ cuando se llama
-    - NO evalúa el valor real (modo compilador)
-    """
-    _emitted = [False]  # flag para emitir IR solo una vez
-
+    """Emite IR de condición sin evaluar el valor real."""
     def condition_fn():
         temp = self.intercode_generator.new_temp()
         self.intercode_generator.emit(f"{temp} = {left} {op} {right}")
         condition_fn.temp_result = temp
-
-        # Evaluación real para control de flujo del compilador (solo semántica)
-        left_sym = self.symbol_table.get_symbol(left)
-        if left_sym is None:
-            return False
-        left_val  = left_sym['value']
-        right_val = right if isinstance(right, (int, float)) else (
-            self.symbol_table.get_symbol(right)['value']
-            if self.symbol_table.get_symbol(right) else 0
-        )
-        try:
-            if op == '>':  return left_val > right_val
-            if op == '<':  return left_val < right_val
-            if op == '==': return left_val == right_val
-            if op == '!=': return left_val != right_val
-            if op == '>=': return left_val >= right_val
-            if op == '<=': return left_val <= right_val
-        except Exception:
-            pass
-        return False
+        # Retornar True siempre — el compilador no decide si ejecutar el bloque
+        return True
 
     condition_fn.temp_result = "t_cond"
     return condition_fn
@@ -220,19 +188,16 @@ def handle_if(self, condition_fn, if_body, else_body):
         end_label   = self.intercode_generator.new_label()
 
         self.intercode_generator.emit("// INICIO IF")
-        # Emitir condición
         condition_fn()
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {false_label}")
 
-        # Bloque IF — solo emitir IR, no ejecutar realmente
         self.symbol_table.enter_scope()
         for stmt in if_body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
         self.intercode_generator.emit(f"goto {end_label}")
 
-        # Bloque ELSE
         self.intercode_generator.emit(f"{false_label}:")
         if else_body:
             self.intercode_generator.emit("// ELSE")
@@ -248,9 +213,6 @@ def handle_if(self, condition_fn, if_body, else_body):
 
 
 def handle_while(self, condition_fn, body):
-    """
-    Emite IR estructural del while SIN ejecutar el bucle realmente.
-    """
     def action():
         start_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
@@ -258,12 +220,10 @@ def handle_while(self, condition_fn, body):
         self.intercode_generator.emit("// INICIO WHILE")
         self.intercode_generator.emit(f"{start_label}:")
 
-        # Emitir condición UNA sola vez
         condition_fn()
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
-        # Emitir cuerpo UNA sola vez — sin ejecutar el bucle
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
@@ -277,31 +237,24 @@ def handle_while(self, condition_fn, body):
 
 
 def handle_for(self, init_stmt, condition_fn, update_stmt, body):
-    """
-    Emite IR estructural del for SIN ejecutar el bucle realmente.
-    """
     def action():
         start_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
 
-        # Inicialización
         if callable(init_stmt): init_stmt()
 
         self.intercode_generator.emit("// INICIO FOR")
         self.intercode_generator.emit(f"{start_label}:")
 
-        # Condición UNA sola vez
         condition_fn()
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
-        # Cuerpo UNA sola vez
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
 
-        # Update
         if callable(update_stmt): update_stmt()
 
         self.intercode_generator.emit(f"goto {start_label}")
@@ -312,22 +265,17 @@ def handle_for(self, init_stmt, condition_fn, update_stmt, body):
 
 
 def handle_do_while(self, condition_fn, body):
-    """
-    Emite IR estructural del do-while SIN ejecutar el bucle realmente.
-    """
     def action():
         start_label = self.intercode_generator.new_label()
 
         self.intercode_generator.emit("//INICIO DO-WHILE")
         self.intercode_generator.emit(f"{start_label}:")
 
-        # Cuerpo UNA sola vez
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
 
-        # Condición al final
         condition_fn()
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if ({cond_temp}) goto {start_label}")
@@ -337,10 +285,6 @@ def handle_do_while(self, condition_fn, body):
 
 
 def handle_method_call(self, name, args=None):
-    """
-    Retorna un callable que emite IR de llamada a función.
-    NO ejecuta el cuerpo de la función — solo emite 'call nombre'.
-    """
     args = args or []
 
     def call_with_scope():
@@ -353,9 +297,9 @@ def handle_method_call(self, name, args=None):
 
         temp = self.intercode_generator.new_temp()
 
-        # Emitir argumentos al IR
+        # Evaluar y emitir argumentos
         arg_ir_names = []
-        for idx, arg_val in enumerate(args):
+        for arg_val in args:
             if isinstance(arg_val, tuple) and len(arg_val) == 3:
                 l, op, r = arg_val
                 arg_temp = self.intercode_generator.new_temp()
@@ -371,12 +315,10 @@ def handle_method_call(self, name, args=None):
             else:
                 arg_ir_names.append(str(arg_val))
 
-        # Emitir parámetros
-        for idx, (param_type, param_name) in enumerate(params):
-            if idx < len(arg_ir_names):
-                self.intercode_generator.emit(f"param {arg_ir_names[idx]}")
+        # Emitir UN solo param por argumento
+        for arg_name in arg_ir_names:
+            self.intercode_generator.emit(f"param {arg_name}")
 
-        # Emitir llamada
         args_str = ', '.join(arg_ir_names)
         self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
 
@@ -386,10 +328,6 @@ def handle_method_call(self, name, args=None):
 
 
 def handle_method_declaration(self, name, body):
-    """
-    Emite el IR de la función: encabezado, cuerpo, end.
-    El cuerpo se emite UNA vez (no se ejecuta el código realmente).
-    """
     def flatten(stmts):
         flat = []
         for s in stmts:
@@ -401,19 +339,16 @@ def handle_method_declaration(self, name, body):
         if name in self.methods and isinstance(self.methods[name], dict):
             self.methods[name]['body'] = flat_body
 
-        # Obtener tipo de retorno y params del registro
         method_info = self.methods.get(name, {})
         ret_type    = method_info.get('return_type', 'gardevoir') if isinstance(method_info, dict) else 'gardevoir'
         params      = method_info.get('params', []) if isinstance(method_info, dict) else []
 
-        # Emitir encabezado con tipo y parámetros
         params_str = ', '.join(f"{t} {n}" for t, n in params)
         self.intercode_generator.emit(f"function {ret_type} {name}({params_str}):")
 
         self.symbol_table.enter_scope()
         self.en_funcion = True
 
-        # Registrar parámetros como variables locales (para semántica interna)
         for param_type, param_name in params:
             self.symbol_table.add_symbol(param_name, param_type, 'local', None)
 
@@ -422,7 +357,6 @@ def handle_method_declaration(self, name, body):
 
         self.en_funcion = False
         self.symbol_table.exit_scope()
-
         self.intercode_generator.emit("end")
 
     return action

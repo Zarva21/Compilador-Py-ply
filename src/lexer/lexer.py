@@ -74,7 +74,7 @@ class Lexer:
         
         'entei': 'ENTEI',
         'floatzel': 'FLOATZEL',
-        'Charizar' :'CHARIZAR',
+        'charizar' :'CHARIZAR',
         'boofalant':'BOOFALANT',
         'stantler' : 'STANTLER', 
         'evee' : 'EVEE',

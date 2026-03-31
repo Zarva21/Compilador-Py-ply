@@ -5,7 +5,7 @@ import copy
 class SymbolTable:
     def __init__(self):
         self.global_scope = {}
-        self.scope_stack  = [{}]   # scope_stack[0] es el scope de main/global local
+        self.scope_stack  = [{}]
 
     def enter_scope(self):
         self.scope_stack.append({})
@@ -28,10 +28,10 @@ class SymbolTable:
             else:
                 self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value}
                 print(f" [GLOBAL] Variable '{name}' añadida con valor '{value}'")
-        else:  # local
+        else:
             current = self.current_scope()
             if current is None:
-                print(f" Error: No hay contexto local activo para declarar '{name}'.")
+                print(f" Error: No hay contexto local para declarar '{name}'.")
                 return
             if name in current:
                 print(f" Error: Variable local '{name}' ya declarada en este ámbito.")
@@ -70,14 +70,14 @@ class SymbolTable:
         }
 
     def to_flat_dict(self):
-        """Solo variables globales — para ccodeGen."""
+        """Solo variables globales para ccodeGen."""
         result = {}
         for name, info in self.global_scope.items():
             result[name] = {"type": info["type"], "value": info.get("value")}
         return result
 
     def toHtml(self):
-        """Genera HTML de la tabla de símbolos (solo variables globales activas)."""
+        """HTML de la tabla — solo variables globales, valor limpio."""
         html = """
         <style>
             .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
@@ -89,15 +89,25 @@ class SymbolTable:
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
         """
 
-        seen = set()
-
         for identifier, data in self.global_scope.items():
-            if identifier not in seen:
-                seen.add(identifier)
-                html += (
-                    f"<tr><td>{identifier}</td><td>{data['type']}</td>"
-                    f"<td>global</td><td>{data['value']}</td></tr>"
-                )
+            valor = data['value']
+
+            # Limpiar valores temporales (tX) — son resultados de runtime
+            if isinstance(valor, str) and valor.startswith('t') and valor[1:].isdigit():
+                valor_display = '(calculado en runtime)'
+            elif valor is None:
+                valor_display = '—'
+            else:
+                valor_display = valor
+
+            html += (
+                f"<tr>"
+                f"<td>{identifier}</td>"
+                f"<td>{data['type']}</td>"
+                f"<td>global</td>"
+                f"<td>{valor_display}</td>"
+                f"</tr>"
+            )
 
         html += "</table>"
         return html
