@@ -197,7 +197,7 @@ class Parser:
         'return_statement : RAIKOU expression SEMICOLON'
         value = p[2]
         def do_return():
-            self.semantic.handle_return(value)
+            self.semantic.handle_return(value)()  
         p[0] = do_return
 
     # ── Expresiones ───────────────────────────

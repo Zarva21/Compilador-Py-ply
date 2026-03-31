@@ -3,17 +3,29 @@
 using namespace std;
 
 int cuadrado(int n) {
-    if (contador < 5) {
-    auto valor = cuadrado(contador);
-    cout << valor << endl;
-    cout << valor << endl;
-    cout << valor << endl;
-    contador = contador + 1;
+    auto t0 = n * n;
+    return t0;
+}
+
 
 int main() {
     int contador;
     int valor;
 
         contador = 0;
+        while (contador < 5) {
+            auto valor = cuadrado(contador);
+            switch (valor) {
+            case 0:
+                cout << valor << endl;
+                break;
+            case 1:
+                cout << valor << endl;
+                break;
+            default:
+                cout << valor << endl;
+            }  // fin switch
+            contador = contador + 1;
+        }  // fin while
     return 0;
 }

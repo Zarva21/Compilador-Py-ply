@@ -3,10 +3,9 @@ class Optimize:
         self.ir = ir  # Lista de instrucciones en código intermedio
 
     def remove_end_statements(self):
-        """
-        Elimina las instrucciones 'end' o 'end;' que no pertenecen al código C++.
-        """
-        self.ir = [line for line in self.ir if line.strip() not in {'end', 'end;'}]
+        # NO eliminar 'end' — son cierres de función necesarios
+        # self.ir = [line for line in self.ir if line.strip() not in {'end', 'end;'}]
+        pass  # Deshabilitar esta optimización
 
     def remove_redundant_temporaries(self):
         optimized_ir = []
