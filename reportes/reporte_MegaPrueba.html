@@ -174,23 +174,24 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>t1 = contador &lt; 5</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>if !(t1) goto L1</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>param contador</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>valor = call cuadrado(contador)</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>// SWITCH_START valor</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>// CASE 0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>goto END_SWITCH_LABEL</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>// BREAK</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>// CASE 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>goto END_SWITCH_LABEL</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>// BREAK</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>// DEFAULT</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>goto END_SWITCH_LABEL</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>// SWITCH_END</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>contador = contador + 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>goto L0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>// FIN WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>t2 = call cuadrado(contador)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>valor = t2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>// SWITCH_START valor</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// CASE 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>// BREAK</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>// CASE 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>// BREAK</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>// DEFAULT</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>cout &lt;&lt; valor &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>goto END_SWITCH_LABEL</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>// SWITCH_END</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>contador = contador + 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>// FIN WHILE</td></tr>
 
         </table>
     </div>
@@ -218,21 +219,22 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td></td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>        contador = 0;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        while (contador &lt; 5) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>            valor = cuadrado(contador);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>            switch (valor) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>            case 0:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>                break;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>            case 1:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>                break;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>            default:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>            }  // fin switch</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>            contador = contador + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>        }  // fin while</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>    return 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>            auto t2 = cuadrado(contador);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>            valor = t2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>            switch (valor) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>            case 0:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>                break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>            case 1:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>                break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>            default:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>                cout &lt;&lt; valor &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>            }  // fin switch</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>            contador = contador + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>        }  // fin while</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>}</td></tr>
 
         </table>
     </div>aja
@@ -246,10 +248,12 @@
             .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
             .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
             .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>contador</td><td>entei</td><td>global</td><td>1</td></tr><tr><td>valor</td><td>entei</td><td>global</td><td>—</td></tr></table>
+        <tr><td>contador</td><td>entei</td><td><span class='scope-global'>global</span></td><td>1</td></tr><tr><td>valor</td><td>entei</td><td><span class='scope-global'>global</span></td><td>—</td></tr></table>
     </div>
 
 </body>

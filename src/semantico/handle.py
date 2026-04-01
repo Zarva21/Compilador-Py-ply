@@ -53,27 +53,25 @@ def _get_value(self, item):
     if isinstance(item, str):
         symbol = self.symbol_table.get_symbol(item)
         if symbol is None:
-            return item  # retornar nombre simbólico para IR
+            return item
         return symbol['value']
     return item
 
 
 def handle_assignment(self, name, value):
     def action():
-        # ── Generar IR ──
         if isinstance(value, tuple) and len(value) == 3:
             left, op, right = value
             temp = self.intercode_generator.new_temp()
             self.intercode_generator.emit(f"{temp} = {left} {op} {right}")
             self.intercode_generator.emit(f"{name} = {temp}")
         elif callable(value):
-            result = value()  # ya emitió el call IR
+            result = value()
             if result:
                 self.intercode_generator.emit(f"{name} = {result}")
         else:
             self.intercode_generator.emit(f"{name} = {value}")
 
-        # ── Actualizar tabla de símbolos ──
         sym = self.symbol_table.get_symbol(name)
         if sym is None:
             self.errors.encolar_error(f"Error: Variable '{name}' no declarada.")
@@ -86,7 +84,7 @@ def handle_assignment(self, name, value):
                 rv = evaluar(r)
                 return self._apply_operator(lv, op, rv) if lv is not None and rv is not None else None
             elif callable(val):
-                return None  # no evaluar llamadas a función en modo compilador
+                return None
             elif isinstance(val, str):
                 s = self.symbol_table.get_symbol(val)
                 return s['value'] if s else None
@@ -101,9 +99,18 @@ def handle_assignment(self, name, value):
 
 def handle_declaration(self, name, var_type, scope=None, value=None):
     def action():
+        # ── Determinar scope real ──────────────────────────────────────────
+        # La única fuente de verdad confiable es self.en_funcion.
+        # scope_stack siempre tiene al menos 1 elemento (el raíz),
+        # así que len(scope_stack) > 1 NO distingue global de local — siempre
+        # es True después del enter_scope() inicial del parser.
+        #
+        # Regla:
+        #   en_funcion = True  → dentro de una función declarada → local
+        #   en_funcion = False → nivel raíz del programa          → global
         actual_scope = 'local' if self.en_funcion else 'global'
 
-        # Verificar redeclaración SOLO en scope actual
+        # ── Verificar redeclaración en el scope actual ──
         current = self.symbol_table.current_scope()
         if current is not None and name in current:
             existing_type = current[name].get('type', '?')
@@ -115,7 +122,14 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
             self.errors.encolar_error(msg)
             return
 
-        # Evaluar valor para tabla (solo literales, no llamadas)
+        # También verificar en global_scope si estamos en global
+        if actual_scope == 'global' and name in self.symbol_table.global_scope:
+            self.errors.encolar_error(
+                f"Error semántico: variable global '{name}' ya declarada."
+            )
+            return
+
+        # ── Evaluar valor literal para la tabla ──
         def evaluar(val):
             if isinstance(val, (int, float, bool, str)):
                 return val
@@ -125,13 +139,13 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 rv = evaluar(r)
                 return self._apply_operator(lv, op, rv) if lv is not None and rv is not None else None
             elif callable(val):
-                return None  # no evaluar en modo compilador
+                return None
             return None
 
         evaluated_value = evaluar(value)
         self.symbol_table.add_symbol(name, var_type, actual_scope, evaluated_value)
 
-        # Generar IR
+        # ── Generar IR ──
         if value is not None:
             if isinstance(value, tuple) and len(value) == 3:
                 l, op, r = value
@@ -139,12 +153,16 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 self.intercode_generator.emit(f"{temp} = {l} {op} {r}")
                 self.intercode_generator.emit(f"{name} = {temp}")
             elif callable(value):
-                # El call ya emite su propio IR — solo asignar el resultado
                 result = value()
                 if result:
                     self.intercode_generator.emit(f"{name} = {result}")
             else:
-                self.intercode_generator.emit(f"{name} = {value}")
+                ir_value = value
+                # FIX char literal: envolver con comillas simples
+                if var_type.lower() == 'charizar' and isinstance(value, str):
+                    if not (value.startswith("'") and value.endswith("'")):
+                        ir_value = f"'{value}'"
+                self.intercode_generator.emit(f"{name} = {ir_value}")
 
     return action
 
@@ -162,12 +180,26 @@ def handle_print(self, value):
 
 
 def evaluate_condition_dynamic(self, left, op, right):
-    """Emite IR de condición sin evaluar el valor real."""
+    """
+    Acepta cualquier expresión en ambos lados — no solo IDENTIFIER.
+    left/right pueden ser str o tuple (expr aritmética).
+    """
     def condition_fn():
+        def resolve(val):
+            if isinstance(val, tuple) and len(val) == 3:
+                l, o, r = val
+                lv = resolve(l)
+                rv = resolve(r)
+                temp = self.intercode_generator.new_temp()
+                self.intercode_generator.emit(f"{temp} = {lv} {o} {rv}")
+                return temp
+            return val
+
+        left_val  = resolve(left)
+        right_val = resolve(right)
         temp = self.intercode_generator.new_temp()
-        self.intercode_generator.emit(f"{temp} = {left} {op} {right}")
+        self.intercode_generator.emit(f"{temp} = {left_val} {op} {right_val}")
         condition_fn.temp_result = temp
-        # Retornar True siempre — el compilador no decide si ejecutar el bloque
         return True
 
     condition_fn.temp_result = "t_cond"
@@ -287,44 +319,33 @@ def handle_do_while(self, condition_fn, body):
 def handle_method_call(self, name, args=None):
     args = args or []
 
-    def call_with_scope():
-        if name not in self.methods:
-            self.errors.encolar_error(f"Error: Método '{name}' no está definido.")
-            return None
+    if name not in self.methods:
+        self.errors.encolar_error(f"Error: Método '{name}' no está definido.")
+        return None
 
-        method_info = self.methods[name]
-        params = method_info.get('params', []) if isinstance(method_info, dict) else []
+    temp = self.intercode_generator.new_temp()
 
-        temp = self.intercode_generator.new_temp()
+    arg_ir_names = []
 
-        # Evaluar y emitir argumentos
-        arg_ir_names = []
-        for arg_val in args:
-            if isinstance(arg_val, tuple) and len(arg_val) == 3:
-                l, op, r = arg_val
-                arg_temp = self.intercode_generator.new_temp()
-                self.intercode_generator.emit(f"{arg_temp} = {l} {op} {r}")
-                arg_ir_names.append(arg_temp)
-            elif isinstance(arg_val, str):
-                arg_ir_names.append(arg_val)
-            elif isinstance(arg_val, (int, float)):
-                arg_ir_names.append(str(arg_val))
-            elif callable(arg_val):
-                result = arg_val()
-                arg_ir_names.append(str(result) if result else '?')
-            else:
-                arg_ir_names.append(str(arg_val))
+    for arg in args:
+        if callable(arg):
+            arg = arg()
 
-        # Emitir UN solo param por argumento
-        for arg_name in arg_ir_names:
-            self.intercode_generator.emit(f"param {arg_name}")
+        if isinstance(arg, tuple):
+            l, op, r = arg
+            t = self.intercode_generator.new_temp()
+            self.intercode_generator.emit(f"{t} = {l} {op} {r}")
+            arg_ir_names.append(t)
+        else:
+            arg_ir_names.append(str(arg))
 
-        args_str = ', '.join(arg_ir_names)
-        self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
+    for arg_name in arg_ir_names:
+        self.intercode_generator.emit(f"param {arg_name}")
 
-        return temp
+    args_str = ', '.join(arg_ir_names)
+    self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
 
-    return call_with_scope
+    return temp
 
 
 def handle_method_declaration(self, name, body):

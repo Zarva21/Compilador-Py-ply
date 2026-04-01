@@ -78,7 +78,11 @@ class Parser:
                        | BOOFALANT IDENTIFIER EQUALS expression SEMICOLON
                        | STANTLER IDENTIFIER SEMICOLON
                        | STANTLER IDENTIFIER EQUALS expression SEMICOLON'''
-        scope      = 'global' if not self.semantic.symbol_table.scope_stack else 'local'
+        # ── FIX scope: usar en_funcion en lugar de inspeccionar scope_stack ──
+        # scope_stack siempre tiene al menos el scope global después del enter_scope()
+        # inicial del parser, así que "not scope_stack" siempre sería False.
+        # La fuente de verdad real es self.semantic.en_funcion.
+        scope      = 'local' if self.semantic.en_funcion else 'global'
         identifier = p[2]
         value      = p[4] if len(p) > 4 else None
         type_      = p[1]
@@ -90,7 +94,7 @@ class Parser:
                                     | CHARIZAR IDENTIFIER EQUALS expression
                                     | BOOFALANT IDENTIFIER EQUALS expression
                                     | STANTLER IDENTIFIER EQUALS expression'''
-        scope      = 'global' if not self.semantic.symbol_table.scope_stack else 'local'
+        scope      = 'local' if self.semantic.en_funcion else 'global'
         identifier = p[2]
         value      = p[4]
         type_      = p[1]
@@ -153,8 +157,12 @@ class Parser:
         else_body = p[10] if len(p) > 8 else []
         p[0] = self.semantic.handle_if(condition, if_body, else_body)
 
+    # ── FIX condition: acepta expresión RELOP expresión ──────────────────
+    # Antes solo aceptaba:  IDENTIFIER RELOP expression
+    # Ahora acepta:         expression RELOP expression
+    # Esto permite: (x + 2) == 0,  x * 3 > y - 1, etc.
     def p_condition(self, p):
-        'condition : IDENTIFIER RELOP expression'
+        'condition : expression RELOP expression'
         p[0] = self.semantic.evaluate_condition_dynamic(p[1], p[2], p[3])
 
     # ── Switch ────────────────────────────────
@@ -197,16 +205,32 @@ class Parser:
         'return_statement : RAIKOU expression SEMICOLON'
         value = p[2]
         def do_return():
-            self.semantic.handle_return(value)()  
+            self.semantic.handle_return(value)()
         p[0] = do_return
 
     # ── Expresiones ───────────────────────────
 
     def p_expression(self, p):
         '''expression : expression MAS term
-                      | expression MENOS term
-                      | term'''
-        p[0] = (p[1], p[2], p[3]) if len(p) == 4 else p[1]
+                    | expression MENOS term'''
+
+        left = p[1]
+        right = p[3]
+        op = p[2]
+
+        if callable(left):
+            left = left()
+        if callable(right):
+            right = right()
+
+        temp = self.semantic.intercode_generator.new_temp()
+        self.semantic.intercode_generator.emit(f"{temp} = {left} {op} {right}")
+
+        p[0] = temp
+
+    def p_expression_term(self, p):
+        '''expression : term'''
+        p[0] = p[1]
 
     def p_term(self, p):
         '''term : term MUL factor
@@ -257,7 +281,6 @@ class Parser:
                 params = []
                 body   = p[7]
 
-        # ── Registrar INMEDIATAMENTE en self.methods (primera pasada) ──
         self.semantic.register_function(name, return_type, params, body)
 
         def define():
@@ -345,6 +368,9 @@ class Parser:
                     if callable(stmt):
                         stmt()
 
+            # Congelar estado completo ANTES de cerrar el scope raíz
+            # Esto permite que toHtml() muestre globales + locales correctamente
+            self.semantic.symbol_table.guardar_snapshot_final()
             self.semantic.symbol_table.exit_scope()
 
         return parsed

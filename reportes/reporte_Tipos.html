@@ -130,7 +130,7 @@
                       font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
             <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>edad = 20</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>promedio = 8.5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>letra = A</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>letra = 'A'</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>activo = true</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>nombre = Red</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>cout &lt;&lt; edad &lt;&lt; endl</td></tr>
@@ -160,7 +160,7 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td></td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>        edad = 20;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>        promedio = 8.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        letra = A;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        letra = 'A';</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>        activo = true;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        nombre = "Red";</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>        cout &lt;&lt; edad &lt;&lt; endl;</td></tr>
@@ -181,10 +181,12 @@
             .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
             .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
             .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>edad</td><td>entei</td><td>global</td><td>20</td></tr><tr><td>promedio</td><td>floatzel</td><td>global</td><td>8.5</td></tr><tr><td>letra</td><td>charizar</td><td>global</td><td>A</td></tr><tr><td>activo</td><td>boofalant</td><td>global</td><td>true</td></tr><tr><td>nombre</td><td>stantler</td><td>global</td><td>Red</td></tr></table>
+        <tr><td>edad</td><td>entei</td><td><span class='scope-global'>global</span></td><td>20</td></tr><tr><td>promedio</td><td>floatzel</td><td><span class='scope-global'>global</span></td><td>8.5</td></tr><tr><td>letra</td><td>charizar</td><td><span class='scope-global'>global</span></td><td>A</td></tr><tr><td>activo</td><td>boofalant</td><td><span class='scope-global'>global</span></td><td>true</td></tr><tr><td>nombre</td><td>stantler</td><td><span class='scope-global'>global</span></td><td>Red</td></tr></table>
     </div>
 
 </body>

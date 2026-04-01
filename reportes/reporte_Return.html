@@ -155,19 +155,23 @@
     <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
         <table style='width:100%;border-collapse:collapse;
                       font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
-            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>function entei sumar(entei a, entei b):</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>resultado = a + b</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>raikou ab</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>end</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>function gardevoir imprimirMensaje():</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>mensaje = Hola</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>cout &lt;&lt; mensaje &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>end</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>x = 10</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>y = 20</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>param x</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>param y</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>cout &lt;&lt; total &lt;&lt; endl</td></tr>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>t0 = a + b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>param x</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>param y</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>t1 = call sumar(x, y)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>t2 = call imprimirMensaje()</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>function entei sumar(entei a, entei b):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>resultado = t0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>raikou resultado</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>function gardevoir imprimirMensaje():</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>mensaje = Hola</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>cout &lt;&lt; mensaje &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>x = 10</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>y = 20</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>total = t1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>cout &lt;&lt; total &lt;&lt; endl</td></tr>
 
         </table>
     </div>
@@ -184,12 +188,12 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>int sumar(int a, int b) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    resultado = a + b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    return ab;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    auto resultado = t0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    return resultado;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>}</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td></td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>void imprimirMensaje() {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    mensaje = Hola;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    auto mensaje = Hola;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    cout &lt;&lt; mensaje &lt;&lt; endl;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>}</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td></td></tr>
@@ -199,11 +203,15 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>    int x;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>    int y;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>        x = 10;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>        y = 20;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>        cout &lt;&lt; total &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>    return 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>        auto t0 = a + b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>        auto t1 = sumar(x, y);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>        auto t2 = imprimirMensaje();</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>        x = 10;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>        y = 20;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>        total = t1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>        cout &lt;&lt; total &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>}</td></tr>
 
         </table>
     </div>aja
@@ -217,10 +225,12 @@
             .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
             .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
             .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>x</td><td>entei</td><td>global</td><td>10</td></tr><tr><td>y</td><td>entei</td><td>global</td><td>20</td></tr><tr><td>total</td><td>entei</td><td>global</td><td>—</td></tr></table>
+        <tr><td>x</td><td>entei</td><td><span class='scope-global'>global</span></td><td>10</td></tr><tr><td>y</td><td>entei</td><td><span class='scope-global'>global</span></td><td>20</td></tr><tr><td>total</td><td>entei</td><td><span class='scope-global'>global</span></td><td>(calculado en runtime)</td></tr></table>
     </div>
 
 </body>

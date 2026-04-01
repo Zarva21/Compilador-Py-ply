@@ -116,22 +116,22 @@ class Semantic:
 
     def handle_return(self, value):
         def action():
-            # Evaluar expresiones recursivamente
-            def evaluar(val):
+            def evaluar_ir(val):
+                """Retorna el nombre IR correcto, NO el valor evaluado."""
                 if isinstance(val, tuple) and len(val) == 3:
                     l, op, r = val
-                    lv = evaluar(l)
-                    rv = evaluar(r)
                     temp = self.intercode_generator.new_temp()
                     self.intercode_generator.emit(f"{temp} = {l} {op} {r}")
                     return temp
                 elif isinstance(val, str):
-                    sym = self.symbol_table.get_symbol(val)
-                    return sym['value'] if sym else val
-                return val
+                    # ▶▶ FIX: retornar el nombre de la variable, no su valor
+                    return val
+                elif isinstance(val, (int, float, bool)):
+                    return str(val)
+                return str(val)
 
-            val = evaluar(value)
-            self.intercode_generator.emit(f"raikou {val}")
+            ir_val = evaluar_ir(value)
+            self.intercode_generator.emit(f"raikou {ir_val}")
 
         return action
 

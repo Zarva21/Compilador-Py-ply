@@ -11,7 +11,7 @@ int main() {
 
         edad = 20;
         promedio = 8.5;
-        letra = A;
+        letra = 'A';
         activo = true;
         nombre = "Red";
         cout << edad << endl;

@@ -14,7 +14,8 @@ int main() {
 
         contador = 0;
         while (contador < 5) {
-            valor = cuadrado(contador);
+            auto t2 = cuadrado(contador);
+            valor = t2;
             switch (valor) {
             case 0:
                 cout << valor << endl;

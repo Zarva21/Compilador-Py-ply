@@ -20,6 +20,10 @@ class ccodeGen:
         self._next_is_dowhile = False
         self._declared_vars   = set()  # variables ya declaradas en main
 
+        # FIX 3: estado de variables locales por función
+        self._func_params = set()
+        self._func_locals = set()
+
         for idx, line in enumerate(self.ir):
             stripped = line.strip()
             if stripped.endswith(':') and not stripped.startswith('//'):
@@ -193,9 +197,20 @@ class ccodeGen:
                 if parsed:
                     ret_cpp, fname, params_cpp = parsed
                     result.append(f'{ret_cpp} {fname}({params_cpp}) {{')
+                    # FIX 3: resetear tracking de parámetros y locales por función
+                    self._func_params = set()
+                    self._func_locals = set()
+                    if params_cpp:
+                        for param in params_cpp.split(','):
+                            param = param.strip()
+                            if param:
+                                param_name = param.split()[-1]
+                                self._func_params.add(param_name)
                 else:
                     fname = line[len('function '):-1].strip()
                     result.append(f'void {fname}() {{')
+                    self._func_params = set()
+                    self._func_locals = set()
                 indent = 1
                 i += 1
                 continue
@@ -203,6 +218,9 @@ class ccodeGen:
             if line == 'end':
                 result.append('}')
                 result.append('')
+                # FIX 3: limpiar al salir de función
+                self._func_params = set()
+                self._func_locals = set()
                 i += 1
                 continue
 
@@ -250,11 +268,26 @@ class ccodeGen:
             return f'if ({cond_real}) {{'
         if '=' in line and not line.startswith('if'):
             left, right = map(str.strip, line.split('=', 1))
+
+            # Saltar temporales de condición ya procesados
             if left.startswith('t') and left[1:].isdigit() and left in temp_conds:
                 return None
+
+            # Temporales de expresión → auto
             if left.startswith('t') and left[1:].isdigit():
                 return f'auto {left} = {right};'
+
+            # FIX 3 + 4: declarar variable local si es nueva en esta función
+            if left not in self._func_params and left not in self._func_locals:
+                self._func_locals.add(left)
+                # FIX 4: intentar inferir tipo desde symbol_table (globales),
+                # si no se encuentra usar 'auto' — válido en C++11 y superior
+                cpp_type = self._cpp_type(left)
+                return f'{cpp_type} {left} = {right};'
+
+            # Variable ya declarada → solo asignar
             return f'{left} = {right};'
+
         return f'{line};'
 
     def _process_ir(self, filtered_ir, open_blocks):
@@ -424,7 +457,6 @@ class ccodeGen:
                 left, right = line.split('= call ', 1)
                 left  = left.strip()
                 right = right.strip()
-                # Si la variable ya está declarada arriba, solo asignar
                 if left in self._declared_vars:
                     self.cpp_code.append(f'{self._indent()}{left} = {right};')
                 else:

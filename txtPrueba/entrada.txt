@@ -16,3 +16,30 @@ evee (x > 5) {
 
 
 entei globalvar = 100;
+
+suicune entei doble(entei x) {
+    raikou x * 2;
+}
+
+suicune entei triple(entei x) {
+    raikou doble(x) + x;
+}
+
+wailord (x > 0) {
+    evee (x + 2 == 0) {
+        pikachu(x);
+    } ekans {
+        pikachu(0);
+    }
+    x = x - 1;
+}
+
+entei resultado = (x + y) * (x - 2) / 3;
+
+suicune entei factorial(entei n) {
+    evee (n == 0) {
+        raikou 1;
+    } ekans {
+        raikou n * factorial(n - 1);
+    }
+}

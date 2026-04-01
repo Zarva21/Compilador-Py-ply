@@ -64,50 +64,61 @@ class SymbolTable:
         return None
 
     def guardar_snapshot_final(self):
+        """Congela el estado completo. Llamar justo antes del exit_scope() final."""
         self.final_snapshot = {
             'global_scope': copy.deepcopy(self.global_scope),
             'scope_stack':  copy.deepcopy(self.scope_stack),
         }
 
     def to_flat_dict(self):
-        """Solo variables globales para ccodeGen."""
+        """Solo globales para ccodeGen."""
         result = {}
         for name, info in self.global_scope.items():
             result[name] = {"type": info["type"], "value": info.get("value")}
         return result
 
     def toHtml(self):
-        """HTML de la tabla — solo variables globales, valor limpio."""
+        """Tabla HTML completa: globales + locales."""
         html = """
         <style>
             .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
             .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
             .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
             .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
         """
 
-        for identifier, data in self.global_scope.items():
-            valor = data['value']
+        if hasattr(self, 'final_snapshot'):
+            global_data  = self.final_snapshot['global_scope']
+            scopes_local = self.final_snapshot['scope_stack']
+        else:
+            global_data  = self.global_scope
+            scopes_local = self.scope_stack
 
-            # Limpiar valores temporales (tX) — son resultados de runtime
+        def _display(valor):
             if isinstance(valor, str) and valor.startswith('t') and valor[1:].isdigit():
-                valor_display = '(calculado en runtime)'
-            elif valor is None:
-                valor_display = '—'
-            else:
-                valor_display = valor
+                return '(calculado en runtime)'
+            return '—' if valor is None else valor
 
+        for identifier, data in global_data.items():
             html += (
-                f"<tr>"
-                f"<td>{identifier}</td>"
-                f"<td>{data['type']}</td>"
-                f"<td>global</td>"
-                f"<td>{valor_display}</td>"
-                f"</tr>"
+                f"<tr><td>{identifier}</td><td>{data['type']}</td>"
+                f"<td><span class='scope-global'>global</span></td>"
+                f"<td>{_display(data['value'])}</td></tr>"
             )
+
+        for scope in scopes_local:
+            for identifier, data in scope.items():
+                ambito = data.get('scope', 'local')
+                html += (
+                    f"<tr><td>{identifier}</td><td>{data['type']}</td>"
+                    f"<td><span class='scope-local'>{ambito}</span></td>"
+                    f"<td>{_display(data['value'])}</td></tr>"
+                )
 
         html += "</table>"
         return html
