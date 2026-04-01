@@ -27,7 +27,7 @@ class SymbolTable:
                 print(f"Error: Variable global '{name}' ya declarada.")
             else:
                 self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value}
-                print(f" [GLOBAL] Variable '{name}' añadida con valor '{value}'")
+                print(f" [GLOBAL] Variable '{name}' ({type_}) registrada")
         else:
             current = self.current_scope()
             if current is None:
@@ -37,17 +37,16 @@ class SymbolTable:
                 print(f" Error: Variable local '{name}' ya declarada en este ámbito.")
             else:
                 current[name] = {'type': type_, 'scope': 'local', 'value': value}
-                print(f" [LOCAL] Variable '{name}' añadida con valor '{value}'")
+                print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
 
     def update_symbol(self, name, value):
+        # Mantenido por compatibilidad pero ya no se llama desde handle.py
         for scope in reversed(self.scope_stack):
             if name in scope:
                 scope[name]['value'] = value
-                print(f" Actualizado local '{name}' a {value}")
                 return True
         if name in self.global_scope:
             self.global_scope[name]['value'] = value
-            print(f"Actualizado global '{name}' a {value}")
             return True
         print(f"Error: La variable '{name}' no ha sido declarada.")
         return False
@@ -55,30 +54,33 @@ class SymbolTable:
     def get_symbol(self, name):
         for scope in reversed(self.scope_stack):
             if name in scope:
-                print(f" Valor local de '{name}': {scope[name]['value']}")
                 return scope[name]
         if name in self.global_scope:
-            print(f" Valor global de '{name}': {self.global_scope[name]['value']}")
             return self.global_scope[name]
-        print(f" Error: La variable '{name}' no ha sido declarada.")
+        # No imprimir error aquí — _resolve_ir consulta get_symbol para distinguir
+        # variables de string literals. Un None silencioso es la respuesta correcta.
         return None
 
     def guardar_snapshot_final(self):
-        """Congela el estado completo. Llamar justo antes del exit_scope() final."""
+        """Congela estado completo. Llamar justo antes del exit_scope() final."""
         self.final_snapshot = {
             'global_scope': copy.deepcopy(self.global_scope),
             'scope_stack':  copy.deepcopy(self.scope_stack),
         }
 
     def to_flat_dict(self):
-        """Solo globales para ccodeGen."""
+        """Solo globales para ccodeGen (necesita los tipos)."""
         result = {}
         for name, info in self.global_scope.items():
             result[name] = {"type": info["type"], "value": info.get("value")}
         return result
 
     def toHtml(self):
-        """Tabla HTML completa: globales + locales."""
+        """
+        Tabla HTML de símbolos.
+        Este compilador NO evalúa valores runtime — la columna Valor
+        muestra el tipo de inicialización, no el valor ejecutado.
+        """
         html = """
         <style>
             .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
@@ -87,6 +89,7 @@ class SymbolTable:
             .sym-table tr:hover td { background:#f9f9f9; }
             .scope-global { color:#1a5276; font-weight:600; }
             .scope-local  { color:#117a65; font-weight:600; }
+            .runtime      { color:#888; font-style:italic; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
@@ -100,24 +103,29 @@ class SymbolTable:
             scopes_local = self.scope_stack
 
         def _display(valor):
-            if isinstance(valor, str) and valor.startswith('t') and valor[1:].isdigit():
-                return '(calculado en runtime)'
-            return '—' if valor is None else valor
+            # Este compilador no evalúa runtime — siempre mostramos "(runtime)"
+            return '<span class="runtime">(runtime)</span>'
 
         for identifier, data in global_data.items():
             html += (
-                f"<tr><td>{identifier}</td><td>{data['type']}</td>"
+                f"<tr>"
+                f"<td>{identifier}</td>"
+                f"<td>{data['type']}</td>"
                 f"<td><span class='scope-global'>global</span></td>"
-                f"<td>{_display(data['value'])}</td></tr>"
+                f"<td>{_display(data.get('value'))}</td>"
+                f"</tr>"
             )
 
         for scope in scopes_local:
             for identifier, data in scope.items():
                 ambito = data.get('scope', 'local')
                 html += (
-                    f"<tr><td>{identifier}</td><td>{data['type']}</td>"
+                    f"<tr>"
+                    f"<td>{identifier}</td>"
+                    f"<td>{data['type']}</td>"
                     f"<td><span class='scope-local'>{ambito}</span></td>"
-                    f"<td>{_display(data['value'])}</td></tr>"
+                    f"<td>{_display(data.get('value'))}</td>"
+                    f"</tr>"
                 )
 
         html += "</table>"

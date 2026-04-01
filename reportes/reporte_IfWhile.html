@@ -154,30 +154,28 @@
     <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
         <table style='width:100%;border-collapse:collapse;
                       font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
-            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>t0 = x + y</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>t1 = x - 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>x = 5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>y = 3</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>resultado = 0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>resultado = t0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>cout &lt;&lt; resultado &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>// INICIO IF</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>t2 = resultado &gt; 5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>if !(t2) goto L0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>bandera = 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>goto L1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>// ELSE</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>bandera2 = 0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>L1:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>// FIN IF</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>// INICIO WHILE</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>L2:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>t3 = x &gt; 0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>if !(t3) goto L3</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>x = t1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>cout &lt;&lt; x &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>goto L2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>// FIN WHILE</td></tr>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>x = 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>y = 3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>resultado = 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>resultado = x + y</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>cout &lt;&lt; resultado &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>t1 = resultado &gt; 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>if !(t1) goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>bandera = 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>goto L1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>// ELSE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>bandera2 = 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>L1:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// FIN IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>// INICIO WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>L2:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>t2 = x &gt; 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>if !(t2) goto L3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>x = x - 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>cout &lt;&lt; x &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>goto L2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>// FIN WHILE</td></tr>
 
         </table>
     </div>
@@ -200,24 +198,22 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>    int x;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    int y;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>        auto t0 = x + y;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>        auto t1 = x - 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        x = 5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>        y = 3;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        resultado = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>        resultado = t0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>        cout &lt;&lt; resultado &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>        if (resultado &gt; 5) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>            bandera = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>        } else {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>            bandera2 = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>        }  // fin else</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>        while (x &gt; 0) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>            x = t1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>            cout &lt;&lt; x &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>        }  // fin while</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    return 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>        x = 5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>        y = 3;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        resultado = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>        resultado = x + y;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        cout &lt;&lt; resultado &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>        if (resultado &gt; 5) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>            bandera = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>        } else {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>            bandera2 = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>        }  // fin else</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>        while (x &gt; 0) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>            x = x - 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>            cout &lt;&lt; x &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>        }  // fin while</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>}</td></tr>
 
         </table>
     </div>aja
@@ -233,10 +229,11 @@
             .sym-table tr:hover td { background:#f9f9f9; }
             .scope-global { color:#1a5276; font-weight:600; }
             .scope-local  { color:#117a65; font-weight:600; }
+            .runtime      { color:#888; font-style:italic; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>x</td><td>entei</td><td><span class='scope-global'>global</span></td><td>5</td></tr><tr><td>y</td><td>entei</td><td><span class='scope-global'>global</span></td><td>3</td></tr><tr><td>resultado</td><td>entei</td><td><span class='scope-global'>global</span></td><td>0</td></tr><tr><td>bandera</td><td>entei</td><td><span class='scope-global'>global</span></td><td>1</td></tr><tr><td>bandera2</td><td>entei</td><td><span class='scope-global'>global</span></td><td>0</td></tr></table>
+        <tr><td>x</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>y</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>resultado</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>bandera</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>bandera2</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr></table>
     </div>
 
 </body>

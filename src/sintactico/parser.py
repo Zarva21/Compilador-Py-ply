@@ -4,11 +4,11 @@ from src.sintactico.errorsParser import p_error
 
 class Parser:
     def __init__(self, lexer, sintactic_errors, semantic_handler):
-        self.lexer   = lexer
-        self.errors  = sintactic_errors
+        self.lexer    = lexer
+        self.errors   = sintactic_errors
         self.semantic = semantic_handler
-        self.tokens  = lexer.tokens
-        self.parser  = yacc.yacc(module=self, debug=False, write_tables=False)
+        self.tokens   = lexer.tokens
+        self.parser   = yacc.yacc(module=self, debug=False, write_tables=False)
 
     precedence = (
         ('left', 'MAS', 'MENOS'),
@@ -78,10 +78,6 @@ class Parser:
                        | BOOFALANT IDENTIFIER EQUALS expression SEMICOLON
                        | STANTLER IDENTIFIER SEMICOLON
                        | STANTLER IDENTIFIER EQUALS expression SEMICOLON'''
-        # ── FIX scope: usar en_funcion en lugar de inspeccionar scope_stack ──
-        # scope_stack siempre tiene al menos el scope global después del enter_scope()
-        # inicial del parser, así que "not scope_stack" siempre sería False.
-        # La fuente de verdad real es self.semantic.en_funcion.
         scope      = 'local' if self.semantic.en_funcion else 'global'
         identifier = p[2]
         value      = p[4] if len(p) > 4 else None
@@ -129,7 +125,7 @@ class Parser:
 
     def p_do_while_loop(self, p):
         'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN condition RPAREN SEMICOLON'
-        body = p[3] if isinstance(p[3], list) else []
+        body      = p[3] if isinstance(p[3], list) else []
         condition = p[7]
         if not callable(condition):
             self.errors.encolar_error("La condición del do-while no es válida.")
@@ -139,7 +135,7 @@ class Parser:
 
     def p_while_loop(self, p):
         'while_loop : WAILORD LPAREN condition RPAREN LBRACE program RBRACE'
-        body = p[6] if isinstance(p[6], list) else []
+        body      = p[6] if isinstance(p[6], list) else []
         condition = p[3]
         if not callable(condition):
             self.errors.encolar_error("La condición del while no es válida.")
@@ -157,10 +153,6 @@ class Parser:
         else_body = p[10] if len(p) > 8 else []
         p[0] = self.semantic.handle_if(condition, if_body, else_body)
 
-    # ── FIX condition: acepta expresión RELOP expresión ──────────────────
-    # Antes solo aceptaba:  IDENTIFIER RELOP expression
-    # Ahora acepta:         expression RELOP expression
-    # Esto permite: (x + 2) == 0,  x * 3 > y - 1, etc.
     def p_condition(self, p):
         'condition : expression RELOP expression'
         p[0] = self.semantic.evaluate_condition_dynamic(p[1], p[2], p[3])
@@ -174,7 +166,7 @@ class Parser:
     def p_cases(self, p):
         '''cases : case
                  | cases case'''
-        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
     def p_case(self, p):
         'case : KECLEON value COLON program'
@@ -209,34 +201,43 @@ class Parser:
         p[0] = do_return
 
     # ── Expresiones ───────────────────────────
+    #
+    # REGLA CLAVE: las expresiones NO emiten IR durante el parse.
+    # Devuelven una tupla (left, op, right) que se resuelve después,
+    # cuando el callable padre (declaration, assignment, etc.) se ejecuta.
+    #
+    # Así se evita que t0 = x + y aparezca en el IR antes de que
+    # x e y hayan sido declaradas.
 
     def p_expression(self, p):
         '''expression : expression MAS term
-                    | expression MENOS term'''
-
+                      | expression MENOS term'''
+        # Capturar por valor en el closure para evitar problemas con PLY
+        # borrar esto
+        print(f" [EXPR] Capturando expresión: {p[1]} {p[2]} {p[3]}")
         left = p[1]
+        op   = p[2]
         right = p[3]
-        op = p[2]
-
-        if callable(left):
-            left = left()
-        if callable(right):
-            right = right()
-
-        temp = self.semantic.intercode_generator.new_temp()
-        self.semantic.intercode_generator.emit(f"{temp} = {left} {op} {right}")
-
-        p[0] = temp
-
+        # Devolver tupla — diferido, no emite nada aquí
+        p[0] = (left, op, right)
+        
+        
     def p_expression_term(self, p):
-        '''expression : term'''
+        'expression : term'
         p[0] = p[1]
 
     def p_term(self, p):
         '''term : term MUL factor
-                | term DIV factor
-                | factor'''
-        p[0] = (p[1], p[2], p[3]) if len(p) == 4 else p[1]
+                | term DIV factor'''
+        left  = p[1]
+        op    = p[2]
+        right = p[3]
+        # Tupla diferida igual que expression
+        p[0] = (left, op, right)
+
+    def p_term_factor(self, p):
+        'term : factor'
+        p[0] = p[1]
 
     def p_factor(self, p):
         '''factor : NUMBER
@@ -246,11 +247,11 @@ class Parser:
                   | LPAREN expression RPAREN
                   | method_call'''
         if len(p) == 4:
-            p[0] = p[2]                        # (expression)
+            p[0] = p[2]                         # (expression) — ya es tupla o literal
         elif len(p) == 2 and callable(p[1]):
-            p[0] = p[1]                        # method_call ya es callable
+            p[0] = p[1]                         # method_call es callable
         else:
-            p[0] = self.semantic.handle_factor(p[1])
+            p[0] = self.semantic.handle_factor(p[1])   # NUMBER, IDENTIFIER, literal
 
     # ── Funciones ─────────────────────────────
 
@@ -281,6 +282,7 @@ class Parser:
                 params = []
                 body   = p[7]
 
+        # Registrar DURANTE el parse — así las llamadas recursivas ya la encuentran
         self.semantic.register_function(name, return_type, params, body)
 
         def define():
@@ -356,20 +358,13 @@ class Parser:
             print("Ejecutando AST...")
             self.semantic.symbol_table.enter_scope()
 
-            # ── Primera pasada: solo declaraciones de función ──
+            # Pasada única — todas las funciones ya están registradas en self.methods
+            # porque register_function() se llamó durante el parse en p_function_declaration.
+            # No hace falta una pasada separada para funciones.
             for stmt in parsed:
-                if hasattr(stmt, '__is_function_decl__') and stmt.__is_function_decl__:
-                    if callable(stmt):
-                        stmt()
+                if callable(stmt):
+                    stmt()
 
-            # ── Segunda pasada: resto del código ──
-            for stmt in parsed:
-                if not (hasattr(stmt, '__is_function_decl__') and stmt.__is_function_decl__):
-                    if callable(stmt):
-                        stmt()
-
-            # Congelar estado completo ANTES de cerrar el scope raíz
-            # Esto permite que toHtml() muestre globales + locales correctamente
             self.semantic.symbol_table.guardar_snapshot_final()
             self.semantic.symbol_table.exit_scope()
 

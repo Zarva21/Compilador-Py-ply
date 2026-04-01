@@ -14,6 +14,7 @@ from src.semantico.handle import handle_method_call
 from src.semantico.handle import handle_if
 from src.semantico.handle import handle_switch
 from src.semantico.handle import _save_iteration_state
+from src.semantico.handle import _resolve_ir   # necesario para handle_return
 
 
 class Semantic:
@@ -27,10 +28,6 @@ class Semantic:
 
     # ── Registro inmediato de función (durante parseo) ────────────────────
     def register_function(self, name, return_type, params, body):
-        """
-        Registra la función en self.methods INMEDIATAMENTE durante el parseo,
-        antes de que el AST se ejecute. Así las llamadas la encuentran siempre.
-        """
         self.methods[name] = {
             'return_type': return_type,
             'params':      params or [],
@@ -39,10 +36,6 @@ class Semantic:
         print(f"[REGISTRO] Función '{name}' registrada con params={params}")
 
     def execute_function_declaration(self, name):
-        """
-        Ejecuta la declaración de función (emite código intermedio).
-        Se llama en la primera pasada del AST.
-        """
         if name not in self.methods:
             return
         info = self.methods[name]
@@ -96,7 +89,6 @@ class Semantic:
         return handle_while(self, condition_fn, body)
 
     def handle_method_declaration(self, name, return_type, body, params=None):
-        """Compatibilidad — registra y delega."""
         self.register_function(name, return_type, params or [], body)
         return handle_method_declaration(self, name, body)
 
@@ -115,22 +107,21 @@ class Semantic:
         return action
 
     def handle_return(self, value):
-        def action():
-            def evaluar_ir(val):
-                """Retorna el nombre IR correcto, NO el valor evaluado."""
-                if isinstance(val, tuple) and len(val) == 3:
-                    l, op, r = val
-                    temp = self.intercode_generator.new_temp()
-                    self.intercode_generator.emit(f"{temp} = {l} {op} {r}")
-                    return temp
-                elif isinstance(val, str):
-                    # ▶▶ FIX: retornar el nombre de la variable, no su valor
-                    return val
-                elif isinstance(val, (int, float, bool)):
-                    return str(val)
-                return str(val)
+        """
+        FIX: usar _resolve_ir en lugar de evaluar_ir propio.
 
-            ir_val = evaluar_ir(value)
+        Antes tenía su propio evaluar_ir() que:
+          - No manejaba callables dentro de tuplas
+          - No era recursivo correctamente
+          - Perdía la expresión doble(x) + x convirtiéndola en t2 sin definición
+
+        Ahora delega a _resolve_ir que:
+          - Sí maneja callables (ejecuta method_call y obtiene el temporal)
+          - Sí es recursivo (resuelve tuplas anidadas)
+          - Emite el IR correcto antes del raikou
+        """
+        def action():
+            ir_val = _resolve_ir(self, value)
             self.intercode_generator.emit(f"raikou {ir_val}")
 
         return action

@@ -9,12 +9,10 @@ int main() {
     int x;
     int y;
 
-        auto t0 = x + y;
-        auto t1 = x - 1;
         x = 5;
         y = 3;
         resultado = 0;
-        resultado = t0;
+        resultado = x + y;
         cout << resultado << endl;
         if (resultado > 5) {
             bandera = 1;
@@ -22,7 +20,7 @@ int main() {
             bandera2 = 0;
         }  // fin else
         while (x > 0) {
-            x = t1;
+            x = x - 1;
             cout << x << endl;
         }  // fin while
     return 0;

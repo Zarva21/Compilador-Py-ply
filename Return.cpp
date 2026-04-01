@@ -3,7 +3,7 @@
 using namespace std;
 
 int sumar(int a, int b) {
-    auto resultado = t0;
+    auto resultado = a + b;
     return resultado;
 }
 
@@ -18,12 +18,11 @@ int main() {
     int x;
     int y;
 
-        auto t0 = a + b;
-        auto t1 = sumar(x, y);
-        auto t2 = imprimirMensaje();
         x = 10;
         y = 20;
+        auto t1 = sumar(x, y);
         total = t1;
         cout << total << endl;
+        auto t2 = imprimirMensaje();
     return 0;
 }

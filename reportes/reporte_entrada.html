@@ -242,14 +242,167 @@
 
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Error</td><td>Error: Método 'factorial' no está definido.</td><td>-</td><td>-</td></tr>
-<tr><td>2</td><td>Error</td><td>No se puede aplicar '*' entre str y str</td><td>-</td><td>-</td></tr>
-</table></div>
+        <p style='color: green;'>No se encontraron errores.</p>
     </div>
 
-    <div class="section"><h2 class="err"> Código Intermedio</h2><p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p></div>
-    <div class="section"><h2 class="err"> Código C++ Generado</h2><p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p></div>
     
+    <div class="section">
+        <h2 class="ok"> Código Intermedio</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>x = 10</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>cout &lt;&lt; x &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>y = 3.14</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>z = hola</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>t0 = x &gt; 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>if !(t0) goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>a = 20</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>goto L1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>// ELSE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>b = 30</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>L1:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>// FIN IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>globalvar = 100</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>function entei  doble(entei x):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>t1 = x * 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>raikou t1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>function entei  triple(entei x):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>param x</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>t2 = call doble(x)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>t3 = t2 + x</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>raikou t3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>// INICIO WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>L2:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>t4 = x &gt; 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>if !(t4) goto L3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>t5 = x + 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>t6 = t5 == 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>if !(t6) goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>cout &lt;&lt; x &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>goto L5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>// ELSE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>cout &lt;&lt; 0 &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>L5:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>// FIN IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>x = x - 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>goto L2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>// FIN WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>t8 = x + y</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>t9 = x - 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>t10 = t8 * t9</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>resultado = t10 / 3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>function entei  factorial(entei n):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>t12 = n == 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>if !(t12) goto L6</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>raikou 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>goto L7</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>// ELSE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>t14 = n - 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>param t14</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>t13 = call factorial(t14)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>t15 = n * t13</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>raikou t15</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>L7:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>// FIN IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>end</td></tr>
+
+        </table>
+    </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Código C++ Generado</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>#include &lt;iostream&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>#include &lt;string&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>int doble(int x) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    auto t1 = x * 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    return t1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>int triple(int x) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    auto t2 = doble(x);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    auto t3 = t2 + x;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>    return t3;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>int factorial(int n) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>    if (n == 0) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>    return 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>    auto t14 = n - 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>    auto t13 = factorial(t14);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>    auto t15 = n * t13;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>    return t15;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>int main() {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>    int a;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    int b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>    int globalvar;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>    int resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>    int x;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>    float y;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>    string z;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>        x = 10;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>        cout &lt;&lt; x &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>        y = 3.14;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>        z = "hola";</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>        if (x &gt; 5) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>            a = 20;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>        } else {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>            b = 30;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>        }  // fin else</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>        globalvar = 100;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>        while (x &gt; 0) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>            auto t5 = x + 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>            if (t5 == 0) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>                cout &lt;&lt; x &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>            } else {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>                cout &lt;&lt; 0 &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>            }  // fin else</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>            x = x - 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>        }  // fin while</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>        auto t8 = x + y;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>        auto t9 = x - 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>        auto t10 = t8 * t9;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>        resultado = t10 / 3;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>}</td></tr>
+
+        </table>
+    </div>aja
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        
+        <style>
+            .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+            .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
+            .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
+            .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
+            .runtime      { color:#888; font-style:italic; }
+        </style>
+        <table class="sym-table">
+            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+        <tr><td>x</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>y</td><td>floatzel</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>z</td><td>stantler</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>a</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>b</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>globalvar</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr><tr><td>resultado</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="runtime">(runtime)</span></td></tr></table>
+    </div>
 
 </body>
 </html>
