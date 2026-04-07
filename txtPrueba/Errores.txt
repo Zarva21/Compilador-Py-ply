@@ -1,0 +1,14 @@
+cm Ejemplo 1 Variable no declarada
+
+entei a as 5 pyc
+b as 10 pyc
+
+cm Ejemplo 2 Asignacion sin operador as
+
+entei a as 5 pyc
+a su 1 pyc
+
+cm Ejemplo 3 Falta cerrar bloque
+
+evee ps a ma 3 pc ls
+    pikachu cd hola cd pyc

@@ -8,6 +8,23 @@ class ccodeGen:
         'gardevoir': 'void',
     }
 
+    # Mapa de operadores Pokémon → C++
+    # El IR puede contener operadores en cualquiera de los dos formatos
+    # dependiendo de si el lexer los tokenizó como símbolo o como keyword.
+    OPS = {
+        'su':  '+',
+        're':  '-',
+        'mu':  '*',
+        'di':  '/',
+        'as':  '=',
+        'ig':  '==',
+        'ni':  '!=',
+        'me':  '<',
+        'ma':  '>',
+        'mei': '<=',
+        'mai': '>=',
+    }
+
     def __init__(self, ir, symbol_table=None):
         self.ir               = ir
         self.symbol_table     = symbol_table or {}
@@ -18,9 +35,8 @@ class ccodeGen:
         self._next_is_while   = False
         self._next_is_for     = False
         self._next_is_dowhile = False
-        self._declared_vars   = set()  # variables ya declaradas en main
+        self._declared_vars   = set()
 
-        # FIX 3: estado de variables locales por función
         self._func_params = set()
         self._func_locals = set()
 
@@ -29,6 +45,8 @@ class ccodeGen:
             if stripped.endswith(':') and not stripped.startswith('//'):
                 label = stripped[:-1].strip()
                 self.label_to_index[label] = idx
+
+    # ── Utilidades ────────────────────────────────────────────────────────
 
     def _indent(self):
         return '    ' * self.indent_level
@@ -46,6 +64,17 @@ class ccodeGen:
             except ValueError:
                 return f'"{right}"'
         return right
+
+    def _translate_ops(self, expr):
+        """
+        Traduce operadores Pokémon dentro de una expresión IR a C++.
+        Ejemplo: 'a ma 3'  → 'a > 3'
+                 'x mu 2'  → 'x * 2'
+        Solo reemplaza tokens exactos separados por espacios para evitar
+        reemplazar partes de nombres de variables.
+        """
+        tokens = expr.split()
+        return ' '.join(self.OPS.get(t, t) for t in tokens)
 
     def _parse_function_header(self, line):
         """Parsea 'function entei cuadrado(entei n):' → (ret_cpp, fname, params_cpp)"""
@@ -84,8 +113,9 @@ class ccodeGen:
 
         return ret_cpp, fname, params_cpp
 
+    # ── Generación principal ──────────────────────────────────────────────
+
     def generate(self):
-        # ── Separar IR en funciones y main ──
         func_ir = []
         main_ir = []
         in_func = False
@@ -103,7 +133,7 @@ class ccodeGen:
             else:
                 main_ir.append(stripped)
 
-        # ── Extraer temporales de condición del main ──
+        # Extraer temporales de condición del main
         filtered_main = []
         for line in main_ir:
             if ('=' in line
@@ -112,13 +142,14 @@ class ccodeGen:
                     and not line.endswith(':')
                     and not line.startswith('//')):
                 left, right = map(str.strip, line.split('=', 1))
+                right_cpp   = self._translate_ops(right)
                 rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
-                    self.temp_conditions[left] = right
+                if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
+                    self.temp_conditions[left] = right_cpp
                     continue
             filtered_main.append(line)
 
-        # ── También extraer temporales de condición de funciones ──
+        # Extraer temporales de condición de funciones
         for line in func_ir:
             if ('=' in line
                     and not line.startswith('if')
@@ -128,14 +159,13 @@ class ccodeGen:
                 parts = line.split('=', 1)
                 if len(parts) == 2:
                     left, right = map(str.strip, parts)
+                    right_cpp   = self._translate_ops(right)
                     rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
-                        self.temp_conditions[left] = right
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
+                        self.temp_conditions[left] = right_cpp
 
-        # ── Generar funciones C++ ──
         func_cpp = self._generate_functions(func_ir)
 
-        # ── Cabecera ──
         self.cpp_code = [
             '#include <iostream>',
             '#include <string>',
@@ -147,17 +177,14 @@ class ccodeGen:
             self.cpp_code.extend(func_cpp)
             self.cpp_code.append('')
 
-        # ── main ──
         self.cpp_code.append('int main() {')
 
-        # Declarar variables globales (solo una vez)
         for var_name, info in sorted(self.symbol_table.items()):
             cpp_t = self.TIPOS.get(info.get('type', '').lower(), 'auto')
             self.cpp_code.append(f'    {cpp_t} {var_name};')
             self._declared_vars.add(var_name)
         self.cpp_code.append('')
 
-        # ── Procesar main IR ──
         open_blocks = []
         self._process_ir(filtered_main, open_blocks)
 
@@ -169,13 +196,21 @@ class ccodeGen:
         self.cpp_code.append('    return 0;')
         self.cpp_code.append('}')
 
+    # ── Generación de funciones ───────────────────────────────────────────
+
     def _generate_functions(self, func_ir):
-        result = []
-        i      = 0
-        indent = 1
+        """
+        Genera C++ para cada función del IR.
+        Maneja correctamente if-else dentro de funciones usando una pila
+        de bloques abiertos, igual que _process_ir para el main.
+        """
+        result       = []
+        i            = 0
+        indent       = 1
+        open_blocks  = []   # pila de bloques abiertos dentro de la función actual
         func_temp_conditions = {}
 
-        # Pre-extraer temporales de condición de funciones
+        # Pre-extraer temporales de condición
         for line in func_ir:
             if ('=' in line
                     and not line.startswith('if')
@@ -185,19 +220,20 @@ class ccodeGen:
                 parts = line.split('=', 1)
                 if len(parts) == 2:
                     left, right = map(str.strip, parts)
+                    right_cpp   = self._translate_ops(right)
                     rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
-                        func_temp_conditions[left] = right
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
+                        func_temp_conditions[left] = right_cpp
 
         while i < len(func_ir):
             line = func_ir[i]
 
+            # ── Encabezado de función ──
             if line.startswith('function ') and line.endswith(':'):
                 parsed = self._parse_function_header(line)
                 if parsed:
                     ret_cpp, fname, params_cpp = parsed
                     result.append(f'{ret_cpp} {fname}({params_cpp}) {{')
-                    # FIX 3: resetear tracking de parámetros y locales por función
                     self._func_params = set()
                     self._func_locals = set()
                     if params_cpp:
@@ -211,20 +247,95 @@ class ccodeGen:
                     result.append(f'void {fname}() {{')
                     self._func_params = set()
                     self._func_locals = set()
-                indent = 1
+                indent      = 1
+                open_blocks = []
                 i += 1
                 continue
 
+            # ── Fin de función ──
             if line == 'end':
+                # Cerrar bloques que quedaron abiertos
+                while open_blocks:
+                    open_blocks.pop()
+                    indent -= 1
+                    result.append('    ' * indent + '}')
                 result.append('}')
                 result.append('')
-                # FIX 3: limpiar al salir de función
                 self._func_params = set()
                 self._func_locals = set()
                 i += 1
                 continue
 
-            # Saltar temporales de condición
+            # ── Comentarios de estructura ──
+            if line.startswith('//'):
+                tag = line.strip()
+                prefix = '    ' * indent
+
+                if tag == '// INICIO IF':
+                    i += 1; continue
+
+                elif tag == '// FIN IF':
+                    if open_blocks:
+                        open_blocks.pop()
+                        indent -= 1
+                        result.append('    ' * indent + '}')
+                    i += 1; continue
+
+                elif tag == '// ELSE':
+                    if open_blocks and open_blocks[-1] == 'if':
+                        open_blocks.pop()
+                        indent -= 1
+                        result.append('    ' * indent + '} else {')
+                        indent += 1
+                        open_blocks.append('else')
+                    i += 1; continue
+
+                elif tag == '// FIN WHILE':
+                    if open_blocks:
+                        open_blocks.pop()
+                        indent -= 1
+                        result.append('    ' * indent + '}')
+                    i += 1; continue
+
+                elif tag == '// INICIO WHILE':
+                    i += 1; continue
+
+                elif tag == '// INICIO FOR':
+                    i += 1; continue
+
+                elif tag == '// FIN FOR':
+                    if open_blocks:
+                        open_blocks.pop()
+                        indent -= 1
+                        result.append('    ' * indent + '}')
+                    i += 1; continue
+
+                elif tag == '//INICIO DO-WHILE':
+                    result.append(prefix + 'do {')
+                    indent += 1
+                    open_blocks.append('do')
+                    i += 1; continue
+
+                elif tag == '//FIN DO-WHILE':
+                    i += 1; continue
+
+                else:
+                    i += 1; continue
+
+            # ── Etiquetas ──
+            if line.endswith(':') and not line.startswith('if'):
+                i += 1; continue
+
+            # ── param (se salta, solo documentativo) ──
+            if line.startswith('param '):
+                i += 1; continue
+
+            # ── goto ──
+            if line.startswith('goto'):
+                # No emitir goto en C++ — la estructura la manejan los comentarios
+                i += 1; continue
+
+            # ── Saltar temporales de condición ──
             if ('=' in line
                     and not line.startswith('if')
                     and not line.startswith('goto')
@@ -233,62 +344,83 @@ class ccodeGen:
                 parts = line.split('=', 1)
                 if len(parts) == 2:
                     left, right = map(str.strip, parts)
+                    right_cpp   = self._translate_ops(right)
                     rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                    if left.startswith('t') and left[1:].isdigit() and any(op in right for op in rel_ops):
+                    if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
+                        func_temp_conditions[left] = right_cpp
                         i += 1
                         continue
 
-            prefix = '    ' * indent
-            translated = self._translate_func_line(line, func_temp_conditions)
-            if translated is not None:
+            prefix     = '    ' * indent
+            translated = self._translate_func_line(line, func_temp_conditions, indent, open_blocks)
+
+            if isinstance(translated, list):
+                # Puede devolver múltiples líneas (e.g. if abre bloque)
+                for tl in translated:
+                    if tl is not None:
+                        result.append(tl)
+            elif translated is not None:
                 result.append(f'{prefix}{translated}')
+
             i += 1
 
         return result
 
-    def _translate_func_line(self, line, temp_conds):
-        if line.endswith(':') and not line.startswith('if'):
-            return None
-        if line.startswith('//') or line.startswith('param '):
-            return None
-        if line.startswith('goto'):
-            return None
+    def _translate_func_line(self, line, temp_conds, indent, open_blocks):
+        prefix = '    ' * indent
+
         if line.startswith('raikou '):
-            return f'return {line[len("raikou "):].strip()};'
+            val = self._translate_ops(line[len('raikou '):].strip())
+            return f'return {val};'
+
         if line.startswith('cout'):
-            return f'{line};'
+            return f'{self._translate_ops(line)};'
+
         if '= call ' in line:
             left, right = line.split('= call ', 1)
             return f'auto {left.strip()} = {right.strip()};'
+
         if line.startswith('call '):
             return f'{line[5:].strip()};'
+
+        # if !(cond) goto → abre bloque if o while
         if line.startswith('if !('):
             cond_raw  = line[5:line.index(') goto')].strip()
-            cond_real = temp_conds.get(cond_raw, cond_raw)
-            return f'if ({cond_real}) {{'
+            cond_real = temp_conds.get(cond_raw, self._translate_ops(cond_raw))
+            open_blocks.append('if')
+            indent += 1
+            return [f'{prefix}if ({cond_real}) {{']
+
+        # if (cond) goto → cierre do-while
+        if line.startswith('if ('):
+            cond_raw  = line[4:line.index(') goto')].strip()
+            cond_real = temp_conds.get(cond_raw, self._translate_ops(cond_raw))
+            if open_blocks and open_blocks[-1] == 'do':
+                open_blocks.pop()
+                indent -= 1
+                return [f'{"    " * indent}}} while ({cond_real});']
+            return None
+
         if '=' in line and not line.startswith('if'):
             left, right = map(str.strip, line.split('=', 1))
+            right_cpp   = self._translate_ops(right)
 
-            # Saltar temporales de condición ya procesados
             if left.startswith('t') and left[1:].isdigit() and left in temp_conds:
                 return None
 
-            # Temporales de expresión → auto
             if left.startswith('t') and left[1:].isdigit():
-                return f'auto {left} = {right};'
+                return f'auto {left} = {right_cpp};'
 
-            # FIX 3 + 4: declarar variable local si es nueva en esta función
             if left not in self._func_params and left not in self._func_locals:
                 self._func_locals.add(left)
-                # FIX 4: intentar inferir tipo desde symbol_table (globales),
-                # si no se encuentra usar 'auto' — válido en C++11 y superior
                 cpp_type = self._cpp_type(left)
-                return f'{cpp_type} {left} = {right};'
+                return f'{cpp_type} {left} = {right_cpp};'
 
-            # Variable ya declarada → solo asignar
-            return f'{left} = {right};'
+            return f'{left} = {right_cpp};'
 
-        return f'{line};'
+        return f'{self._translate_ops(line)};'
+
+    # ── Procesamiento del main ────────────────────────────────────────────
 
     def _process_ir(self, filtered_ir, open_blocks):
         i = 0
@@ -388,19 +520,16 @@ class ccodeGen:
                 else:
                     i += 1; continue
 
-            # Etiquetas
             if line.endswith(':') and not line.startswith('if'):
                 i += 1; continue
 
-            # param
             if line.startswith('param '):
                 i += 1; continue
 
-            # if !(cond) goto
             if line.startswith('if !('):
                 cond_raw  = line[5:line.index(') goto')].strip()
                 target    = line.split('goto')[1].strip()
-                cond_real = self.temp_conditions.get(cond_raw, cond_raw)
+                cond_real = self.temp_conditions.get(cond_raw, self._translate_ops(cond_raw))
 
                 if self._next_is_while:
                     self.cpp_code.append(f'{self._indent()}while ({cond_real}) {{')
@@ -421,17 +550,15 @@ class ccodeGen:
                 self.indent_level += 1
                 i += 1; continue
 
-            # if (cond) goto (do-while)
             if line.startswith('if ('):
                 cond_raw  = line[4:line.index(') goto')].strip()
-                cond_real = self.temp_conditions.get(cond_raw, cond_raw)
+                cond_real = self.temp_conditions.get(cond_raw, self._translate_ops(cond_raw))
                 if open_blocks and open_blocks[-1] == 'do':
                     open_blocks.pop()
                     self.indent_level -= 1
                     self.cpp_code.append(f'{self._indent()}}} while ({cond_real});')
                 i += 1; continue
 
-            # goto
             if line.startswith('goto'):
                 target     = line.split('goto')[1].strip()
                 target_idx = self.label_to_index.get(target, i + 1)
@@ -441,18 +568,15 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}}}  // fin {block}')
                 i += 1; continue
 
-            # cout
             if line.startswith('cout'):
-                self.cpp_code.append(f'{self._indent()}{line};')
+                self.cpp_code.append(f'{self._indent()}{self._translate_ops(line)};')
                 i += 1; continue
 
-            # raikou
             if line.startswith('raikou '):
-                val = line[len('raikou '):].strip()
+                val = self._translate_ops(line[len('raikou '):].strip())
                 self.cpp_code.append(f'{self._indent()}return {val};')
                 i += 1; continue
 
-            # call con asignación — NO redeclarar si ya existe
             if '= call ' in line:
                 left, right = line.split('= call ', 1)
                 left  = left.strip()
@@ -463,31 +587,26 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
                 i += 1; continue
 
-            # call sin asignación
             if line.startswith('call '):
                 self.cpp_code.append(f'{self._indent()}{line[5:].strip()};')
                 i += 1; continue
 
-            # Asignaciones
             if '=' in line and not line.startswith('if'):
                 left, right = map(str.strip, line.split('=', 1))
+                right_cpp   = self._translate_ops(right)
 
-                # Saltar temporales de condición
                 if left.startswith('t') and left[1:].isdigit() and left in self.temp_conditions:
                     i += 1; continue
 
-                # Temporales de expresión → auto
                 if left.startswith('t') and left[1:].isdigit():
-                    self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
+                    self.cpp_code.append(f'{self._indent()}auto {left} = {right_cpp};')
                     i += 1; continue
 
-                # Variables normales
-                right = self._add_string_quotes(left, right)
-                self.cpp_code.append(f'{self._indent()}{left} = {right};')
+                right_cpp = self._add_string_quotes(left, right_cpp)
+                self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
                 i += 1; continue
 
-            # Línea genérica
-            self.cpp_code.append(f'{self._indent()}{line};')
+            self.cpp_code.append(f'{self._indent()}{self._translate_ops(line)};')
             i += 1
 
     def get_cpp_code(self):

@@ -11,7 +11,7 @@ lc
 
 wailord ps a me b pc ls
     pikachu cd loop ejecutandose cd pyc
-    a su 1 pyc
+    a as a su 1 pyc
 lc
 
 stantler c as cs x cs pyc

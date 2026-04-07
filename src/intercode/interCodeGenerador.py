@@ -23,6 +23,22 @@ class interCodeGenerator:
         self.label_counter += 1
         return label
 
+    def generate_while(self):
+        # ... emite etiquetas y condición ...
+        self.emit(f"// INICIO WHILE")
+        self.emit(f"{label_inicio}:")
+        self.emit(f"t{n} = {cond_left} {op} {cond_right}")
+        self.emit(f"if !(t{n}) goto {label_fin}")
+
+        # ← AQUÍ está el fix: iterar hasta lc, no una sola instrucción
+        while self.current_token != 'lc':
+            self.generate_statement()   # procesa cada instrucción del bloque
+
+        self.consume('lc')
+        self.emit(f"goto {label_inicio}")
+        self.emit(f"{label_fin}:")
+        self.emit(f"// FIN WHILE")
+
     def get_cond_index(self, base_name='cond'):
         if base_name not in self.condition_counter:
             self.condition_counter[base_name] = 0

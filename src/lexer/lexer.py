@@ -141,6 +141,18 @@ class Lexer:
             tokens.append((tok.type, tok.value, fila, col))
         return tokens
 
+
+    #Comentarios
+    def t_COMMENT_SINGLELINE(self,t):
+        r'cm.*'
+        pass
+
+    def t_COMMENT_MULTILINE(self, t):
+        r'icm(.|\n)*?fcm'
+        t.lexer.lineno += t.value.count('\n')
+        pass
+
+
     def t_STRING_LITERAL(self, t):
         r'cd[^\n]*?cd'
         t.value = t.value[2:-2]
@@ -198,16 +210,7 @@ class Lexer:
 
         return t
 
-    #Comentarios
-    def t_COMMENT_SINGLELINE(self,t):
-        r'cm.*'
-        pass
-
-    def t_COMMENT_MULTILINE(self, t):
-        r'icm(.|\n)*?fcm'
-        t.lexer.lineno += t.value.count('\n')
-        pass
-
+    
 
 
     #Numeros 
