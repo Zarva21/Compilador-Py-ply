@@ -52,8 +52,13 @@ class Parser:
     # ── Print ─────────────────────────────────
 
     def p_print_statement(self, p):
-        'print_statement : PIKACHU LPAREN expression RPAREN SEMICOLON'
-        p[0] = self.semantic.handle_print(p[3])
+        '''print_statement : PIKACHU LPAREN expression RPAREN SEMICOLON
+                           | PIKACHU STRING_LITERAL SEMICOLON'''
+        if len(p) == 6:
+            p[0] = self.semantic.handle_print(p[3])
+        else:
+            val = self.semantic.handle_factor(p[2])
+            p[0] = self.semantic.handle_print(val)
 
     def p_print_error(self, p):
         'print_statement : PIKACHU IDENTIFIER SEMICOLON'
@@ -61,7 +66,7 @@ class Parser:
         col  = self.errors.find_column(p.slice[2])
         self.errors.encolar_error(
             f"Error sintáctico: 'pikachu' mal formado en fila {fila}, col {col}. "
-            f"Sintaxis correcta: pikachu( expresion );"
+            f"Sintaxis correcta: pikachu ps expresion pc pyc"
         )
         p[0] = None
 
@@ -154,7 +159,9 @@ class Parser:
         p[0] = self.semantic.handle_if(condition, if_body, else_body)
 
     def p_condition(self, p):
-        'condition : expression RELOP expression'
+        '''condition : expression RELOP expression
+                     | expression GT expression
+                     | expression LT expression'''
         p[0] = self.semantic.evaluate_condition_dynamic(p[1], p[2], p[3])
 
     # ── Switch ────────────────────────────────

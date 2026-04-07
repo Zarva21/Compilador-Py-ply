@@ -70,13 +70,13 @@ class Lexer:
     ]
 
     reserved = {
-        #Ejemplo, aqui se pone la lista de palabras reservadas 
-        
+        #Ejemplo, aqui se pone la lista de palabras reservadas
+
         'entei': 'ENTEI',
         'floatzel': 'FLOATZEL',
         'charizar' :'CHARIZAR',
         'boofalant':'BOOFALANT',
-        'stantler' : 'STANTLER', 
+        'stantler' : 'STANTLER',
         'evee' : 'EVEE',
         'ekans' : 'EKANS',
         'wailord' : 'WAILORD',
@@ -89,31 +89,35 @@ class Lexer:
         'pikachu': 'PIKACHU',
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
-        'gardevoir' : 'GARDEVOIR'
-        
+        'gardevoir' : 'GARDEVOIR',
+
+        # Símbolos como palabras
+        'as'  : 'EQUALS',
+        'pyc' : 'SEMICOLON',
+        'ls'  : 'LBRACE',
+        'lc'  : 'RBRACE',
+        'ps'  : 'LPAREN',
+        'pc'  : 'RPAREN',
+        'ma'  : 'GT',
+        'me'  : 'LT',
+        'pu'  : 'DOT',
+        'co'  : 'COMMA',
+        'dp'  : 'COLON',
+        'su'  : 'MAS',
+        're'  : 'MENOS',
+        'mu'  : 'MUL',
+        'di'  : 'DIV',
+        # Operadores relacionales
+        'mei' : 'RELOP',
+        'mai' : 'RELOP',
+        'ig'  : 'RELOP',
+        'ni'  : 'RELOP',
         }
     
-    #Ahora pues hay que especificar los tokens 
-    tokens += list(reserved.values())
+    #Ahora pues hay que especificar los tokens (deduplicados)
+    tokens = list(dict.fromkeys(tokens + list(reserved.values())))
 
-    t_COLON = r':'
-    t_RELOP = r'==|!=|<|>|<=|>='
-    
-    t_MAS = r'\+'
-    t_MENOS = r'-'
-    t_MUL = r'\*'
-    t_DIV = r'/'
-    
-    t_EQUALS = r'='
-    t_SEMICOLON = r';'
-    t_LBRACE = r'\{'
-    t_RBRACE = r'\}'
-    t_LPAREN = r'\('
-    t_RPAREN = r'\)'
-    t_GT = r'>'
-    t_LT = r'<'
-    t_DOT = r'\.'
-    t_COMMA = r','
+    # Todos los símbolos-palabra se manejan vía reserved en t_IDENTIFIER
     
 
 
@@ -137,35 +141,70 @@ class Lexer:
             tokens.append((tok.type, tok.value, fila, col))
         return tokens
 
+    def t_STRING_LITERAL(self, t):
+        r'cd[^\n]*?cd'
+        t.value = t.value[2:-2]
+        if t.value.strip() == "":
+            fila, col = self.get_pos(t)
+            self.encolar_error_unico(f"Advertencia: cadena vacía en fila {fila}, columna {col}.")
+        return t
+
+    def t_STRING_UNCLOSED(self, t):
+        r'cd[^\n]*'
+        fila, col = self.get_pos(t)
+        self.encolar_error_unico(
+            f"Error léxico: cadena no cerrada en fila {fila}, col {col}. "
+            f"¿Olvidaste el 'cd' de cierre?"
+        )
+        return None
+
+    def t_CHAR_LITERAL(self, t):
+        r'cs(.*?)cs'
+        contenido = t.value[2:-2].strip()
+        if len(contenido) != 1:
+            fila, col = self.get_pos(t)
+            self.encolar_error_unico(f"Error léxico: carácter inválido '{t.value}' en fila {fila}, columna {col}.")
+            return None
+        t.value = contenido
+        return t
+
+    def t_CHAR_LITERAL_UNCLOSED(self, t):
+        r'cs([^\\\n]|\\.)*$'
+        fila, col = self.get_pos(t)
+        self.encolar_error_unico(f"Error léxico: carácter no cerrado en la fila {fila} y columna {col}.")
+        t.lexer.skip(1)
+
     #Revisa para las palabras reservadas
     def t_IDENTIFIER(self, t):
         r'[a-zA-Z_][a-zA-Z0-9_]*'
         t.type = self.reserved.get(t.value, 'IDENTIFIER')
 
         if t.type == 'IDENTIFIER':
-            # Primero revisa si es una palabra de otro lenguaje (int, if, etc.)
-            sugerencia = self.SUGERENCIAS_LEXICAS.get(t.value.lower())
-            
-            # Si no, usa Levenshtein para ver si se parece a una palabra reservada
-            if not sugerencia:
-                sugerencia = sugerir_palabra_reservada(t.value, self.reserved.keys(), umbral=2)
-            
-            if sugerencia:
-                fila, col = self.get_pos(t)
-                self.encolar_error_unico(
-                    f"Error léxico: '{t.value}' no reconocido en fila {fila}, col {col}. "
-                    f"¿Quisiste escribir '{sugerencia}'?"
-                )
+            # Solo sugerir para palabras de 3+ caracteres (evita falsos positivos en variables cortas)
+            if len(t.value) >= 3:
+                # Primero revisa si es una palabra de otro lenguaje (int, if, etc.)
+                sugerencia = self.SUGERENCIAS_LEXICAS.get(t.value.lower())
+
+                # Si no, usa Levenshtein para ver si se parece a una palabra reservada
+                if not sugerencia:
+                    sugerencia = sugerir_palabra_reservada(t.value, self.reserved.keys(), umbral=2)
+
+                if sugerencia:
+                    fila, col = self.get_pos(t)
+                    self.encolar_error_unico(
+                        f"Error léxico: '{t.value}' no reconocido en fila {fila}, col {col}. "
+                        f"¿Quisiste escribir '{sugerencia}'?"
+                    )
 
         return t
 
-    #Comentarios 
+    #Comentarios
     def t_COMMENT_SINGLELINE(self,t):
-        r'\#.*'
+        r'cm.*'
         pass
 
     def t_COMMENT_MULTILINE(self, t):
-        r'/\*(.|\n)*?\*/'
+        r'icm(.|\n)*?fcm'
         t.lexer.lineno += t.value.count('\n')
         pass
 
@@ -214,42 +253,3 @@ class Lexer:
         fila, col = self.get_pos(token)
         self.encolar_error_unico(f"Error léxico: '{error}' en la fila {fila} y columna {col}")
 
-    #Reglas
-
-    def t_STRING_LITERAL(self, t):
-        r'"([^"\n\\]|\\.)*("?)'
-        # Verificar si cerró correctamente
-        if not t.value.endswith('"') or t.value.count('"') < 2:
-            fila, col = self.get_pos(t)
-            self.encolar_error_unico(
-                f"Error léxico: cadena no cerrada en fila {fila}, col {col}. "
-                f"¿Olvidaste el '\"' de cierre?"
-            )
-            # Saltar hasta fin de línea
-            while t.lexer.lexpos < len(t.lexer.lexdata) and t.lexer.lexdata[t.lexer.lexpos] != '\n':
-                t.lexer.lexpos += 1
-            return None  # No retornar token, era inválido
-        
-        # Cadena válida — quitar las comillas
-        t.value = t.value[1:-1]
-        if t.value.strip() == "":
-            fila, col = self.get_pos(t)
-            self.encolar_error_unico(f"Advertencia: cadena vacía en fila {fila}, columna {col}.")
-        return t
-
-    def t_CHAR_LITERAL_UNCLOSED(self, t):
-        r"'([^\\'\n]|\\.)*$"
-        fila, col = self.get_pos(t)
-        self.encolar_error_unico(f"Error léxico: carácter no cerrado en la fila {fila} y columna {col}.")
-        t.lexer.skip(1)
-
-    def t_CHAR_LITERAL(self, t):
-        r"'(.*?)'"
-        contenido = t.value[1:-1]
-        if len(contenido) != 1:
-            fila, col = self.get_pos(t)
-            self.encolar_error_unico(f"Error léxico: carácter inválido '{t.value}' en fila {fila}, columna {col}.")
-            return None
-        t.value = contenido
-        return t
-    

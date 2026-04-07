@@ -1,0 +1,19 @@
+entei a as 5 pyc
+entei b as 10 pyc
+
+pikachu cd inicio del programa cd pyc
+
+a su b pyc
+
+evee ps a ma 3 pc ls
+    pikachu cd a es mayor que 3 cd pyc
+lc
+
+wailord ps a me b pc ls
+    pikachu cd loop ejecutandose cd pyc
+    a su 1 pyc
+lc
+
+stantler c as cs x cs pyc
+
+pikachu cd fin del programa cd pyc

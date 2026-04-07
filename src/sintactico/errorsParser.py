@@ -1,21 +1,21 @@
 SINTAXIS_CORRECTA = {
-    'PIKACHU':   'pikachu( expresion );',
-    'EVEE':      'evee ( condicion ) { ... }',
-    'EKANS':     '} ekans {',
-    'FORRETRES': 'forretres ( init ; condicion ; update ) { ... }',
-    'WAILORD':   'wailord ( condicion ) { ... }',
-    'DODUO':     'doduo { ... } wailord ( condicion );',
-    'SWELLO':    'swello ( identificador ) { kecleon valor: ... }',
-    'KECLEON':   'kecleon valor : instrucciones',
-    'SUICUNE':   'suicune tipoDato nombreFuncion() { ... }',
-    'RAIKOU':    'raikou expresion ;',
-    'BRELOOM':   'breloom ;',
-    'ENTEI':     'entei nombreVariable = valor ;',
-    'FLOATZEL':  'floatzel nombreVariable = valor ;',
-    'CHARIZAR':  'charizar nombreVariable = valor ;',
-    'BOOFALANT': 'boofalant nombreVariable = valor ;',
-    'STANTLER':  'stantler nombreVariable = valor ;',
-    'GARDEVOIR': 'gardevoir nombreFuncion() { ... }',
+    'PIKACHU':   'pikachu ps expresion pc pyc',
+    'EVEE':      'evee ps condicion pc ls ... lc',
+    'EKANS':     'lc ekans ls',
+    'FORRETRES': 'forretres ps init pyc condicion pyc update pc ls ... lc',
+    'WAILORD':   'wailord ps condicion pc ls ... lc',
+    'DODUO':     'doduo ls ... lc wailord ps condicion pc pyc',
+    'SWELLO':    'swello ps identificador pc ls kecleon valor dp ... lc',
+    'KECLEON':   'kecleon valor dp instrucciones',
+    'SUICUNE':   'suicune tipoDato nombreFuncion ps pc ls ... lc',
+    'RAIKOU':    'raikou expresion pyc',
+    'BRELOOM':   'breloom pyc',
+    'ENTEI':     'entei nombreVariable as valor pyc',
+    'FLOATZEL':  'floatzel nombreVariable as valor pyc',
+    'CHARIZAR':  'charizar nombreVariable as valor pyc',
+    'BOOFALANT': 'boofalant nombreVariable as valor pyc',
+    'STANTLER':  'stantler nombreVariable as valor pyc',
+    'GARDEVOIR': 'gardevoir nombreFuncion ps pc ls ... lc',
 }
 
 
@@ -148,34 +148,34 @@ def p_error(self, p):
                     (e for e in estructuras if linea_actual.startswith(e)), None
                 )
 
-                if estructura_detectada and '(' not in linea_actual:
+                if estructura_detectada and 'ps' not in linea_actual:
                     sint = SINTAXIS_CORRECTA.get(estructura_detectada.upper(), '')
                     self.errors.encolar_error(
-                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis "
+                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis 'ps'/'pc' "
                         f"en fila {row}, col {col}. "
                         f"Sintaxis correcta: {sint}"
                     )
                 else:
                     self.errors.encolar_error(
-                        f"Error sintáctico: '{{' sin estructura válida anterior "
+                        f"Error sintáctico: 'ls' sin estructura válida anterior "
                         f"en fila {row}, col {col}."
                     )
 
             elif p.type == 'RBRACE':
                 self.errors.encolar_error(
-                    f"Error sintáctico: '}}' sin apertura correspondiente "
+                    f"Error sintáctico: 'lc' sin apertura correspondiente "
                     f"en fila {row}, col {col}."
                 )
 
             elif p.type == 'LPAREN':
                 self.errors.encolar_error(
-                    f"Error sintáctico: '(' inesperado o sin cierre "
+                    f"Error sintáctico: 'ps' inesperado o sin cierre 'pc' "
                     f"en fila {row}, col {col}."
                 )
 
             elif p.type == 'RPAREN':
                 self.errors.encolar_error(
-                    f"Error sintáctico: ')' sin apertura correspondiente "
+                    f"Error sintáctico: 'pc' sin apertura correspondiente 'ps' "
                     f"en fila {row}, col {col}."
                 )
 
@@ -213,19 +213,19 @@ def p_error(self, p):
                     for i in range(row - 2, -1, -1):
                         candidata = lineas[i].strip()
                         if candidata \
-                        and not candidata.startswith('#') \
-                        and not candidata.startswith('/*') \
-                        and not candidata.startswith('*'):
+                        and not candidata.startswith('cm') \
+                        and not candidata.startswith('icm') \
+                        and not candidata.startswith('fcm'):
                             linea_anterior = candidata
                             num_linea = i + 1
                             break
 
                     if linea_anterior \
-                    and not linea_anterior.endswith(';') \
-                    and not linea_anterior.endswith('{') \
-                    and not linea_anterior.endswith('}'):
+                    and not linea_anterior.endswith('pyc') \
+                    and not linea_anterior.endswith('ls') \
+                    and not linea_anterior.endswith('lc'):
                         self.errors.encolar_error(
-                            f"Error sintáctico: falta ';' al final de la línea {num_linea}, {col}. "
+                            f"Error sintáctico: falta 'pyc' al final de la línea {num_linea}, {col}. "
                             f"Línea problemática: '{linea_anterior}'"
                         )
                     else:
@@ -237,20 +237,20 @@ def p_error(self, p):
 
             # ── 17. Punto y coma inesperado ──
             elif p.type == 'SEMICOLON':
-                # Revisar si viene después de un bloque } — es el caso "evee (...) {...};"
+                # Revisar si viene después de un bloque lc — es el caso "evee (...) ls...lc pyc"
                 texto = self.errors.getText()
                 lineas = texto.split('\n')
                 linea_actual = lineas[row - 1].strip() if row <= len(lineas) else ''
 
-                if linea_actual == '};' or linea_actual == '}':
+                if linea_actual == 'lc pyc' or linea_actual == 'lc':
                     self.errors.encolar_error(
-                        f"Error sintáctico: ';' después de '}}' en fila {row}, col {col}. "
-                        f"Los bloques no llevan ';' al final."
+                        f"Error sintáctico: 'pyc' después de 'lc' en fila {row}, col {col}. "
+                        f"Los bloques no llevan 'pyc' al final."
                     )
                 else:
                     self.errors.encolar_error(
-                        f"Error sintáctico: ';' inesperado en fila {row}, col {col}. "
-                        f"¿Sobra un ';' o falta completar la instrucción?"
+                        f"Error sintáctico: 'pyc' inesperado en fila {row}, col {col}. "
+                        f"¿Sobra un 'pyc' o falta completar la instrucción?"
                     )
 
             # ── 18. RELOP inesperado ──
@@ -264,10 +264,10 @@ def p_error(self, p):
                     (e for e in estructuras if linea_actual.startswith(e)), None
                 )
 
-                if estructura_detectada and '(' not in linea_actual:
+                if estructura_detectada and 'ps' not in linea_actual:
                     sint = SINTAXIS_CORRECTA.get(estructura_detectada.upper(), '')
                     self.errors.encolar_error(
-                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis "
+                        f"Error sintáctico: '{estructura_detectada}' sin paréntesis 'ps'/'pc' "
                         f"en fila {row}, col {col}. "
                         f"Sintaxis correcta: {sint}"
                     )
@@ -292,5 +292,5 @@ def p_error(self, p):
     else:
         self.errors.encolar_error(
             "Error sintáctico: final inesperado del archivo. "
-            "¿Falta cerrar una llave '}' o completar una instrucción?"
+            "¿Falta cerrar un bloque 'lc' o completar una instrucción?"
         )
