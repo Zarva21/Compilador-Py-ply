@@ -35,25 +35,181 @@ def _save_iteration_state(self):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# _evaluate_runtime
+#
+# Evalúa una expresión diferida en Python para obtener el valor REAL.
+# Se usa exclusivamente para poblar la tabla de símbolos con valores concretos.
+# NO emite IR — eso es trabajo de _resolve_ir.
+#
+# Casos que SÍ resuelve (estáticos):
+#   int / float / bool Python    → valor directo
+#   literal "string"             → string sin comillas
+#   literal 'c'                  → char sin comillas
+#   nombre de variable           → busca en tabla (puede tener valor ya evaluado)
+#   tupla (l, op, r)             → recursivo + _apply_operator
+#
+# Casos que NO resuelve (dinámicos):
+#   callable (llamada a función) → None
+#   variable sin valor aún       → None
+#
+# Un None significa "no evaluable estáticamente" →
+# la tabla mostrará "?" en lugar de un valor incorrecto.
+# ─────────────────────────────────────────────────────────────────────────────
+def _evaluate_runtime(self, val):
+    # Tipos Python directos
+    if isinstance(val, bool):
+        return val
+    if isinstance(val, (int, float)):
+        return val
+
+    # Callable → llamada a función, no evaluable en compile-time
+    if callable(val):
+        return None
+
+    # Tupla → expresión aritmética diferida → resolver recursivamente
+    if isinstance(val, tuple) and len(val) == 3:
+        l, op, r = val
+        lv = _evaluate_runtime(self, l)
+        rv = _evaluate_runtime(self, r)
+        if lv is None or rv is None:
+            return None
+        return _apply_operator(self, lv, op, rv)
+
+    # String: puede ser variable, literal o booleano textual
+    if isinstance(val, str):
+        if val == 'true':
+            return True
+        if val == 'false':
+            return False
+
+        # Literal string con comillas dobles → devolver sin comillas
+        if val.startswith('"') and val.endswith('"') and len(val) >= 2:
+            return val[1:-1]
+
+        # Literal char con comillas simples → devolver sin comillas
+        if val.startswith("'") and val.endswith("'") and len(val) == 3:
+            return val[1]
+
+        # Intentar parsear como número
+        try:
+            return int(val)
+        except ValueError:
+            pass
+        try:
+            return float(val)
+        except ValueError:
+            pass
+
+        # Buscar en tabla de símbolos
+        sym = self.symbol_table.get_symbol(val)
+        if sym is not None:
+            # Puede ser None si la variable existe pero aún no tiene valor evaluado
+            return sym.get('value')
+
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# _infer_type
+# ─────────────────────────────────────────────────────────────────────────────
+def _infer_type(self, val):
+    if isinstance(val, bool):
+        return 'boofalant'
+    if isinstance(val, int):
+        return 'entei'
+    if isinstance(val, float):
+        return 'floatzel'
+
+    if isinstance(val, str):
+        sym = self.symbol_table.get_symbol(val)
+        if sym is not None:
+            return sym['type']
+
+        if val.startswith('"') and val.endswith('"'):
+            return 'stantler'
+
+        if val.startswith("'") and val.endswith("'") and len(val) == 3:
+            return 'charizar'
+
+        if val in ('true', 'false'):
+            return 'boofalant'
+
+        if val.startswith('t') and val[1:].isdigit():
+            return 'unknown'
+
+        try:
+            int(val)
+            return 'entei'
+        except ValueError:
+            pass
+        try:
+            float(val)
+            return 'floatzel'
+        except ValueError:
+            pass
+
+    return 'unknown'
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# _check_type_compatibility
+# ─────────────────────────────────────────────────────────────────────────────
+def _check_type_compatibility(self, type_l, op, type_r):
+    numeric = {'entei', 'floatzel'}
+
+    if 'unknown' in (type_l, type_r):
+        return None
+
+    if type_l == 'stantler' or type_r == 'stantler':
+        if type_l == 'stantler' and type_r == 'stantler' and op == '+':
+            return None
+        other = type_r if type_l == 'stantler' else type_l
+        return (
+            f"Error semántico: no se puede aplicar '{op}' "
+            f"entre 'stantler' y '{other}'. "
+            f"Ambos operandos deben ser del mismo tipo."
+        )
+
+    if type_l == 'charizar' or type_r == 'charizar':
+        if op in ('+', '-', '*', '/'):
+            return (
+                f"Error semántico: operación aritmética '{op}' "
+                f"no permitida con tipo 'charizar'."
+            )
+
+    if type_l == 'boofalant' or type_r == 'boofalant':
+        if op in ('+', '-', '*', '/'):
+            return (
+                f"Error semántico: operación aritmética '{op}' "
+                f"no permitida con tipo 'boofalant'."
+            )
+
+    if type_l in numeric and type_r in numeric:
+        return None
+
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # _resolve_ir
-#
-# Convierte cualquier valor diferido a su nombre en el IR.
-# Es el único punto donde se emiten instrucciones para expresiones.
-#
-#   str          → nombre de variable o literal (se usa tal cual)
-#   int/float    → literal numérico como string
-#   bool         → "true" / "false"
-#   tuple(l,o,r) → emite "tN = l o r" y devuelve "tN"
-#   callable     → lo ejecuta (method_call diferido) y devuelve el temporal
 # ─────────────────────────────────────────────────────────────────────────────
 def _resolve_ir(self, val):
     if isinstance(val, tuple) and len(val) == 3:
         l, op, r = val
         lv = _resolve_ir(self, l)
         rv = _resolve_ir(self, r)
+
+        type_l = _infer_type(self, lv)
+        type_r = _infer_type(self, rv)
+        error  = _check_type_compatibility(self, type_l, op, type_r)
+        if error:
+            self.errors.encolar_error(error)
+            return '?'
+
         temp = self.intercode_generator.new_temp()
         self.intercode_generator.emit(f"{temp} = {lv} {op} {rv}")
         return temp
+
     elif callable(val):
         result = val()
         return str(result) if result is not None else '?'
@@ -62,31 +218,34 @@ def _resolve_ir(self, val):
     elif isinstance(val, (int, float)):
         return str(val)
     elif isinstance(val, str):
-        # Distinguir variable de literal string:
-        #   - existe en tabla → variable → usar tal cual
-        #   - no existe       → literal  → envolver con comillas
-        # get_symbol no imprime error (ver symboltable.py)
         if val in ('true', 'false'):
             return val
         if val.startswith('"') or (val.startswith("'") and val.endswith("'")):
-            return val      # ya tiene comillas, no doble-envolver
+            return val
         if self.symbol_table.get_symbol(val) is not None:
-            return val      # es nombre de variable declarada
-        return f'"{val}"'   # es string literal sin comillas
+            return val
+        return f'"{val}"'
     else:
         return str(val)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# _apply_operator  (solo para errores semánticos estáticos, no runtime)
+# _apply_operator
 # ─────────────────────────────────────────────────────────────────────────────
 def _apply_operator(self, a, op, b):
     try:
         if a is None or b is None:
             return None
-        if op == '+': return a + b if type(a) == type(b) else None
-        if op == '-': return a - b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None
-        if op == '*': return a * b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None
+        if op == '+':
+            if type(a) == type(b):
+                return a + b
+            if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+                return a + b
+            return None
+        if op == '-':
+            return a - b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None
+        if op == '*':
+            return a * b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None
         if op == '/':
             if b == 0:
                 self.errors.encolar_error("Error semántico: división por cero.")
@@ -107,19 +266,44 @@ def _get_value(self, item):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# _check_declaration_type
+# ─────────────────────────────────────────────────────────────────────────────
+def _check_declaration_type(self, name, var_type, value):
+    if isinstance(value, tuple):
+        return None
+
+    inferred = _infer_type(self, value if not isinstance(value, str) else value)
+
+    compatible = {
+        'entei':     {'entei'},
+        'floatzel':  {'floatzel', 'entei'},
+        'charizar':  {'charizar'},
+        'stantler':  {'stantler'},
+        'boofalant': {'boofalant'},
+    }
+
+    allowed = compatible.get(var_type.lower(), set())
+    if inferred != 'unknown' and inferred not in allowed:
+        return (
+            f"Error semántico: no se puede asignar valor de tipo '{inferred}' "
+            f"a variable '{name}' declarada como '{var_type}'."
+        )
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # handle_declaration
 #
-# Responsabilidades:
-#   1. Registrar la variable en la tabla (tipo + scope, valor = None)
-#   2. Emitir IR de inicialización si hay valor
-#
-# NO evalúa el valor runtime — eso es trabajo del programa compilado.
+# Flujo:
+#   1. Verificar redeclaración
+#   2. Registrar en tabla (valor = None todavía)
+#   3. Emitir IR
+#   4. Evaluar valor real con _evaluate_runtime → guardar en tabla
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_declaration(self, name, var_type, scope=None, value=None):
     def action():
         actual_scope = 'local' if self.en_funcion else 'global'
 
-        # Verificar redeclaración en scope actual
         current = self.symbol_table.current_scope()
         if current is not None and name in current:
             existing_type = current[name].get('type', '?')
@@ -132,24 +316,37 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
             self.errors.encolar_error(msg)
             return
 
-        # Registrar en tabla — valor None (el valor lo calcula el programa en runtime)
+        # 1. Registrar en tabla con valor None
         self.symbol_table.add_symbol(name, var_type, actual_scope, None)
 
-        # Emitir IR de inicialización
+        # 2. Emitir IR
         if value is not None:
             if isinstance(value, tuple) and len(value) == 3:
                 ir_val = _resolve_ir(self, value)
-                self.intercode_generator.emit(f"{name} = {ir_val}")
+                if ir_val != '?':
+                    error = _check_declaration_type(self, name, var_type, value)
+                    if error:
+                        self.errors.encolar_error(error)
+                        return
+                    self.intercode_generator.emit(f"{name} = {ir_val}")
             elif callable(value):
                 result = value()
                 if result is not None:
                     self.intercode_generator.emit(f"{name} = {result}")
             else:
+                error = _check_declaration_type(self, name, var_type, value)
+                if error:
+                    self.errors.encolar_error(error)
+                    return
                 ir_value = value
                 if var_type.lower() == 'charizar' and isinstance(value, str):
                     if not (value.startswith("'") and value.endswith("'")):
                         ir_value = f"'{value}'"
                 self.intercode_generator.emit(f"{name} = {ir_value}")
+
+            # 3. Evaluar valor real y guardar en tabla
+            real_value = _evaluate_runtime(self, value)
+            self.symbol_table.update_symbol(name, real_value)
 
     return action
 
@@ -157,26 +354,42 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_assignment
 #
-# Solo emite IR. No actualiza tabla — el valor runtime no es tarea del compilador.
+# Flujo:
+#   1. Verificar que la variable existe
+#   2. Emitir IR
+#   3. Evaluar valor real con _evaluate_runtime → actualizar tabla
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_assignment(self, name, value):
     def action():
-        # Verificar que la variable existe
         sym = self.symbol_table.get_symbol(name)
         if sym is None:
             self.errors.encolar_error(f"Error semántico: variable '{name}' no declarada.")
             return
 
-        # Emitir IR
+        var_type = sym['type']
+
+        # 1. Emitir IR
         if isinstance(value, tuple) and len(value) == 3:
             ir_val = _resolve_ir(self, value)
+            if ir_val == '?':
+                return
             self.intercode_generator.emit(f"{name} = {ir_val}")
+
         elif callable(value):
             result = value()
             if result is not None:
                 self.intercode_generator.emit(f"{name} = {result}")
+
         else:
+            error = _check_declaration_type(self, name, var_type, value)
+            if error:
+                self.errors.encolar_error(error)
+                return
             self.intercode_generator.emit(f"{name} = {value}")
+
+        # 2. Evaluar valor real y actualizar tabla
+        real_value = _evaluate_runtime(self, value)
+        self.symbol_table.update_symbol(name, real_value)
 
     return action
 
@@ -198,6 +411,17 @@ def evaluate_condition_dynamic(self, left, op, right):
     def condition_fn():
         left_val  = _resolve_ir(self, left)
         right_val = _resolve_ir(self, right)
+
+        type_l = _infer_type(self, left_val)
+        type_r = _infer_type(self, right_val)
+        if type_l != 'unknown' and type_r != 'unknown' and type_l != type_r:
+            numeric = {'entei', 'floatzel'}
+            if not (type_l in numeric and type_r in numeric):
+                self.errors.encolar_error(
+                    f"Error semántico: comparación '{op}' entre tipos "
+                    f"incompatibles '{type_l}' y '{type_r}'."
+                )
+
         temp = self.intercode_generator.new_temp()
         self.intercode_generator.emit(f"{temp} = {left_val} {op} {right_val}")
         condition_fn.temp_result = temp
@@ -208,7 +432,7 @@ def evaluate_condition_dynamic(self, left, op, right):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# handle_expression  (delegación desde semantic.py)
+# handle_expression
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_expression(self, left, operator, right):
     def action():
@@ -325,13 +549,6 @@ def handle_do_while(self, condition_fn, body):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_method_call
-#
-# Diferido: NO emite IR durante el parse.
-# Se ejecuta cuando el callable padre lo invoca en tiempo de ejecución del AST.
-# Esto garantiza:
-#   - Todas las funciones ya registradas (recursión OK)
-#   - IR en orden correcto
-#   - Argumentos resueltos en el momento correcto
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_method_call(self, name, args=None):
     args = args or []
@@ -341,18 +558,34 @@ def handle_method_call(self, name, args=None):
             self.errors.encolar_error(f"Error semántico: función '{name}' no definida.")
             return None
 
+        expected_params = self.methods[name].get('params', [])
+        if len(args) != len(expected_params):
+            self.errors.encolar_error(
+                f"Error semántico: función '{name}' espera {len(expected_params)} "
+                f"argumento(s), pero se pasaron {len(args)}."
+            )
+            return None
+
         temp = self.intercode_generator.new_temp()
 
         arg_ir_names = []
-        for arg in args:
+        for i, arg in enumerate(args):
             ir_name = _resolve_ir(self, arg)
+            param_type, param_name = expected_params[i]
+            arg_type = _infer_type(self, ir_name)
+            if arg_type != 'unknown' and arg_type != param_type:
+                numeric = {'entei', 'floatzel'}
+                if not (arg_type in numeric and param_type in numeric):
+                    self.errors.encolar_error(
+                        f"Error semántico: argumento {i+1} de '{name}' "
+                        f"es de tipo '{arg_type}', se esperaba '{param_type}'."
+                    )
             arg_ir_names.append(ir_name)
 
         for arg_name in arg_ir_names:
             self.intercode_generator.emit(f"param {arg_name}")
 
         args_str = ', '.join(arg_ir_names)
-        # quitar esto
         print(f" [CALL] Llamada a función '{name}' con argumentos IR resueltos: {args_str}")
         self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
 
@@ -384,13 +617,11 @@ def handle_method_declaration(self, name, body):
         self.intercode_generator.emit(f"function {ret_type}  {name}({params_str}):")
 
         self.symbol_table.enter_scope()
-        # quitar esto
         print(f" [FUNC]  Función '{name}' registrada con return_type='{ret_type}' y params={params}")
         self.en_funcion = True
 
         for param_type, param_name in params:
             self.symbol_table.add_symbol(param_name, param_type, 'local', None)
-            # quitar esto
             print(f" [PARAM]  Variable '{param_name}' ({param_type}) registrada")
 
         for stmt in flat_body:
@@ -398,7 +629,6 @@ def handle_method_declaration(self, name, body):
 
         self.en_funcion = False
         self.symbol_table.exit_scope()
-        # quitar esto
         print(f" [END FUNC] Fin de función '{name}'")
         self.intercode_generator.emit("end")
 
