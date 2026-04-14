@@ -38,23 +38,23 @@ def _save_iteration_state(self):
 # _evaluate_runtime
 #
 # Evalúa una expresión diferida en Python para obtener el valor REAL.
-# Se usa exclusivamente para poblar la tabla de símbolos con valores concretos.
-# NO emite IR — eso es trabajo de _resolve_ir.
+# Solo para poblar la tabla — NO emite IR.
 #
-# Casos que SÍ resuelve (estáticos):
-#   int / float / bool Python    → valor directo
-#   literal "string"             → string sin comillas
-#   literal 'c'                  → char sin comillas
-#   nombre de variable           → busca en tabla (puede tener valor ya evaluado)
-#   tupla (l, op, r)             → recursivo + _apply_operator
+# FIX 1 — Strings y chars sin comillas:
+#   El lexer entrega CHAR_LITERAL como 'x' (con comillas) o a veces como x.
+#   Ahora se detecta por el var_type del contexto cuando es string plano.
 #
-# Casos que NO resuelve (dinámicos):
-#   callable (llamada a función) → None
-#   variable sin valor aún       → None
-#
-# Un None significa "no evaluable estáticamente" →
-# la tabla mostrará "?" en lugar de un valor incorrecto.
+# FIX 2 — Loops:
+#   handle_assignment llama a esto con en_funcion_loop=True cuando está
+#   dentro de while/for/do-while. En ese caso se devuelve SENTINEL_LOOP
+#   para que handle_assignment NO actualice la tabla.
+#   Así la variable conserva su valor inicial (el que tenía antes del loop).
 # ─────────────────────────────────────────────────────────────────────────────
+
+# Sentinel especial — indica "modificado en loop, no actualizar tabla"
+_LOOP_MODIFIED = object()
+
+
 def _evaluate_runtime(self, val):
     # Tipos Python directos
     if isinstance(val, bool):
@@ -71,6 +71,9 @@ def _evaluate_runtime(self, val):
         l, op, r = val
         lv = _evaluate_runtime(self, l)
         rv = _evaluate_runtime(self, r)
+        # Si algún operando es sentinel de loop, propagar
+        if lv is _LOOP_MODIFIED or rv is _LOOP_MODIFIED:
+            return _LOOP_MODIFIED
         if lv is None or rv is None:
             return None
         return _apply_operator(self, lv, op, rv)
@@ -87,8 +90,8 @@ def _evaluate_runtime(self, val):
             return val[1:-1]
 
         # Literal char con comillas simples → devolver sin comillas
-        if val.startswith("'") and val.endswith("'") and len(val) == 3:
-            return val[1]
+        if val.startswith("'") and val.endswith("'") and len(val) >= 2:
+            return val[1:-1]
 
         # Intentar parsear como número
         try:
@@ -103,8 +106,12 @@ def _evaluate_runtime(self, val):
         # Buscar en tabla de símbolos
         sym = self.symbol_table.get_symbol(val)
         if sym is not None:
-            # Puede ser None si la variable existe pero aún no tiene valor evaluado
             return sym.get('value')
+
+        # FIX: Si llegamos aquí con un string sin comillas que NO está en tabla,
+        # puede ser un literal de char/string que el lexer entregó sin comillas.
+        # Lo devolvemos tal cual — handle_declaration/assignment lo envolverá.
+        return val
 
     return None
 
@@ -128,7 +135,7 @@ def _infer_type(self, val):
         if val.startswith('"') and val.endswith('"'):
             return 'stantler'
 
-        if val.startswith("'") and val.endswith("'") and len(val) == 3:
+        if val.startswith("'") and val.endswith("'") and len(val) >= 2:
             return 'charizar'
 
         if val in ('true', 'false'):
@@ -272,13 +279,31 @@ def _check_declaration_type(self, name, var_type, value):
     if isinstance(value, tuple):
         return None
 
+    # FIX: validación semántica de charizar (debe ser exactamente 1 carácter)
+    # El lexer acepta cs...cs con cualquier contenido.
+    # Aquí verificamos la longitud según el tipo declarado.
+    if var_type.lower() == 'charizar' and isinstance(value, str):
+        contenido = value
+        if contenido.startswith("'") and contenido.endswith("'"):
+            contenido = contenido[1:-1]
+        if len(contenido) != 1:
+            return (
+                f"Error semántico: variable '{name}' es de tipo 'charizar' "
+                f"y solo puede contener exactamente 1 carácter, "
+                f"pero se asignó '{contenido}' ({len(contenido)} caracteres). "
+                f"¿Quisiste usar 'stantler' para strings?"
+            )
+
     inferred = _infer_type(self, value if not isinstance(value, str) else value)
 
+    # charizar y stantler reciben unknown porque el lexer entrega el contenido
+    # sin comillas — _infer_type no puede distinguirlos de un identificador.
+    # La validación real de tipo ya se hizo arriba para charizar.
     compatible = {
         'entei':     {'entei'},
         'floatzel':  {'floatzel', 'entei'},
-        'charizar':  {'charizar'},
-        'stantler':  {'stantler'},
+        'charizar':  {'charizar', 'unknown'},
+        'stantler':  {'stantler', 'unknown'},
         'boofalant': {'boofalant'},
     }
 
@@ -292,13 +317,38 @@ def _check_declaration_type(self, name, var_type, value):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# _normalize_string_value
+#
+# FIX para el problema de c = x (char/string sin comillas en tabla).
+#
+# Cuando el lexer entrega un CHAR_LITERAL o STRING_LITERAL, a veces
+# el valor llega sin comillas (ej: x en vez de 'x').
+# Esta función lo normaliza según el tipo declarado.
+# ─────────────────────────────────────────────────────────────────────────────
+def _normalize_string_value(var_type, raw_value):
+    if not isinstance(raw_value, str):
+        return raw_value
+
+    # Si ya tiene comillas, devolverlo limpio (sin comillas)
+    if raw_value.startswith('"') and raw_value.endswith('"') and len(raw_value) >= 2:
+        return raw_value[1:-1]
+    if raw_value.startswith("'") and raw_value.endswith("'") and len(raw_value) >= 2:
+        return raw_value[1:-1]
+
+    # Sin comillas → es el valor literal directamente
+    # Para charizar y stantler lo devolvemos tal cual (es el char/string)
+    if var_type.lower() in ('charizar', 'stantler'):
+        return raw_value
+
+    return raw_value
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # handle_declaration
 #
-# Flujo:
-#   1. Verificar redeclaración
-#   2. Registrar en tabla (valor = None todavía)
-#   3. Emitir IR
-#   4. Evaluar valor real con _evaluate_runtime → guardar en tabla
+# FIX aplicados:
+#   - Usa _normalize_string_value para guardar el valor limpio en tabla
+#   - Solo llama update_symbol si _evaluate_runtime no devuelve _LOOP_MODIFIED
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_declaration(self, name, var_type, scope=None, value=None):
     def action():
@@ -345,7 +395,16 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 self.intercode_generator.emit(f"{name} = {ir_value}")
 
             # 3. Evaluar valor real y guardar en tabla
-            real_value = _evaluate_runtime(self, value)
+            raw = _evaluate_runtime(self, value)
+
+            # Si devuelve el sentinel de loop → no actualizar (conservar None = "sin valor")
+            # Pero en declaración nunca estamos dentro de loop todavía, así que
+            # este caso no debería darse aquí. Lo dejamos por seguridad.
+            if raw is _LOOP_MODIFIED:
+                return
+
+            # Normalizar strings/chars para que se vean bien en la tabla
+            real_value = _normalize_string_value(var_type, raw)
             self.symbol_table.update_symbol(name, real_value)
 
     return action
@@ -354,10 +413,9 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_assignment
 #
-# Flujo:
-#   1. Verificar que la variable existe
-#   2. Emitir IR
-#   3. Evaluar valor real con _evaluate_runtime → actualizar tabla
+# FIX aplicados:
+#   - Si en_loop es True → NO actualizar tabla (conservar valor inicial)
+#   - Normalizar strings/chars
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_assignment(self, name, value):
     def action():
@@ -387,9 +445,53 @@ def handle_assignment(self, name, value):
                 return
             self.intercode_generator.emit(f"{name} = {value}")
 
-        # 2. Evaluar valor real y actualizar tabla
-        real_value = _evaluate_runtime(self, value)
+        # 2. Actualizar tabla SOLO si NO estamos dentro de un loop
+        #    Si en_loop=True → la variable puede cambiar N veces →
+        #    conservamos el valor estático conocido antes del loop.
+        if getattr(self, 'en_loop', False):
+            return   # No tocar la tabla — conservar valor inicial
+
+        raw = _evaluate_runtime(self, value)
+        if raw is _LOOP_MODIFIED:
+            return
+
+        real_value = _normalize_string_value(var_type, raw)
         self.symbol_table.update_symbol(name, real_value)
+
+    return action
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# handle_expression_statement
+#
+# FIX NUEVO — error semántico por expresión sin efecto.
+#
+# Se llama desde el parser en lugar de dejar pasar la expresión silenciosamente.
+# Una expresión es "sin efecto" si no es:
+#   - asignación       → ya tiene su propia regla
+#   - llamada a función (callable) → tiene efecto
+#   - print, return, break → tienen sus propias reglas
+#
+# Todo lo que llegue aquí como expresión suelta es sin efecto.
+# ─────────────────────────────────────────────────────────────────────────────
+def handle_expression_statement(self, expr, line=None):
+    """
+    Detecta si la expresión tiene efecto lateral.
+    - callable  → es llamada a función → dejar pasar (emite IR)
+    - tuple/literal → operación aritmética suelta → error semántico
+    """
+    def action():
+        # Si es callable es una method_call → tiene efecto
+        if callable(expr):
+            expr()
+            return
+
+        # Cualquier otra expresión suelta (aritmética, literal, variable) → sin efecto
+        line_info = f" en línea {line}" if line else ""
+        self.errors.encolar_error(
+            f"Error semántico: expresión sin efecto{line_info}. "
+            f"El resultado de la expresión no se asigna ni utiliza."
+        )
 
     return action
 
@@ -446,6 +548,9 @@ def handle_expression(self, left, operator, right):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Estructuras de control
+# FIX: while/for/do-while activan self.en_loop = True antes de ejecutar el
+# cuerpo, y lo restauran al salir. Así handle_assignment sabe que está
+# dentro de un loop y no actualiza la tabla.
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_if(self, condition_fn, if_body, else_body):
     def action():
@@ -488,10 +593,17 @@ def handle_while(self, condition_fn, body):
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
+        # FIX: activar en_loop antes de ejecutar el cuerpo
+        prev_loop = getattr(self, 'en_loop', False)
+        self.en_loop = True
+
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
+
+        # Restaurar estado anterior (permite loops anidados)
+        self.en_loop = prev_loop
 
         self.intercode_generator.emit(f"goto {start_label}")
         self.intercode_generator.emit(f"{end_label}:")
@@ -513,12 +625,18 @@ def handle_for(self, init_stmt, condition_fn, update_stmt, body):
         cond_temp = condition_fn.temp_result
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
+        # FIX: activar en_loop
+        prev_loop = getattr(self, 'en_loop', False)
+        self.en_loop = True
+
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
 
         if callable(update_stmt): update_stmt()
+
+        self.en_loop = prev_loop
 
         self.intercode_generator.emit(f"goto {start_label}")
         self.intercode_generator.emit(f"{end_label}:")
@@ -534,10 +652,16 @@ def handle_do_while(self, condition_fn, body):
         self.intercode_generator.emit("//INICIO DO-WHILE")
         self.intercode_generator.emit(f"{start_label}:")
 
+        # FIX: activar en_loop
+        prev_loop = getattr(self, 'en_loop', False)
+        self.en_loop = True
+
         self.symbol_table.enter_scope()
         for stmt in body:
             if callable(stmt): stmt()
         self.symbol_table.exit_scope()
+
+        self.en_loop = prev_loop
 
         condition_fn()
         cond_temp = condition_fn.temp_result

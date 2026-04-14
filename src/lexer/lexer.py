@@ -31,10 +31,6 @@ def sugerir_palabra_reservada(palabra, reservadas, umbral=3):
 #Se indica para cada token
 class Lexer:
 
-    
-
-
-    
     SUGERENCIAS_LEXICAS = {
     'int':      'entei',
     'float':    'floatzel',
@@ -58,8 +54,6 @@ class Lexer:
     'printf':   'pikachu',
     'cout':     'pikachu',
 }
-
-
 
     tokens = [
         'NUMBER', 'IDENTIFIER', 'EQUALS', 'SEMICOLON', 'LBRACE', 'RBRACE',
@@ -118,9 +112,6 @@ class Lexer:
     tokens = list(dict.fromkeys(tokens + list(reserved.values())))
 
     # Todos los símbolos-palabra se manejan vía reserved en t_IDENTIFIER
-    
-
-
     #Es para espacios y tabs
     t_ignore = ' \t'
 
@@ -172,11 +163,15 @@ class Lexer:
 
     def t_CHAR_LITERAL(self, t):
         r'cs(.*?)cs'
-        contenido = t.value[2:-2].strip()
-        if len(contenido) != 1:
+        contenido = t.value[2:-2]   # quitar los dos 'cs' de apertura y cierre
+ 
+        if contenido == "":
             fila, col = self.get_pos(t)
-            self.encolar_error_unico(f"Error léxico: carácter inválido '{t.value}' en fila {fila}, columna {col}.")
+            self.encolar_error_unico(
+                f"Error léxico: literal vacío cs cs en fila {fila}, columna {col}."
+            )
             return None
+ 
         t.value = contenido
         return t
 

@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from src.sintactico.errorsParser import p_error
+from src.semantico.handle import handle_expression_statement
 
 
 class Parser:
@@ -43,7 +44,6 @@ class Parser:
                      | if_statement
                      | switch_statement
                      | method_call SEMICOLON
-                     | expression SEMICOLON
                      | break_statement
                      | return_statement
                      | print_statement'''
@@ -208,27 +208,15 @@ class Parser:
         p[0] = do_return
 
     # ── Expresiones ───────────────────────────
-    #
-    # REGLA CLAVE: las expresiones NO emiten IR durante el parse.
-    # Devuelven una tupla (left, op, right) que se resuelve después,
-    # cuando el callable padre (declaration, assignment, etc.) se ejecuta.
-    #
-    # Así se evita que t0 = x + y aparezca en el IR antes de que
-    # x e y hayan sido declaradas.
 
     def p_expression(self, p):
         '''expression : expression MAS term
                       | expression MENOS term'''
-        # Capturar por valor en el closure para evitar problemas con PLY
-        # borrar esto
-        print(f" [EXPR] Capturando expresión: {p[1]} {p[2]} {p[3]}")
-        left = p[1]
-        op   = p[2]
+        left  = p[1]
+        op    = p[2]
         right = p[3]
-        # Devolver tupla — diferido, no emite nada aquí
         p[0] = (left, op, right)
-        
-        
+
     def p_expression_term(self, p):
         'expression : term'
         p[0] = p[1]
@@ -239,7 +227,6 @@ class Parser:
         left  = p[1]
         op    = p[2]
         right = p[3]
-        # Tupla diferida igual que expression
         p[0] = (left, op, right)
 
     def p_term_factor(self, p):
@@ -254,11 +241,11 @@ class Parser:
                   | LPAREN expression RPAREN
                   | method_call'''
         if len(p) == 4:
-            p[0] = p[2]                         # (expression) — ya es tupla o literal
+            p[0] = p[2]
         elif len(p) == 2 and callable(p[1]):
-            p[0] = p[1]                         # method_call es callable
+            p[0] = p[1]
         else:
-            p[0] = self.semantic.handle_factor(p[1])   # NUMBER, IDENTIFIER, literal
+            p[0] = self.semantic.handle_factor(p[1])
 
     # ── Funciones ─────────────────────────────
 
@@ -273,23 +260,22 @@ class Parser:
         if token_type == 'GARDEVOIR':
             name        = p[2]
             return_type = 'gardevoir'
-            if len(p) == 9:   # con params
+            if len(p) == 9:
                 params = p[4]
                 body   = p[7]
-            else:             # sin params
+            else:
                 params = []
                 body   = p[6]
         else:
             name        = p[3]
             return_type = p[2]
-            if len(p) == 10:  # con params
+            if len(p) == 10:
                 params = p[5]
                 body   = p[8]
-            else:             # sin params
+            else:
                 params = []
                 body   = p[7]
 
-        # Registrar DURANTE el parse — así las llamadas recursivas ya la encuentran
         self.semantic.register_function(name, return_type, params, body)
 
         def define():
@@ -340,6 +326,26 @@ class Parser:
         'empty :'
         p[0] = []
 
+    # ── Statement con expresión suelta ────────
+    #
+    # FIX: La regla  statement : expression SEMICOLON  se mantiene en el
+    # grammar (correcto semánticamente — la expresión es válida en sintaxis).
+    # Pero ahora en p_statement detectamos si viene de expression SEMICOLON
+    # y delegamos a handle_expression_statement que reporta error semántico
+    # si la expresión no tiene efecto lateral (no es callable/method_call).
+    #
+    # Nota: PLY no da fácilmente el número de línea en p_statement para una
+    # producción alternativa. Usamos p.slice para intentar obtenerlo.
+
+    def p_statement_expr(self, p):
+        'statement : expression SEMICOLON'
+        # Obtener línea aproximada del token SEMICOLON
+        try:
+            line = p.slice[2].lineno
+        except Exception:
+            line = None
+        p[0] = handle_expression_statement(self.semantic, p[1], line)
+
     # ── Error ─────────────────────────────────
 
     def p_error(self, p):
@@ -365,9 +371,6 @@ class Parser:
             print("Ejecutando AST...")
             self.semantic.symbol_table.enter_scope()
 
-            # Pasada única — todas las funciones ya están registradas en self.methods
-            # porque register_function() se llamó durante el parse en p_function_declaration.
-            # No hace falta una pasada separada para funciones.
             for stmt in parsed:
                 if callable(stmt):
                     stmt()

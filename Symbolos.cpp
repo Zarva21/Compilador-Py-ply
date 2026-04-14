@@ -6,9 +6,15 @@ int main() {
     int a;
     int b;
     string c;
+    char d;
 
         a = 5;
         b = 10;
+        c = "x";
+        a = 5;
+        c = "hola";
+        d = 'z';
+        cout << " valor de c " << endl;
         cout << " inicio del programa " << endl;
         if (a > 3) {
             cout << " a es mayor que 3 " << endl;

@@ -2,9 +2,11 @@ from src.intercode.optimize import Optimize
 from src.semantico.handle import handle_declaration
 from src.semantico.handle import handle_assignment
 from src.semantico.handle import handle_expression
+from src.semantico.handle import handle_expression_statement   # ← nuevo
 from src.semantico.handle import handle_print
 from src.semantico.handle import _get_value
 from src.semantico.handle import _apply_operator
+from src.semantico.handle import _evaluate_runtime
 from src.semantico.handle import evaluate_condition_dynamic
 from src.semantico.handle import handle_for
 from src.semantico.handle import handle_do_while
@@ -14,7 +16,7 @@ from src.semantico.handle import handle_method_call
 from src.semantico.handle import handle_if
 from src.semantico.handle import handle_switch
 from src.semantico.handle import _save_iteration_state
-from src.semantico.handle import _resolve_ir   # necesario para handle_return
+from src.semantico.handle import _resolve_ir
 
 
 class Semantic:
@@ -22,11 +24,12 @@ class Semantic:
         self.symbol_table        = symbol_table
         self.errors              = errors
         self.lexer               = lexer
-        self.methods             = {}   # nombre → {return_type, params, body}
+        self.methods             = {}
         self.intercode_generator = interCodeGenerator
         self.en_funcion          = False
+        self.en_loop             = False   # FIX: flag para detectar contexto de loop
 
-    # ── Registro inmediato de función (durante parseo) ────────────────────
+    # ── Registro inmediato de función ─────────────────────────────────────
     def register_function(self, name, return_type, params, body):
         self.methods[name] = {
             'return_type': return_type,
@@ -66,6 +69,9 @@ class Semantic:
 
     def _apply_operator(self, a, op, b):
         return _apply_operator(self, a, op, b)
+
+    def _evaluate_runtime(self, val):
+        return _evaluate_runtime(self, val)
 
     def _check_numeric(self, a, b):
         return isinstance(a, (int, float)) and isinstance(b, (int, float))
@@ -107,23 +113,9 @@ class Semantic:
         return action
 
     def handle_return(self, value):
-        """
-        FIX: usar _resolve_ir en lugar de evaluar_ir propio.
-
-        Antes tenía su propio evaluar_ir() que:
-          - No manejaba callables dentro de tuplas
-          - No era recursivo correctamente
-          - Perdía la expresión doble(x) + x convirtiéndola en t2 sin definición
-
-        Ahora delega a _resolve_ir que:
-          - Sí maneja callables (ejecuta method_call y obtiene el temporal)
-          - Sí es recursivo (resuelve tuplas anidadas)
-          - Emite el IR correcto antes del raikou
-        """
         def action():
             ir_val = _resolve_ir(self, value)
             self.intercode_generator.emit(f"raikou {ir_val}")
-
         return action
 
     def getInterCode(self):

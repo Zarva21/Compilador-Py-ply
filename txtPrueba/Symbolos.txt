@@ -1,9 +1,17 @@
 entei a as 5 pyc
 entei b as 10 pyc
+stantler c as cs x cs pyc
+entei a as 5 pyc
+stantler c as cs hola cs pyc
+charizar d as cszcs pyc
+
+
+a as a su c pyc
+
+pikachu cd valor de c cd pyc
 
 pikachu cd inicio del programa cd pyc
 
-a su b pyc
 
 evee ps a ma 3 pc ls
     pikachu cd a es mayor que 3 cd pyc

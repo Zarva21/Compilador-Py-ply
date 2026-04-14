@@ -40,7 +40,6 @@ class SymbolTable:
                 print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
 
     def update_symbol(self, name, value):
-        # Mantenido por compatibilidad pero ya no se llama desde handle.py
         for scope in reversed(self.scope_stack):
             if name in scope:
                 scope[name]['value'] = value
@@ -78,8 +77,9 @@ class SymbolTable:
     def toHtml(self):
         """
         Tabla HTML de símbolos.
-        Este compilador NO evalúa valores runtime — la columna Valor
-        muestra el tipo de inicialización, no el valor ejecutado.
+        Muestra el valor real evaluado estáticamente por _evaluate_runtime.
+        Si la variable no tiene valor (loop, función, sin inicialización) → "—"
+        Si el valor fue evaluado pero es None explícito              → "?"
         """
         html = """
         <style>
@@ -89,7 +89,9 @@ class SymbolTable:
             .sym-table tr:hover td { background:#f9f9f9; }
             .scope-global { color:#1a5276; font-weight:600; }
             .scope-local  { color:#117a65; font-weight:600; }
-            .runtime      { color:#888; font-style:italic; }
+            .val-none     { color:#aaa; font-style:italic; }
+            .val-dynamic  { color:#e67e22; font-style:italic; }
+            .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
         </style>
         <table class="sym-table">
             <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
@@ -103,8 +105,17 @@ class SymbolTable:
             scopes_local = self.scope_stack
 
         def _display(valor):
-            # Este compilador no evalúa runtime — siempre mostramos "(runtime)"
-            return '<span class="runtime">(runtime)</span>'
+            # valor = None  → variable sin inicialización o no evaluable
+            # valor = False → booleano falso (distinto de None)
+            if valor is None:
+                return '<span class="val-dynamic">?</span>'
+            if isinstance(valor, bool):
+                return f'<span class="val-real">{"true" if valor else "false"}</span>'
+            if isinstance(valor, str):
+                # Mostrar strings con comillas para que quede claro el tipo
+                return f'<span class="val-real">"{valor}"</span>'
+            # int, float
+            return f'<span class="val-real">{valor}</span>'
 
         for identifier, data in global_data.items():
             html += (
