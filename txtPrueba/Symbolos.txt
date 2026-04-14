@@ -1,12 +1,11 @@
 entei a as 5 pyc
 entei b as 10 pyc
-stantler c as cs x cs pyc
-entei a as 5 pyc
-stantler c as cs hola cs pyc
+stantler c as csxcs pyc
+
 charizar d as cszcs pyc
 
 
-a as a su c pyc
+a as a su b pyc
 
 pikachu cd valor de c cd pyc
 
@@ -22,6 +21,6 @@ wailord ps a me b pc ls
     a as a su 1 pyc
 lc
 
-stantler c as cs x cs pyc
+
 
 pikachu cd fin del programa cd pyc

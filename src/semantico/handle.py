@@ -354,20 +354,24 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
     def action():
         actual_scope = 'local' if self.en_funcion else 'global'
 
-        current = self.symbol_table.current_scope()
-        if current is not None and name in current:
-            existing_type = current[name].get('type', '?')
-            msg = (
-                f"Error semántico: variable '{name}' ya declarada como "
-                f"'{existing_type}' en este bloque."
-                if existing_type != var_type
-                else f"Error semántico: variable '{name}' ya declarada. ¿Quisiste asignar?"
-            )
-            self.errors.encolar_error(msg)
-            return
-
         # 1. Registrar en tabla con valor None
-        self.symbol_table.add_symbol(name, var_type, actual_scope, None)
+        # FIX: add_symbol ahora retorna False si ya existe en este scope.
+        # Si retorna False → reportar error semántico y abortar (no emitir IR).
+        registered = self.symbol_table.add_symbol(name, var_type, actual_scope, None)
+        if not registered:
+            existing = self.symbol_table.get_symbol(name)
+            existing_type = existing.get('type', '?') if existing else '?'
+            if existing_type != var_type:
+                self.errors.encolar_error(
+                    f"Error semántico: variable '{name}' ya declarada como "
+                    f"'{existing_type}' en este ámbito. No se puede redeclarar como '{var_type}'."
+                )
+            else:
+                self.errors.encolar_error(
+                    f"Error semántico: variable '{name}' ya declarada como '{existing_type}' "
+                    f"en este ámbito. ¿Quisiste asignar en lugar de declarar?"
+                )
+            return   # ← abortar: no emitir IR, no actualizar tabla
 
         # 2. Emitir IR
         if value is not None:

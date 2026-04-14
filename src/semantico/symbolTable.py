@@ -22,22 +22,33 @@ class SymbolTable:
         return self.scope_stack[-1] if self.scope_stack else None
 
     def add_symbol(self, name, type_, scope, value=None):
+        """
+        Registra una variable en el scope correspondiente.
+
+        FIX: ahora retorna True si se registró correctamente, False si ya existía.
+        Antes solo hacía print y seguía — eso causaba que handle_declaration
+        emitiera IR incluso después de detectar una redeclaración.
+
+        handle_declaration usa este retorno para abortar el emit si es False.
+        """
         if scope == 'global':
             if name in self.global_scope:
-                print(f"Error: Variable global '{name}' ya declarada.")
-            else:
-                self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value}
-                print(f" [GLOBAL] Variable '{name}' ({type_}) registrada")
+                # No hacer print aquí — el error semántico lo reporta handle_declaration
+                return False
+            self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value}
+            print(f" [GLOBAL] Variable '{name}' ({type_}) registrada")
+            return True
         else:
             current = self.current_scope()
             if current is None:
                 print(f" Error: No hay contexto local para declarar '{name}'.")
-                return
+                return False
             if name in current:
-                print(f" Error: Variable local '{name}' ya declarada en este ámbito.")
-            else:
-                current[name] = {'type': type_, 'scope': 'local', 'value': value}
-                print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
+                # No hacer print aquí — el error semántico lo reporta handle_declaration
+                return False
+            current[name] = {'type': type_, 'scope': 'local', 'value': value}
+            print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
+            return True
 
     def update_symbol(self, name, value):
         for scope in reversed(self.scope_stack):
@@ -56,8 +67,6 @@ class SymbolTable:
                 return scope[name]
         if name in self.global_scope:
             return self.global_scope[name]
-        # No imprimir error aquí — _resolve_ir consulta get_symbol para distinguir
-        # variables de string literals. Un None silencioso es la respuesta correcta.
         return None
 
     def guardar_snapshot_final(self):
@@ -78,8 +87,7 @@ class SymbolTable:
         """
         Tabla HTML de símbolos.
         Muestra el valor real evaluado estáticamente por _evaluate_runtime.
-        Si la variable no tiene valor (loop, función, sin inicialización) → "—"
-        Si el valor fue evaluado pero es None explícito              → "?"
+        Si la variable no tiene valor (loop, función, sin inicialización) → "?"
         """
         html = """
         <style>
@@ -89,7 +97,6 @@ class SymbolTable:
             .sym-table tr:hover td { background:#f9f9f9; }
             .scope-global { color:#1a5276; font-weight:600; }
             .scope-local  { color:#117a65; font-weight:600; }
-            .val-none     { color:#aaa; font-style:italic; }
             .val-dynamic  { color:#e67e22; font-style:italic; }
             .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
         </style>
@@ -105,16 +112,12 @@ class SymbolTable:
             scopes_local = self.scope_stack
 
         def _display(valor):
-            # valor = None  → variable sin inicialización o no evaluable
-            # valor = False → booleano falso (distinto de None)
             if valor is None:
                 return '<span class="val-dynamic">?</span>'
             if isinstance(valor, bool):
                 return f'<span class="val-real">{"true" if valor else "false"}</span>'
             if isinstance(valor, str):
-                # Mostrar strings con comillas para que quede claro el tipo
                 return f'<span class="val-real">"{valor}"</span>'
-            # int, float
             return f'<span class="val-real">{valor}</span>'
 
         for identifier, data in global_data.items():

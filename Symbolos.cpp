@@ -11,9 +11,8 @@ int main() {
         a = 5;
         b = 10;
         c = "x";
-        a = 5;
-        c = "hola";
         d = 'z';
+        a = a + b;
         cout << " valor de c " << endl;
         cout << " inicio del programa " << endl;
         if (a > 3) {
@@ -23,7 +22,6 @@ int main() {
             cout << " loop ejecutandose " << endl;
             a = a + 1;
         }  // fin while
-        c = "x";
         cout << " fin del programa " << endl;
     return 0;
 }
