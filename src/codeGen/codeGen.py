@@ -8,7 +8,7 @@ class ccodeGen:
         'gardevoir': 'void',
     }
 
-    # Mapa de operadores Pokémon → C++
+    # Mapa de operadores Pokémon -> C++
     # El IR puede contener operadores en cualquiera de los dos formatos
     # dependiendo de si el lexer los tokenizó como símbolo o como keyword.
     OPS = {

@@ -333,15 +333,6 @@ class Parser:
         p[0] = []
 
     # ── Statement con expresión suelta ────────
-    #
-    # FIX: La regla  statement : expression SEMICOLON  se mantiene en el
-    # grammar (correcto semánticamente — la expresión es válida en sintaxis).
-    # Pero ahora en p_statement detectamos si viene de expression SEMICOLON
-    # y delegamos a handle_expression_statement que reporta error semántico
-    # si la expresión no tiene efecto lateral (no es callable/method_call).
-    #
-    # Nota: PLY no da fácilmente el número de línea en p_statement para una
-    # producción alternativa. Usamos p.slice para intentar obtenerlo.
 
     def p_statement_expr(self, p):
         'statement : expression SEMICOLON'

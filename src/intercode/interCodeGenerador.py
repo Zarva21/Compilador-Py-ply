@@ -30,7 +30,7 @@ class interCodeGenerator:
         self.emit(f"t{n} = {cond_left} {op} {cond_right}")
         self.emit(f"if !(t{n}) goto {label_fin}")
 
-        # ← AQUÍ está el fix: iterar hasta lc, no una sola instrucción
+        
         while self.current_token != 'lc':
             self.generate_statement()   # procesa cada instrucción del bloque
 

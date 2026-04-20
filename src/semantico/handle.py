@@ -36,19 +36,6 @@ def _save_iteration_state(self):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # _evaluate_runtime
-#
-# Evalúa una expresión diferida en Python para obtener el valor REAL.
-# Solo para poblar la tabla — NO emite IR.
-#
-# FIX 1 — Strings y chars sin comillas:
-#   El lexer entrega CHAR_LITERAL como 'x' (con comillas) o a veces como x.
-#   Ahora se detecta por el var_type del contexto cuando es string plano.
-#
-# FIX 2 — Loops:
-#   handle_assignment llama a esto con en_funcion_loop=True cuando está
-#   dentro de while/for/do-while. En ese caso se devuelve SENTINEL_LOOP
-#   para que handle_assignment NO actualice la tabla.
-#   Así la variable conserva su valor inicial (el que tenía antes del loop).
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Sentinel especial — indica "modificado en loop, no actualizar tabla"
@@ -108,9 +95,7 @@ def _evaluate_runtime(self, val):
         if sym is not None:
             return sym.get('value')
 
-        # FIX: Si llegamos aquí con un string sin comillas que NO está en tabla,
-        # puede ser un literal de char/string que el lexer entregó sin comillas.
-        # Lo devolvemos tal cual — handle_declaration/assignment lo envolverá.
+        
         return val
 
     return None
@@ -279,9 +264,6 @@ def _check_declaration_type(self, name, var_type, value):
     if isinstance(value, tuple):
         return None
 
-    # FIX: validación semántica de charizar (debe ser exactamente 1 carácter)
-    # El lexer acepta cs...cs con cualquier contenido.
-    # Aquí verificamos la longitud según el tipo declarado.
     if var_type.lower() == 'charizar' and isinstance(value, str):
         contenido = value
         if contenido.startswith("'") and contenido.endswith("'"):
@@ -318,12 +300,6 @@ def _check_declaration_type(self, name, var_type, value):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # _normalize_string_value
-#
-# FIX para el problema de c = x (char/string sin comillas en tabla).
-#
-# Cuando el lexer entrega un CHAR_LITERAL o STRING_LITERAL, a veces
-# el valor llega sin comillas (ej: x en vez de 'x').
-# Esta función lo normaliza según el tipo declarado.
 # ─────────────────────────────────────────────────────────────────────────────
 def _normalize_string_value(var_type, raw_value):
     if not isinstance(raw_value, str):
@@ -335,7 +311,7 @@ def _normalize_string_value(var_type, raw_value):
     if raw_value.startswith("'") and raw_value.endswith("'") and len(raw_value) >= 2:
         return raw_value[1:-1]
 
-    # Sin comillas → es el valor literal directamente
+   
     # Para charizar y stantler lo devolvemos tal cual (es el char/string)
     if var_type.lower() in ('charizar', 'stantler'):
         return raw_value
@@ -345,10 +321,6 @@ def _normalize_string_value(var_type, raw_value):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_declaration
-#
-# FIX aplicados:
-#   - Usa _normalize_string_value para guardar el valor limpio en tabla
-#   - Solo llama update_symbol si _evaluate_runtime no devuelve _LOOP_MODIFIED
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_declaration(self, name, var_type,value=None):
     def action():
@@ -406,7 +378,7 @@ def handle_declaration(self, name, var_type,value=None):
             # 3. Evaluar valor real y guardar en tabla
             raw = _evaluate_runtime(self, value)
 
-            # Si devuelve el sentinel de loop → no actualizar (conservar None = "sin valor")
+            # Si devuelve el sentinel de loop -> no actualizar (conservar None = "sin valor")
             # Pero en declaración nunca estamos dentro de loop todavía, así que
             # este caso no debería darse aquí. Lo dejamos por seguridad.
             if raw is _LOOP_MODIFIED:
@@ -421,10 +393,6 @@ def handle_declaration(self, name, var_type,value=None):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_assignment
-#
-# FIX aplicados:
-#   - Si en_loop es True → NO actualizar tabla (conservar valor inicial)
-#   - Normalizar strings/chars
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_assignment(self, name, value):
     def action():
@@ -465,7 +433,7 @@ def handle_assignment(self, name, value):
             self.intercode_generator.emit(f"{name} = {ir_value}")
 
         # 2. Actualizar tabla SOLO si NO estamos dentro de un loop
-        #    Si en_loop=True → la variable puede cambiar N veces →
+        #    Si en_loop=True -> la variable puede cambiar N veces ->
         #    conservamos el valor estático conocido antes del loop.
         if getattr(self, 'en_loop', False):
             return   # No tocar la tabla — conservar valor inicial
@@ -482,16 +450,6 @@ def handle_assignment(self, name, value):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_expression_statement
-#
-# FIX NUEVO — error semántico por expresión sin efecto.
-#
-# Se llama desde el parser en lugar de dejar pasar la expresión silenciosamente.
-# Una expresión es "sin efecto" si no es:
-#   - asignación       → ya tiene su propia regla
-#   - llamada a función (callable) → tiene efecto
-#   - print, return, break → tienen sus propias reglas
-#
-# Todo lo que llegue aquí como expresión suelta es sin efecto.
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_expression_statement(self, expr, line=None):
     """
@@ -567,9 +525,6 @@ def handle_expression(self, left, operator, right):
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Estructuras de control
-# FIX: while/for/do-while activan self.en_loop = True antes de ejecutar el
-# cuerpo, y lo restauran al salir. Así handle_assignment sabe que está
-# dentro de un loop y no actualiza la tabla.
 # ─────────────────────────────────────────────────────────────────────────────
 def handle_if(self, condition_fn, if_body, else_body):
     def action():
