@@ -83,11 +83,11 @@ class Parser:
                        | BOOFALANT IDENTIFIER EQUALS expression SEMICOLON
                        | STANTLER IDENTIFIER SEMICOLON
                        | STANTLER IDENTIFIER EQUALS expression SEMICOLON'''
-        scope      = 'local' if self.semantic.en_funcion else 'global'
+        
         identifier = p[2]
         value      = p[4] if len(p) > 4 else None
         type_      = p[1]
-        p[0] = self.semantic.handle_declaration(identifier, type_, scope, value)
+        p[0] = self.semantic.handle_declaration(identifier, type_, value=value)
 
     def p_declaration_no_semicolon(self, p):
         '''declaration_no_semicolon : ENTEI IDENTIFIER EQUALS expression
@@ -95,11 +95,12 @@ class Parser:
                                     | CHARIZAR IDENTIFIER EQUALS expression
                                     | BOOFALANT IDENTIFIER EQUALS expression
                                     | STANTLER IDENTIFIER EQUALS expression'''
-        scope      = 'local' if self.semantic.en_funcion else 'global'
+        
         identifier = p[2]
         value      = p[4]
         type_      = p[1]
-        p[0] = self.semantic.handle_declaration(identifier, type_, scope, value)
+        p[0] = self.semantic.handle_declaration(identifier, type_, value=value)
+        
 
     # ── Asignación ────────────────────────────
 
@@ -167,13 +168,16 @@ class Parser:
     # ── Switch ────────────────────────────────
 
     def p_switch_statement(self, p):
-        'switch_statement : SWELLO LPAREN IDENTIFIER RPAREN LBRACE cases default_case RBRACE'
-        p[0] = self.semantic.handle_switch(p[3], p[6], p[7])
+        '''switch_statement : SWELLO LPAREN IDENTIFIER RPAREN LBRACE cases default_case RBRACE
+                            | SWELLO LPAREN IDENTIFIER RPAREN LBRACE cases RBRACE'''
+        default = p[7] if len(p) == 9 else []
+        cases   = p[6]
+        p[0] = self.semantic.handle_switch(p[3], cases, default)
 
     def p_cases(self, p):
-        '''cases : case
-                 | cases case'''
-        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
+        '''cases : cases case
+                | case'''
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
 
     def p_case(self, p):
         'case : KECLEON value COLON program'
@@ -191,7 +195,8 @@ class Parser:
     def p_value(self, p):
         '''value : NUMBER
                  | STRING_LITERAL
-                 | CHAR_LITERAL'''
+                 | CHAR_LITERAL
+                 | BOOLEAN_LITERAL'''
         p[0] = p[1]
 
     # ── Break / Return ────────────────────────
@@ -238,6 +243,7 @@ class Parser:
                   | IDENTIFIER
                   | STRING_LITERAL
                   | CHAR_LITERAL
+                  | BOOLEAN_LITERAL
                   | LPAREN expression RPAREN
                   | method_call'''
         if len(p) == 4:
@@ -369,13 +375,13 @@ class Parser:
 
         if execute and parsed:
             print("Ejecutando AST...")
-            self.semantic.symbol_table.enter_scope()
+            
 
             for stmt in parsed:
                 if callable(stmt):
                     stmt()
 
             self.semantic.symbol_table.guardar_snapshot_final()
-            self.semantic.symbol_table.exit_scope()
+            
 
         return parsed

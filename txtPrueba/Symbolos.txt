@@ -1,26 +1,20 @@
 entei a as 5 pyc
 entei b as 10 pyc
 stantler c as csxcs pyc
-
 charizar d as cszcs pyc
-
 
 a as a su b pyc
 
-pikachu cd valor de c cd pyc
-
-pikachu cd inicio del programa cd pyc
-
+pikachu cdvalor de ccd pyc
+pikachu cdinicio del programacd pyc
 
 evee ps a ma 3 pc ls
-    pikachu cd a es mayor que 3 cd pyc
+    pikachu cda es mayor que 3cd pyc
 lc
 
 wailord ps a me b pc ls
-    pikachu cd loop ejecutandose cd pyc
+    pikachu cdloop ejecutandosecd pyc
     a as a su 1 pyc
 lc
 
-
-
-pikachu cd fin del programa cd pyc
+pikachu cdfin del programacd pyc

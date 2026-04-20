@@ -84,6 +84,8 @@ class Lexer:
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
         'gardevoir' : 'GARDEVOIR',
+        'true': 'BOOLEAN_LITERAL',
+        'false': 'BOOLEAN_LITERAL',
 
         # Símbolos como palabras
         'as'  : 'EQUALS',

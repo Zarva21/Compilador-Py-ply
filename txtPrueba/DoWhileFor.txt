@@ -1,10 +1,10 @@
-entei i = 0;
+entei i as 0 pyc
 
-doduo {
-    pikachu(i);
-    i = i + 1;
-} wailord (i < 3);
+doduo ls
+    pikachu ps i pc pyc
+    i as i su 1 pyc
+lc wailord ps i me 3 pc pyc
 
-forretres (entei j = 0; j < 5; j = j + 1) {
-    pikachu(j);
-}
+forretres ps entei j as 0 pyc j me 5 pyc j as j su 1 pc ls
+    pikachu ps j pc pyc
+lc

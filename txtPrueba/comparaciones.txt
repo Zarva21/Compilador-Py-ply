@@ -1,0 +1,10 @@
+entei a as 5 pyc
+entei b as 10 pyc
+
+evee ps a me b pc ls
+    pikachu cdmenorcd pyc
+lc
+
+evee ps b mai a pc ls
+    pikachu cdmayor o igualcd pyc
+lc

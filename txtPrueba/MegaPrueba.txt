@@ -1,29 +1,27 @@
-/* Programa completo de prueba */
+entei contador as 0 pyc
 
-entei contador = 0;
+suicune entei cuadrado ps entei n pc ls
+    raikou n mu n pyc
+lc
 
-suicune entei cuadrado(entei n) {
-    raikou n * n;
-}
+wailord ps contador me 5 pc ls
 
-wailord (contador < 5) {
+    entei valor as cuadrado ps contador pc pyc
 
-    entei valor = cuadrado(contador);
+    swello ps valor pc ls
 
-    swello (valor) {
+        kecleon 0 dp
+            pikachu ps valor pc pyc
+            breloom pyc
 
-        kecleon 0:
-            pikachu(valor);
-            breloom;
+        kecleon 1 dp
+            pikachu ps valor pc pyc
+            breloom pyc
 
-        kecleon 1:
-            pikachu(valor);
-            breloom;
+        deoxys dp
+            pikachu ps valor pc pyc
+            breloom pyc
+    lc
 
-        deoxys:
-            pikachu(valor);
-            breloom;
-    }
-
-    contador = contador + 1;
-}
+    contador as contador su 1 pyc
+lc

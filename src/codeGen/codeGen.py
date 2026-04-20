@@ -36,6 +36,7 @@ class ccodeGen:
         self._next_is_for     = False
         self._next_is_dowhile = False
         self._declared_vars   = set()
+        self._main_locals = set()
 
         self._func_params = set()
         self._func_locals = set()
@@ -596,15 +597,25 @@ class ccodeGen:
                 right_cpp   = self._translate_ops(right)
 
                 if left.startswith('t') and left[1:].isdigit() and left in self.temp_conditions:
-                    i += 1; continue
+                    i += 1
+                    continue
 
                 if left.startswith('t') and left[1:].isdigit():
                     self.cpp_code.append(f'{self._indent()}auto {left} = {right_cpp};')
-                    i += 1; continue
+                    i += 1
+                    continue
 
                 right_cpp = self._add_string_quotes(left, right_cpp)
-                self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
-                i += 1; continue
+
+                if left not in self._declared_vars and left not in self._main_locals:
+                    cpp_type = self._cpp_type(left)
+                    self.cpp_code.append(f'{self._indent()}{cpp_type} {left} = {right_cpp};')
+                    self._main_locals.add(left)
+                else:
+                    self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
+
+                i += 1
+                continue
 
             self.cpp_code.append(f'{self._indent()}{self._translate_ops(line)};')
             i += 1

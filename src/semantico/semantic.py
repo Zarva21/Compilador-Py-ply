@@ -46,8 +46,8 @@ class Semantic:
 
     # ── Delegación a handle.py ────────────────────────────────────────────
 
-    def handle_declaration(self, name, var_type, scope, value=None):
-        return handle_declaration(self, name, var_type, scope, value)
+    def handle_declaration(self, name, var_type, value=None):
+        return handle_declaration(self, name, var_type, value)
 
     def handle_assignment(self, name, value):
         return handle_assignment(self, name, value)

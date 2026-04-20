@@ -1,45 +1,40 @@
+entei x as 10 pyc
+pikachu ps x pc pyc
 
-entei x = 10;
-pikachu(x);
+entei y as 3 pyc
+stantler z as csholacs pyc
 
+evee ps x ma 5 pc ls
+    entei a as 20 pyc
+lc ekans ls
+    entei b as 30 pyc
+lc
 
-floatzel y = 3.14;
-stantler z = "hola";
+entei globalvar as 100 pyc
 
+suicune entei doble ps entei x pc ls
+    raikou x mu 2 pyc
+lc
 
-evee (x > 5) {
-    entei a = 20;
-} ekans {
-    entei b = 30;
-}
+suicune entei triple ps entei x pc ls
+    raikou doble ps x pc su x pyc
+lc
 
+wailord ps x ma 0 pc ls
+    evee ps x su 2 ig 0 pc ls
+        pikachu ps x pc pyc
+    lc ekans ls
+        pikachu ps 0 pc pyc
+    lc
+    x as x re 1 pyc
+lc
 
+entei resultado as ps x su y pc mu ps x re 2 pc di 3 pyc
 
-entei globalvar = 100;
-
-suicune entei doble(entei x) {
-    raikou x * 2;
-}
-
-suicune entei triple(entei x) {
-    raikou doble(x) + x;
-}
-
-wailord (x > 0) {
-    evee (x + 2 == 0) {
-        pikachu(x);
-    } ekans {
-        pikachu(0);
-    }
-    x = x - 1;
-}
-
-entei resultado = (x + y) * (x - 2) / 3;
-
-suicune entei factorial(entei n) {
-    evee (n == 0) {
-        raikou 1;
-    } ekans {
-        raikou n * factorial(n - 1);
-    }
-}
+suicune entei factorial ps entei n pc ls
+    evee ps n ig 0 pc ls
+        raikou 1 pyc
+    lc ekans ls
+        raikou n mu factorial ps n re 1 pc pyc
+    lc
+lc

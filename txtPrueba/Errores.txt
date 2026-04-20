@@ -10,5 +10,26 @@ a su 1 pyc
 
 cm Ejemplo 3 Falta cerrar bloque
 
+entei a as 5 pyc
+
 evee ps a ma 3 pc ls
-    pikachu cd hola cd pyc
+    pikachu cdhola cd pyc
+
+cm Error reclaracion
+
+entei a as 5 pyc
+entei a as 10 pyc
+
+cm Error de tipos incompatibles
+
+entei a as 5 pyc
+stantler c as csholacs pyc
+a as a su c pyc
+
+cm Char largo
+
+charizar d as csholacs pyc
+
+cm Print variable no declarada
+
+pikachu ps x pc pyc

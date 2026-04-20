@@ -6,6 +6,7 @@ class SymbolTable:
     def __init__(self):
         self.global_scope = {}
         self.scope_stack  = [{}]
+        self.closed_scopes = []
 
     def enter_scope(self):
         self.scope_stack.append({})
@@ -13,6 +14,8 @@ class SymbolTable:
 
     def exit_scope(self):
         if len(self.scope_stack) > 1:
+            closed = copy.deepcopy(self.scope_stack[-1])
+            self.closed_scopes.append(closed)
             self.scope_stack.pop()
             print("Ámbito local cerrado.")
         else:
@@ -70,17 +73,48 @@ class SymbolTable:
         return None
 
     def guardar_snapshot_final(self):
-        """Congela estado completo. Llamar justo antes del exit_scope() final."""
         self.final_snapshot = {
             'global_scope': copy.deepcopy(self.global_scope),
             'scope_stack':  copy.deepcopy(self.scope_stack),
+            'closed_scopes': copy.deepcopy(self.closed_scopes),
         }
 
     def to_flat_dict(self):
-        """Solo globales para ccodeGen (necesita los tipos)."""
+        """
+        Devuelve globales + locales cerrados para ccodeGen.
+        Así puede conocer el tipo real de variables declaradas en bloques.
+        """
         result = {}
+
+        # Globales
         for name, info in self.global_scope.items():
-            result[name] = {"type": info["type"], "value": info.get("value")}
+            result[name] = {
+                "type": info["type"],
+                "value": info.get("value"),
+                "scope": info.get("scope", "global")
+            }
+
+        # Locales aún activos
+        for scope in self.scope_stack:
+            for name, info in scope.items():
+                if name not in result:
+                    result[name] = {
+                        "type": info["type"],
+                        "value": info.get("value"),
+                        "scope": info.get("scope", "local")
+                    }
+
+        # Locales cerrados
+        if hasattr(self, "closed_scopes"):
+            for scope in self.closed_scopes:
+                for name, info in scope.items():
+                    if name not in result:
+                        result[name] = {
+                            "type": info["type"],
+                            "value": info.get("value"),
+                            "scope": info.get("scope", "local")
+                        }
+
         return result
 
     def toHtml(self):
@@ -107,16 +141,20 @@ class SymbolTable:
         if hasattr(self, 'final_snapshot'):
             global_data  = self.final_snapshot['global_scope']
             scopes_local = self.final_snapshot['scope_stack']
+            closed_scopes  = self.final_snapshot.get('closed_scopes', [])
         else:
             global_data  = self.global_scope
             scopes_local = self.scope_stack
+            closed_scopes  = self.closed_scopes    
 
-        def _display(valor):
+        def _display(valor, tipo=None):
             if valor is None:
                 return '<span class="val-dynamic">?</span>'
             if isinstance(valor, bool):
                 return f'<span class="val-real">{"true" if valor else "false"}</span>'
             if isinstance(valor, str):
+                if tipo and tipo.lower() == 'charizar':
+                    return f'<span class="val-real">\'{valor}\'</span>'
                 return f'<span class="val-real">"{valor}"</span>'
             return f'<span class="val-real">{valor}</span>'
 
@@ -126,19 +164,31 @@ class SymbolTable:
                 f"<td>{identifier}</td>"
                 f"<td>{data['type']}</td>"
                 f"<td><span class='scope-global'>global</span></td>"
-                f"<td>{_display(data.get('value'))}</td>"
+                f"<td>{_display(data.get('value'), data.get('type'))}</td>"
                 f"</tr>"
             )
 
         for scope in scopes_local:
             for identifier, data in scope.items():
-                ambito = data.get('scope', 'local')
+                if data.get('scope') == 'local':
+                    html += (
+                        f"<tr>"
+                        f"<td>{identifier}</td>"
+                        f"<td>{data['type']}</td>"
+                        f"<td><span class='scope-local'>local</span></td>"
+                        f"<td>{_display(data.get('value'), data.get('type'))}</td>"
+                        f"</tr>"
+                    )
+
+        # scopes cerrados
+        for scope in closed_scopes:
+            for identifier, data in scope.items():
                 html += (
                     f"<tr>"
                     f"<td>{identifier}</td>"
                     f"<td>{data['type']}</td>"
-                    f"<td><span class='scope-local'>{ambito}</span></td>"
-                    f"<td>{_display(data.get('value'))}</td>"
+                    f"<td><span class='scope-local'>local (cerrado)</span></td>"
+                    f"<td>{_display(data.get('value'), data.get('type'))}</td>"
                     f"</tr>"
                 )
 

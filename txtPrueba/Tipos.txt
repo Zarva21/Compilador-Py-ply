@@ -1,9 +1,9 @@
-entei edad = 20;
-floatzel promedio = 8.5;
-charizar letra = 'A';
-boofalant activo = true;
-stantler nombre = "Red";
+entei edad as 20 pyc
+floatzel promedio as 8.5 pyc
+charizar letra as csAcs pyc
+boofalant activo as true pyc
+stantler nombre as csRedcs pyc
 
-pikachu(edad);
-pikachu(promedio);
-pikachu(nombre);
+pikachu ps edad pc pyc
+pikachu ps promedio pc pyc
+pikachu ps nombre pc pyc

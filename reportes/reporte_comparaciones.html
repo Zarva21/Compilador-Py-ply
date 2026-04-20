@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte – comparaciones.txt</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+        .section h2.ok  { color: #27ae60; }
+        .section h2.err { color: #e74c3c; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover td { background: #f9f9f9; }
+        .no-errors { color: #27ae60; font-style: italic; }
+        .error-section h2 { color: #e74c3c; font-size: 1.1rem; margin-bottom: 12px; }
+        .error-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .error-table th { background: #c0392b; color: white; padding: 9px 14px; text-align: left; }
+        .error-table td { padding: 9px 14px; border-bottom: 1px solid #fdd; }
+        .error-table tr:hover td { background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+    <h1> Reporte del Compilador Pokémon</h1>
+    <p class="subtitle">Archivo analizado: <strong>comparaciones.txt</strong></p>
+
+    <div class="section">
+        <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
+        <table><tr><th>#</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th></tr><tr><td>1</td><td>ENTEI</td><td>entei</td><td>1</td><td>1</td></tr>
+<tr><td>2</td><td>IDENTIFIER</td><td>a</td><td>1</td><td>7</td></tr>
+<tr><td>3</td><td>EQUALS</td><td>as</td><td>1</td><td>9</td></tr>
+<tr><td>4</td><td>NUMBER</td><td>5</td><td>1</td><td>12</td></tr>
+<tr><td>5</td><td>SEMICOLON</td><td>pyc</td><td>1</td><td>14</td></tr>
+<tr><td>6</td><td>ENTEI</td><td>entei</td><td>2</td><td>1</td></tr>
+<tr><td>7</td><td>IDENTIFIER</td><td>b</td><td>2</td><td>7</td></tr>
+<tr><td>8</td><td>EQUALS</td><td>as</td><td>2</td><td>9</td></tr>
+<tr><td>9</td><td>NUMBER</td><td>10</td><td>2</td><td>12</td></tr>
+<tr><td>10</td><td>SEMICOLON</td><td>pyc</td><td>2</td><td>15</td></tr>
+<tr><td>11</td><td>EVEE</td><td>evee</td><td>4</td><td>1</td></tr>
+<tr><td>12</td><td>LPAREN</td><td>ps</td><td>4</td><td>6</td></tr>
+<tr><td>13</td><td>IDENTIFIER</td><td>a</td><td>4</td><td>9</td></tr>
+<tr><td>14</td><td>LT</td><td>me</td><td>4</td><td>11</td></tr>
+<tr><td>15</td><td>IDENTIFIER</td><td>b</td><td>4</td><td>14</td></tr>
+<tr><td>16</td><td>RPAREN</td><td>pc</td><td>4</td><td>16</td></tr>
+<tr><td>17</td><td>LBRACE</td><td>ls</td><td>4</td><td>19</td></tr>
+<tr><td>18</td><td>PIKACHU</td><td>pikachu</td><td>5</td><td>5</td></tr>
+<tr><td>19</td><td>STRING_LITERAL</td><td>menor</td><td>5</td><td>13</td></tr>
+<tr><td>20</td><td>SEMICOLON</td><td>pyc</td><td>5</td><td>23</td></tr>
+<tr><td>21</td><td>RBRACE</td><td>lc</td><td>6</td><td>1</td></tr>
+<tr><td>22</td><td>EVEE</td><td>evee</td><td>8</td><td>1</td></tr>
+<tr><td>23</td><td>LPAREN</td><td>ps</td><td>8</td><td>6</td></tr>
+<tr><td>24</td><td>IDENTIFIER</td><td>b</td><td>8</td><td>9</td></tr>
+<tr><td>25</td><td>RELOP</td><td>mai</td><td>8</td><td>11</td></tr>
+<tr><td>26</td><td>IDENTIFIER</td><td>a</td><td>8</td><td>15</td></tr>
+<tr><td>27</td><td>RPAREN</td><td>pc</td><td>8</td><td>17</td></tr>
+<tr><td>28</td><td>LBRACE</td><td>ls</td><td>8</td><td>20</td></tr>
+<tr><td>29</td><td>PIKACHU</td><td>pikachu</td><td>9</td><td>5</td></tr>
+<tr><td>30</td><td>STRING_LITERAL</td><td>mayor o igual</td><td>9</td><td>13</td></tr>
+<tr><td>31</td><td>SEMICOLON</td><td>pyc</td><td>9</td><td>31</td></tr>
+<tr><td>32</td><td>RBRACE</td><td>lc</td><td>10</td><td>1</td></tr>
+</table>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Léxicos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Sintácticos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    
+    <div class="section">
+        <h2 class="ok"> Código Intermedio</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>a = 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>b = 10</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>t0 = a me b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>if !(t0) goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>cout &lt;&lt; "menor" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>goto L1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>// FIN IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>// INICIO IF</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>t1 = b mai a</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>if !(t1) goto L2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>cout &lt;&lt; "mayor o igual" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>goto L3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// FIN IF</td></tr>
+
+        </table>
+    </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Código C++ Generado</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>#include &lt;iostream&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>#include &lt;string&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>int main() {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    int a;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    int b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>        a = 5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>        b = 10;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>        if (a &lt; b) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>            cout &lt;&lt; "menor" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>        }  // fin if</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        if (b &gt;= a) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>            cout &lt;&lt; "mayor o igual" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        }  // fin if</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>}</td></tr>
+
+        </table>
+    </div>aja
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        
+        <style>
+            .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+            .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
+            .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
+            .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
+            .val-dynamic  { color:#e67e22; font-style:italic; }
+            .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
+        </style>
+        <table class="sym-table">
+            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+        <tr><td>a</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="val-real">5</span></td></tr><tr><td>b</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="val-real">10</span></td></tr></table>
+    </div>
+
+</body>
+</html>

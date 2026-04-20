@@ -1,17 +1,17 @@
-suicune entei sumar(entei a, entei b) {
-    entei resultado = a + b;
-    raikou resultado;
-}
+suicune entei sumar ps entei a co entei b pc ls
+    entei resultado as a su b pyc
+    raikou resultado pyc
+lc
 
-gardevoir imprimirMensaje() {
-    stantler mensaje = "Hola";
-    pikachu(mensaje);
-}
+gardevoir imprimirMensaje ps pc ls
+    stantler mensaje as csHolacs pyc
+    pikachu ps mensaje pc pyc
+lc
 
-entei x = 10;
-entei y = 20;
+entei x as 10 pyc
+entei y as 20 pyc
 
-entei total = sumar(x, y);
-pikachu(total);
+entei total as sumar ps x co y pc pyc
+pikachu ps total pc pyc
 
-imprimirMensaje();
+imprimirMensaje ps pc pyc

@@ -1,0 +1,8 @@
+entei x as 100 pyc
+
+evee ps x ma 10 pc ls
+    entei y as 5 pyc
+    pikachu ps y pc pyc
+lc
+
+pikachu ps x pc pyc

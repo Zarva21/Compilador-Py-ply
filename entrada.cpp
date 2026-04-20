@@ -16,10 +16,12 @@ int triple(int x) {
 int factorial(int n) {
     if (n == 0) {
     return 1;
+} else {
     auto t14 = n - 1;
     auto t13 = factorial(t14);
     auto t15 = n * t13;
     return t15;
+}
 }
 
 
@@ -27,14 +29,15 @@ int main() {
     int a;
     int b;
     int globalvar;
+    int n;
     int resultado;
     int x;
-    float y;
+    int y;
     string z;
 
         x = 10;
         cout << x << endl;
-        y = 3.14;
+        y = 3;
         z = "hola";
         if (x > 5) {
             a = 20;

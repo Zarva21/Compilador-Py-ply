@@ -1,18 +1,17 @@
-#. Variables básicas
-entei x = 5;
-entei y = 3;
-entei resultado = 0;
+entei x as 5 pyc
+entei y as 3 pyc
+entei resultado as 0 pyc
 
-resultado = x + y;
-pikachu(resultado);
+resultado as x su y pyc
+pikachu ps resultado pc pyc
 
-evee (resultado > 5) {
-    entei bandera = 1;
-} ekans {
-    entei bandera2 = 0;
-}
+evee ps resultado ma 5 pc ls
+    entei bandera as 1 pyc
+lc ekans ls
+    entei bandera2 as 0 pyc
+lc
 
-wailord (x > 0) {
-    x = x - 1;
-    pikachu(x);
-}
+wailord ps x ma 0 pc ls
+    x as x re 1 pyc
+    pikachu ps x pc pyc
+lc

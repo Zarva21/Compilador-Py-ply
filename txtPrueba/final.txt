@@ -1,0 +1,22 @@
+entei x as 10 pyc
+stantler nombre as csJuan cs pyc
+charizar letra as csacs pyc
+boofalant activo as true pyc
+
+pikachu cd inicio cd pyc
+
+evee ps x ma 5 pc ls
+    entei y as 2 pyc
+    pikachu ps y pc pyc
+lc
+
+wailord ps x ma 0 pc ls
+    x as x re 1 pyc
+lc
+
+suicune entei doble ps entei a pc ls
+    raikou a mu 2 pyc
+lc
+
+entei r as doble ps x pc pyc
+pikachu ps r pc pyc

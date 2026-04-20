@@ -350,17 +350,17 @@ def _normalize_string_value(var_type, raw_value):
 #   - Usa _normalize_string_value para guardar el valor limpio en tabla
 #   - Solo llama update_symbol si _evaluate_runtime no devuelve _LOOP_MODIFIED
 # ─────────────────────────────────────────────────────────────────────────────
-def handle_declaration(self, name, var_type, scope=None, value=None):
+def handle_declaration(self, name, var_type,value=None):
     def action():
-        actual_scope = 'local' if self.en_funcion else 'global'
+        # Detectar scope REAL
+        is_global = len(self.symbol_table.scope_stack) == 1
+        actual_scope = 'global' if is_global else 'local'
 
-        # 1. Registrar en tabla con valor None
-        # FIX: add_symbol ahora retorna False si ya existe en este scope.
-        # Si retorna False → reportar error semántico y abortar (no emitir IR).
         registered = self.symbol_table.add_symbol(name, var_type, actual_scope, None)
         if not registered:
             existing = self.symbol_table.get_symbol(name)
             existing_type = existing.get('type', '?') if existing else '?'
+
             if existing_type != var_type:
                 self.errors.encolar_error(
                     f"Error semántico: variable '{name}' ya declarada como "
@@ -368,10 +368,9 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                 )
             else:
                 self.errors.encolar_error(
-                    f"Error semántico: variable '{name}' ya declarada como '{existing_type}' "
-                    f"en este ámbito. ¿Quisiste asignar en lugar de declarar?"
+                    f"Error semántico: variable '{name}' ya declarada. ¿Quisiste asignar?"
                 )
-            return   # ← abortar: no emitir IR, no actualizar tabla
+            return
 
         # 2. Emitir IR
         if value is not None:
@@ -393,9 +392,15 @@ def handle_declaration(self, name, var_type, scope=None, value=None):
                     self.errors.encolar_error(error)
                     return
                 ir_value = value
-                if var_type.lower() == 'charizar' and isinstance(value, str):
-                    if not (value.startswith("'") and value.endswith("'")):
-                        ir_value = f"'{value}'"
+
+                if isinstance(value, str):
+                    if var_type.lower() == 'charizar':
+                        if not (value.startswith("'") and value.endswith("'")):
+                            ir_value = f"'{value}'"
+                    elif var_type.lower() == 'stantler':
+                        if not (value.startswith('"') and value.endswith('"')):
+                            ir_value = f'"{value}"'
+
                 self.intercode_generator.emit(f"{name} = {ir_value}")
 
             # 3. Evaluar valor real y guardar en tabla
@@ -447,7 +452,17 @@ def handle_assignment(self, name, value):
             if error:
                 self.errors.encolar_error(error)
                 return
-            self.intercode_generator.emit(f"{name} = {value}")
+
+            ir_value = value
+            if isinstance(value, str):
+                if var_type.lower() == 'charizar':
+                    if not (value.startswith("'") and value.endswith("'")):
+                        ir_value = f"'{value}'"
+                elif var_type.lower() == 'stantler':
+                    if not (value.startswith('"') and value.endswith('"')):
+                        ir_value = f'"{value}"'
+
+            self.intercode_generator.emit(f"{name} = {ir_value}")
 
         # 2. Actualizar tabla SOLO si NO estamos dentro de un loop
         #    Si en_loop=True → la variable puede cambiar N veces →
