@@ -1,6 +1,7 @@
 import os
 import sys
 import threading
+import datetime
 from flask import Flask, request, jsonify, send_from_directory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -10,6 +11,7 @@ os.chdir(BASE_DIR)
 from src.Extras.errores import Errors
 from src.lexer.lexer import Lexer
 from src.sintactico.parser import Parser
+from main import generar_html
 
 app = Flask(__name__)
 _lock = threading.Lock()  # PLY tiene estado global; serializar análisis
@@ -20,16 +22,22 @@ def index():
     return send_from_directory(BASE_DIR, 'interfaz.html')
 
 
+@app.route('/reportes/<path:filename>')
+def serve_reporte(filename):
+    return send_from_directory(os.path.join(BASE_DIR, 'reportes'), filename)
+
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     data = request.get_json(force=True, silent=True) or {}
     codigo = data.get('codigo', '')
+    nombre_archivo = data.get('nombre_archivo', 'editor')
 
     with _lock:
-        return _run_analysis(codigo)
+        return _run_analysis(codigo, nombre_archivo)
 
 
-def _run_analysis(codigo):
+def _run_analysis(codigo, nombre_archivo='editor'):
     # ── Análisis léxico ──
     lex_errors = Errors(codigo)
     lexer = Lexer(lex_errors)
@@ -90,6 +98,25 @@ def _run_analysis(codigo):
             'col': '-',
         })
 
+    # ── Generar reporte HTML ──
+    lex_html   = lex_errors.errorHtml("Léxicos")
+    parse_html = parse_errors.errorHtml("Sintácticos")
+
+    html_reporte = generar_html(
+        tokens_raw, lex_html, parse_html,
+        intercode, cpp_code, sym_html,
+        nombre_archivo, hay_errores
+    )
+
+    nombre_base = os.path.splitext(nombre_archivo)[0]
+    carpeta_salida = os.path.join(BASE_DIR, 'reportes')
+    os.makedirs(carpeta_salida, exist_ok=True)
+    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+    nombre_reporte = f"reporte_{nombre_base}_{timestamp}.html"
+    ruta_reporte = os.path.join(carpeta_salida, nombre_reporte)
+    with open(ruta_reporte, 'w', encoding='utf-8') as f:
+        f.write(html_reporte)
+
     return jsonify({
         'tokens': tokens_list,
         'lex_errors': lex_errors.errors,
@@ -98,6 +125,7 @@ def _run_analysis(codigo):
         'intercode': intercode,
         'cpp_code': cpp_code,
         'hay_errores': hay_errores,
+        'reporte_url': f'/reportes/{nombre_reporte}',
     })
 
 

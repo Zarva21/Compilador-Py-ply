@@ -193,8 +193,6 @@
     }
     .r-table tr:nth-child(even) td { background: var(--c2); }
     .r-table tr:nth-child(odd)  td { background: var(--c3); }
-    .r-table .err-row td           { background: var(--c1); color: var(--c3); }
-    .r-table .err-row:nth-child(even) td { background: var(--c0); color: var(--c2); }
 
     .r-ok    { font-size: 22px; color: var(--c1); padding: 16px 12px; letter-spacing: 1px; }
     .r-empty { font-size: 20px; color: var(--c2); padding: 16px 12px; letter-spacing: 1px; }
@@ -546,11 +544,53 @@ function selectItem(viewName) {
 }
 
 /* ── Carga de archivo ─────────────────────────────── */
-$('btn-b').addEventListener('click',     () => $('file-input').click());
-$('btn-b-wrap').addEventListener('click',() => $('file-input').click());
+let fileHandle = null;      // File System Access API
+let loadedFileName = '';    // nombre del archivo cargado
+
+async function openFileFSA() {
+  try {
+    [fileHandle] = await window.showOpenFilePicker({
+      types: [{ description: 'Texto', accept: { 'text/plain': ['.txt'] } }],
+      multiple: false
+    });
+    // Pedir permiso de lectura+escritura desde el inicio
+    const perm = await fileHandle.requestPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') { fileHandle = null; return; }
+    const file = await fileHandle.getFile();
+    loadedFileName = file.name;
+    $('code-editor').value = await file.text();
+    selectItem('editor'); goToView('editor');
+    setStatus('OK: ' + file.name.substring(0,14).toUpperCase());
+  } catch(e) {
+    if (e.name !== 'AbortError') console.error(e);
+    fileHandle = null;
+  }
+}
+
+async function saveToHandle() {
+  if (!fileHandle) return;
+  try {
+    const perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') return;
+    const writable = await fileHandle.createWritable();
+    await writable.write($('code-editor').value);
+    await writable.close();
+  } catch(e) {
+    console.warn('No se pudo guardar en el archivo:', e);
+  }
+}
+
+// Evitar doble disparo: btn-b está dentro de btn-b-wrap
+$('btn-b-wrap').addEventListener('click', function(e) {
+  if ('showOpenFilePicker' in window) openFileFSA();
+  else $('file-input').click();
+});
+$('btn-b').addEventListener('click', e => e.stopPropagation());
 
 $('file-input').addEventListener('change', function() {
   const file = this.files[0]; if (!file) return;
+  fileHandle = null;
+  loadedFileName = file.name;
   const reader = new FileReader();
   reader.onload = evt => {
     $('code-editor').value = evt.target.result;
@@ -570,6 +610,9 @@ async function doAnalyze() {
   const codigo = $('code-editor').value;
   if (!codigo.trim()) { setStatus('EDITOR VACIO!'); return; }
 
+  // Guardar cambios en el archivo cargado (si hay handle)
+  await saveToHandle();
+
   analyzing = true;
   document.body.classList.add('loading');
   setStatus('ANALIZANDO...');
@@ -580,7 +623,7 @@ async function doAnalyze() {
     const res = await fetch('/analyze', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ codigo })
+      body: JSON.stringify({ codigo, nombre_archivo: loadedFileName || 'editor.txt' })
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
@@ -589,6 +632,11 @@ async function doAnalyze() {
 
     const errCount = (data.lex_errors||[]).length + (data.parse_errors||[]).length;
     setHp(errCount);
+
+    // Mostrar notificación del reporte generado
+    if (data.reporte_url) {
+      showReporteLink(data.reporte_url);
+    }
 
     if (errCount > 0) {
       setStatus(errCount + ' ERRORES!');
@@ -607,6 +655,26 @@ async function doAnalyze() {
     analyzing = false;
     document.body.classList.remove('loading');
   }
+}
+
+function showReporteLink(url) {
+  let notif = document.getElementById('reporte-notif');
+  if (!notif) {
+    notif = document.createElement('div');
+    notif.id = 'reporte-notif';
+    notif.style.cssText = [
+      'position:fixed', 'bottom:12px', 'left:50%', 'transform:translateX(-50%)',
+      'background:var(--c0)', 'color:var(--c3)', 'font-family:VT323,monospace',
+      'font-size:18px', 'letter-spacing:2px', 'padding:6px 16px',
+      'border:3px solid var(--c2)', 'z-index:10000', 'cursor:pointer',
+    ].join(';');
+    document.body.appendChild(notif);
+  }
+  notif.innerHTML = `REPORTE GENERADO &nbsp;<a href="${url}" target="_blank"
+    style="color:var(--c2);text-decoration:underline;">[ABRIR]</a>`;
+  notif.style.display = 'block';
+  clearTimeout(notif._timer);
+  notif._timer = setTimeout(() => { notif.style.display = 'none'; }, 8000);
 }
 
 $('btn-a').addEventListener('click',     doAnalyze);
