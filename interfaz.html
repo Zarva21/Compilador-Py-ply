@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PKM COMPILER</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Paleta Game Boy 4 colores ─────────────────── */
+    :root {
+      --c0: #0F380F;
+      --c1: #306230;
+      --c2: #8BAC0F;
+      --c3: #9BBC0F;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--c3);
+      color: var(--c0);
+      font-family: 'VT323', monospace;
+      font-size: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ══════════════════════════════════════════════
+       MARCO ESTILO POKEMON — doble línea + esquinas
+    ══════════════════════════════════════════════ */
+
+    /* Cualquier elemento con .gb-frame obtiene:
+       - borde exterior grueso
+       - borde interior (inset outline)
+       - círculos en las 4 esquinas (pokeball knobs)            */
+    .gb-frame {
+      position: relative;
+      border: 4px solid var(--c0);
+      /* Borde interior: outline negativo */
+      outline: 3px solid var(--c0);
+      outline-offset: -9px;
+    }
+
+    /* Círculos de esquina (pseudo-pokeball pixel art) */
+    .gb-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle 7px at   0px   0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%    0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at   0px 100%, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%  100%, var(--c0) 7px, transparent 7px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* ══════════════════════════════════════════════
+       FLASH OVERLAY
+    ══════════════════════════════════════════════ */
+    #flash {
+      position: fixed; inset: 0;
+      background: var(--c3);
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #flash.go { animation: do-flash 0.25s steps(3) forwards; }
+    @keyframes do-flash {
+      0%  { opacity: 1; }
+      60% { opacity: 0.5; }
+      100%{ opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════════════
+       PANTALLA SUPERIOR — BATALLA (70 %)
+    ══════════════════════════════════════════════ */
+    .gb-screen {
+      flex: 0 0 70%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--c3);
+      /* El gb-frame se aplica en el HTML via class */
+      border: 4px solid var(--c0);
+      outline: 3px solid var(--c0);
+      outline-offset: -9px;
+      position: relative;
+    }
+    .gb-screen::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle 7px at   0px   0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%    0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at   0px 100%, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%  100%, var(--c0) 7px, transparent 7px);
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* Barra de título de pantalla */
+    .screen-bar {
+      flex-shrink: 0;
+      background: var(--c0);
+      color: var(--c3);
+      font-size: 18px;
+      padding: 3px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 10;
+    }
+    .bar-blink { animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Área de vistas */
+    .screen-body {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gb-view {
+      position: absolute; inset: 0;
+      display: none;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--c3);
+      z-index: 1;
+    }
+    .gb-view.active { display: block; }
+
+    /* Scrollbar GB */
+    .gb-view::-webkit-scrollbar       { width: 10px; }
+    .gb-view::-webkit-scrollbar-track { background: var(--c3); border-left: 3px solid var(--c0); }
+    .gb-view::-webkit-scrollbar-thumb { background: var(--c0); }
+
+    /* Editor */
+    #code-editor {
+      display: block;
+      width: 100%; height: 100%;
+      background: var(--c3);
+      color: var(--c0);
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      line-height: 1.5;
+      border: none; outline: none; resize: none;
+      padding: 14px 16px;
+      caret-color: var(--c0);
+      letter-spacing: 1px;
+    }
+    #code-editor::placeholder { color: var(--c2); }
+
+    /* ─ Resultado ─ */
+    .r-wrap { padding: 10px 14px; }
+
+    .r-sec {
+      font-size: 19px;
+      color: var(--c3);
+      background: var(--c0);
+      padding: 4px 10px;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+
+    /* Tabla de resultados */
+    .r-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'VT323', monospace;
+      font-size: 19px;
+      letter-spacing: 1px;
+    }
+    .r-table th {
+      background: var(--c0);
+      color: var(--c3);
+      padding: 5px 8px;
+      text-align: left;
+      font-size: 17px;
+      letter-spacing: 2px;
+      border-right: 2px solid var(--c1);
+    }
+    .r-table td {
+      padding: 4px 8px;
+      color: var(--c0);
+      border-bottom: 1px solid var(--c1);
+      border-right: 1px solid var(--c2);
+    }
+    .r-table tr:nth-child(even) td { background: var(--c2); }
+    .r-table tr:nth-child(odd)  td { background: var(--c3); }
+    .r-table .err-row td           { background: var(--c1); color: var(--c3); }
+    .r-table .err-row:nth-child(even) td { background: var(--c0); color: var(--c2); }
+
+    .r-ok    { font-size: 22px; color: var(--c1); padding: 16px 12px; letter-spacing: 1px; }
+    .r-empty { font-size: 20px; color: var(--c2); padding: 16px 12px; letter-spacing: 1px; }
+
+    /* Bloques de código */
+    .r-code-block  { margin-bottom: 10px; }
+    .r-code-hdr {
+      font-size: 18px;
+      background: var(--c0); color: var(--c3);
+      padding: 4px 10px; letter-spacing: 2px;
+    }
+    .r-code-body {
+      background: var(--c2);
+      padding: 10px 12px;
+      font-family: 'VT323', monospace;
+      font-size: 19px;
+      color: var(--c0);
+      overflow-x: auto; white-space: pre;
+      line-height: 1.4;
+      border: 2px solid var(--c0); border-top: none;
+    }
+    .r-code-line { display: flex; gap: 12px; }
+    .r-ln { color: var(--c1); min-width: 28px; text-align: right; user-select: none; flex-shrink: 0; }
+
+    /* Tabla de símbolos — override estilos del compilador */
+    .sym-wrap { overflow-x: auto; }
+    .sym-wrap style { display: none; }
+    .sym-wrap table, .sym-wrap .sym-table {
+      width: 100%; border-collapse: collapse;
+      font-family: 'VT323', monospace; font-size: 19px;
+    }
+    .sym-wrap th {
+      background: var(--c0) !important; color: var(--c3) !important;
+      padding: 5px 8px !important; border-right: 2px solid var(--c1) !important;
+      font-family: 'VT323', monospace !important; font-size: 17px !important;
+      letter-spacing: 2px !important;
+    }
+    .sym-wrap td {
+      padding: 4px 8px !important;
+      color: var(--c0) !important;
+      border-bottom: 1px solid var(--c1) !important;
+    }
+    .sym-wrap tr:nth-child(even) td { background: var(--c2) !important; }
+    .sym-wrap tr:nth-child(odd)  td { background: var(--c3) !important; }
+    .sym-wrap .scope-global, .sym-wrap .scope-local,
+    .sym-wrap .val-real, .sym-wrap .val-dynamic {
+      color: var(--c0) !important; font-style: normal !important; font-weight: normal !important;
+    }
+
+    /* ══════════════════════════════════════════════
+       MENÚ INFERIOR — BATALLA (30 %)
+    ══════════════════════════════════════════════ */
+    .gb-menu {
+      flex: 0 0 30%;
+      display: flex;
+      background: var(--c3);
+      min-height: 130px;
+      border-top: 4px solid var(--c0);
+    }
+
+    /* Panel izquierdo: HP + estado + botones */
+    .menu-left {
+      flex: 0 0 46%;
+      border-right: 4px solid var(--c0);
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      /* Marco doble */
+      outline: 3px solid var(--c0);
+      outline-offset: -10px;
+      position: relative;
+    }
+    .menu-left::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle 7px at   0px   0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%    0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at   0px 100%, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%  100%, var(--c0) 7px, transparent 7px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .poke-name  { font-size: 20px; letter-spacing: 2px; line-height: 1; }
+
+    /* HP bar */
+    .hp-row     { display: flex; align-items: center; gap: 8px; }
+    .hp-lbl     { font-size: 18px; letter-spacing: 1px; flex-shrink: 0; }
+    .hp-track   { flex: 1; height: 10px; background: var(--c3); border: 3px solid var(--c0); overflow: hidden; }
+    .hp-fill    { height: 100%; width: 100%; background: var(--c1); transition: width 0.35s steps(10); }
+    .hp-fill.low  { background: var(--c2); }
+    .hp-fill.crit { background: var(--c0); }
+
+    .status-msg { font-size: 19px; letter-spacing: 1px; flex: 1; line-height: 1.5; word-break: break-word; overflow: hidden; }
+
+    /* Botones A / B */
+    .ab-row { display: flex; gap: 12px; align-items: center; margin-top: auto; }
+    .ab-item { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+    .ab-lbl  { font-size: 17px; letter-spacing: 1px; line-height: 1.4; }
+    .gb-btn  {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 3px solid var(--c0);
+      font-family: 'VT323', monospace;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; line-height: 1;
+    }
+    .gb-btn-a { background: var(--c0); color: var(--c3); }
+    .gb-btn-b { background: var(--c1); color: var(--c3); }
+    .gb-btn-a:active { background: var(--c2); }
+    .gb-btn-b:active { background: var(--c0); }
+
+    #file-input { display: none; }
+
+    /* ─ Panel derecho: menú lista vertical (estilo movimientos) ─ */
+    .menu-right {
+      flex: 1;
+      padding: 8px 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      outline: 3px solid var(--c0);
+      outline-offset: -10px;
+      position: relative;
+    }
+    .menu-right::after {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle 7px at   0px   0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%    0px, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at   0px 100%, var(--c0) 7px, transparent 7px),
+        radial-gradient(circle 7px at 100%  100%, var(--c0) 7px, transparent 7px);
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    /* Lista de opciones */
+    .menu-list { list-style: none; }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 4px 14px 4px 10px;
+      font-size: 21px;
+      letter-spacing: 2px;
+      cursor: pointer;
+      color: var(--c0);
+      line-height: 1.3;
+      gap: 0;
+    }
+    .menu-item .cur {
+      display: inline-block;
+      width: 20px;
+      flex-shrink: 0;
+      visibility: hidden;
+      font-size: 21px;
+    }
+    .menu-item.selected .cur {
+      visibility: visible;
+      animation: cur-blink 0.8s steps(1) infinite;
+    }
+    .menu-item:hover { background: var(--c2); }
+    .menu-item.selected { background: var(--c2); }
+
+    @keyframes cur-blink {
+      0%,100% { visibility: visible; }
+      50%      { visibility: hidden;  }
+    }
+
+    /* Estado: analizando */
+    body.loading .menu-item  { color: var(--c2); pointer-events: none; }
+    body.loading .gb-btn     { opacity: 0.4; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<div id="flash"></div>
+
+<!-- ════════════ PANTALLA SUPERIOR 70% ════════════ -->
+<div class="gb-screen">
+  <div class="screen-bar">
+    <span id="bar-title">PKM_EDITOR</span>
+    <span class="bar-blink">█</span>
+    <span id="bar-info">LISTO</span>
+  </div>
+  <div class="screen-body">
+
+    <div class="gb-view active" id="view-editor">
+      <textarea id="code-editor" spellcheck="false" autocorrect="off" autocapitalize="off"
+        placeholder="// ESCRIBE TU CODIGO POKEMON&#10;// O CARGA UN ARCHIVO .TXT&#10;&#10;entei x as 10 pyc&#10;pikachu ( x ) pyc"
+      ></textarea>
+    </div>
+
+    <div class="gb-view" id="view-tokens">
+      <div class="r-wrap">
+        <div class="r-sec">ANALISIS LEXICO  TOKENS</div>
+        <div id="r-tokens-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
+    <div class="gb-view" id="view-lex-errors">
+      <div class="r-wrap">
+        <div class="r-sec">ERRORES LEXICOS</div>
+        <div id="r-lex-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
+    <div class="gb-view" id="view-parse-errors">
+      <div class="r-wrap">
+        <div class="r-sec">ERRORES SINTACTICOS</div>
+        <div id="r-parse-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
+    <div class="gb-view" id="view-symbols">
+      <div class="r-wrap">
+        <div class="r-sec">TABLA DE SIMBOLOS</div>
+        <div id="r-sym-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
+    <div class="gb-view" id="view-intercode">
+      <div class="r-wrap">
+        <div class="r-sec">CODIGO INTERMEDIO  C++</div>
+        <div id="r-inter-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════ MENÚ INFERIOR 30% ════════════ -->
+<div class="gb-menu">
+
+  <!-- Izquierda: HP + estado -->
+  <div class="menu-left">
+    <div class="poke-name">PKM COMPILER</div>
+    <div class="hp-row">
+      <span class="hp-lbl">HP</span>
+      <div class="hp-track"><div class="hp-fill" id="hp-fill"></div></div>
+    </div>
+    <div class="status-msg" id="status-msg">LISTO.</div>
+    <div class="ab-row">
+      <input type="file" id="file-input" accept=".txt"/>
+      <div class="ab-item" id="btn-b-wrap">
+        <button class="gb-btn gb-btn-b" id="btn-b">B</button>
+        <span class="ab-lbl">CARGAR</span>
+      </div>
+      <div class="ab-item" id="btn-a-wrap">
+        <button class="gb-btn gb-btn-a" id="btn-a">A</button>
+        <span class="ab-lbl">ANALIZAR</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Derecha: lista de opciones estilo movimientos -->
+  <div class="menu-right">
+    <ul class="menu-list">
+      <li class="menu-item selected" data-view="tokens">
+        <span class="cur">►</span>TOKENS
+      </li>
+      <li class="menu-item" data-view="lex-errors">
+        <span class="cur">►</span>LEXICOS
+      </li>
+      <li class="menu-item" data-view="parse-errors">
+        <span class="cur">►</span>SINTACT.
+      </li>
+      <li class="menu-item" data-view="symbols">
+        <span class="cur">►</span>SIMBOLOS
+      </li>
+      <li class="menu-item" data-view="intercode">
+        <span class="cur">►</span>COD.INT.
+      </li>
+      <li class="menu-item" data-view="editor">
+        <span class="cur">►</span>EDITOR
+      </li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+const $  = id => document.getElementById(id);
+const hpFill   = $('hp-fill');
+const statusEl = $('status-msg');
+const barTitle = $('bar-title');
+const barInfo  = $('bar-info');
+
+function esc(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function setStatus(msg)        { statusEl.textContent = msg; }
+function setBar(title, info)   { barTitle.textContent = title.substring(0,20); barInfo.textContent = info.substring(0,8); }
+
+/* ── HP ───────────────────────────────────────────── */
+function setHp(errCount) {
+  const pct = errCount === 0 ? 100
+            : errCount <= 2  ? 75
+            : errCount <= 5  ? 50
+            : errCount <= 9  ? 25
+            : 6;
+  hpFill.style.width = pct + '%';
+  hpFill.className = 'hp-fill' + (pct <= 6 ? ' crit' : pct <= 50 ? ' low' : '');
+}
+
+/* ── Flash + cambio de vista ──────────────────────── */
+let currentView = 'editor';
+
+function goToView(name) {
+  if (name === currentView) return;
+  const f = $('flash');
+  f.classList.remove('go');
+  void f.offsetWidth;
+  f.classList.add('go');
+  setTimeout(() => {
+    document.querySelectorAll('.gb-view').forEach(v =>
+      v.classList.toggle('active', v.id === 'view-' + name)
+    );
+    currentView = name;
+    setBar(name === 'editor' ? 'PKM_EDITOR' : name.toUpperCase(), name === 'editor' ? 'EDIT' : 'VIEW');
+  }, 75);
+}
+
+/* ── Selección de opción ──────────────────────────── */
+document.querySelectorAll('.menu-item').forEach(li => {
+  li.addEventListener('click', function() {
+    selectItem(this.dataset.view);
+    goToView(this.dataset.view);
+  });
+});
+
+function selectItem(viewName) {
+  document.querySelectorAll('.menu-item').forEach(li =>
+    li.classList.toggle('selected', li.dataset.view === viewName)
+  );
+}
+
+/* ── Carga de archivo ─────────────────────────────── */
+$('btn-b').addEventListener('click',     () => $('file-input').click());
+$('btn-b-wrap').addEventListener('click',() => $('file-input').click());
+
+$('file-input').addEventListener('change', function() {
+  const file = this.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    $('code-editor').value = evt.target.result;
+    selectItem('editor');
+    goToView('editor');
+    setStatus('OK: ' + file.name.substring(0,14).toUpperCase());
+  };
+  reader.readAsText(file, 'utf-8');
+  this.value = '';
+});
+
+/* ── Analizar ─────────────────────────────────────── */
+let analyzing = false;
+
+async function doAnalyze() {
+  if (analyzing) return;
+  const codigo = $('code-editor').value;
+  if (!codigo.trim()) { setStatus('EDITOR VACIO!'); return; }
+
+  analyzing = true;
+  document.body.classList.add('loading');
+  setStatus('ANALIZANDO...');
+  setBar('ANALIZANDO', '...');
+  setHp(0);
+
+  try {
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ codigo })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
+    const data = await res.json();
+    renderAll(data);
+
+    const errCount = (data.lex_errors||[]).length + (data.parse_errors||[]).length;
+    setHp(errCount);
+
+    if (errCount > 0) {
+      setStatus(errCount + ' ERRORES!');
+      const dest = (data.lex_errors||[]).length > 0 ? 'lex-errors' : 'parse-errors';
+      selectItem(dest); goToView(dest);
+      setBar('RESULTADO', 'ERRORES');
+    } else {
+      setStatus('OK! ' + (data.tokens||[]).length + ' TOKENS');
+      selectItem('tokens'); goToView('tokens');
+      setBar('RESULTADO', 'OK');
+    }
+  } catch(err) {
+    setStatus('SIN CONEXION!'); setHp(10); setBar('ERROR', '!!!');
+    console.error(err);
+  } finally {
+    analyzing = false;
+    document.body.classList.remove('loading');
+  }
+}
+
+$('btn-a').addEventListener('click',     doAnalyze);
+$('btn-a-wrap').addEventListener('click',doAnalyze);
+$('code-editor').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); doAnalyze(); }
+});
+
+/* ══════════════════════════════════════════════════
+   RENDERIZADO
+══════════════════════════════════════════════════ */
+function renderAll(data) {
+  renderTokens(data.tokens      || []);
+  renderErrors('lex',   data.lex_errors   || []);
+  renderErrors('parse', data.parse_errors || []);
+  renderSymbols(data.sym_html   || '');
+  renderIntercode(data.intercode || [], data.cpp_code || []);
+}
+
+function renderTokens(tokens) {
+  const el = $('r-tokens-body');
+  if (!tokens.length) { el.innerHTML = '<div class="r-empty">-- SIN TOKENS --</div>'; return; }
+  const rows = tokens.map(t =>
+    `<tr><td>${t.index}</td><td>${esc(t.tipo)}</td><td>${esc(t.valor)}</td><td>${esc(t.fila)}</td><td>${esc(t.col)}</td></tr>`
+  ).join('');
+  el.innerHTML = `<table class="r-table">
+    <thead><tr><th>#</th><th>TIPO</th><th>VALOR</th><th>LIN</th><th>COL</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+function renderErrors(prefix, errors) {
+  const el = document.getElementById('r-' + prefix + '-body');
+  if (!el) return;
+  if (!errors.length) { el.innerHTML = '<div class="r-ok">-- SIN ERRORES --</div>'; return; }
+  const rows = errors.map((e, i) => {
+    const err = (typeof e === 'object' && e) ? e : { tipo:'-', descripcion: String(e), fila:'-', col:'-' };
+    return `<tr class="err-row"><td>${i+1}</td><td>${esc(err.tipo||'-')}</td><td>${esc(err.descripcion||String(err))}</td><td>${esc(err.fila||'-')}</td><td>${esc(err.col||'-')}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<table class="r-table">
+    <thead><tr><th>#</th><th>TIPO</th><th>DESCRIPCION</th><th>LIN</th><th>COL</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+function renderSymbols(symHtml) {
+  const el = $('r-sym-body');
+  if (!symHtml) { el.innerHTML = '<div class="r-empty">-- COMPILA SIN ERRORES PRIMERO --</div>'; return; }
+  el.innerHTML = '<div class="sym-wrap">' + symHtml + '</div>';
+}
+
+function renderIntercode(intercode, cppCode) {
+  const el = $('r-inter-body');
+  function block(title, lines) {
+    if (!lines || !lines.length)
+      return `<div class="r-code-block"><div class="r-code-hdr">${esc(title)}</div><div class="r-code-body">-- NO DISPONIBLE --</div></div>`;
+    const lns = lines.map((l,i) =>
+      `<div class="r-code-line"><span class="r-ln">${i+1}</span><span>${esc(l)}</span></div>`
+    ).join('');
+    return `<div class="r-code-block"><div class="r-code-hdr">${esc(title)}</div><div class="r-code-body">${lns}</div></div>`;
+  }
+  el.innerHTML = block('CODIGO INTERMEDIO  IR', intercode) + block('CODIGO C++  GENERADO', cppCode);
+}
+</script>
+</body>
+</html>
