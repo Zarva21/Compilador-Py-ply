@@ -1,7 +1,6 @@
 import os
 import sys
 import threading
-import datetime
 from flask import Flask, request, jsonify, send_from_directory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -111,11 +110,25 @@ def _run_analysis(codigo, nombre_archivo='editor'):
     nombre_base = os.path.splitext(nombre_archivo)[0]
     carpeta_salida = os.path.join(BASE_DIR, 'reportes')
     os.makedirs(carpeta_salida, exist_ok=True)
-    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-    nombre_reporte = f"reporte_{nombre_base}_{timestamp}.html"
+
+    # Reporte HTML — sobrescribe si ya existe
+    nombre_reporte = f"reporte_{nombre_base}.html"
     ruta_reporte = os.path.join(carpeta_salida, nombre_reporte)
     with open(ruta_reporte, 'w', encoding='utf-8') as f:
         f.write(html_reporte)
+
+    # Archivo fuente TXT — sobrescribe si ya existe
+    nombre_txt = f"{nombre_base}.txt"
+    ruta_txt = os.path.join(carpeta_salida, nombre_txt)
+    with open(ruta_txt, 'w', encoding='utf-8') as f:
+        f.write(codigo)
+
+    # Código C++ generado — solo si no hay errores, sobrescribe si ya existe
+    nombre_cpp = f"{nombre_base}.cpp"
+    ruta_cpp = os.path.join(carpeta_salida, nombre_cpp)
+    if not hay_errores and cpp_code:
+        with open(ruta_cpp, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(cpp_code))
 
     return jsonify({
         'tokens': tokens_list,
@@ -126,6 +139,8 @@ def _run_analysis(codigo, nombre_archivo='editor'):
         'cpp_code': cpp_code,
         'hay_errores': hay_errores,
         'reporte_url': f'/reportes/{nombre_reporte}',
+        'txt_url': f'/reportes/{nombre_txt}',
+        'cpp_url': f'/reportes/{nombre_cpp}' if not hay_errores and cpp_code else None,
     })
 
 
