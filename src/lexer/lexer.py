@@ -34,9 +34,9 @@ class Lexer:
     SUGERENCIAS_LEXICAS = {
     'int':      'entei',
     'float':    'floatzel',
-    'string':   'charizar',
+    'string':   'stantler',
     'bool':     'boofalant',
-    'char':     'stantler',
+    'char':     'charizar',
     'if':       'evee',
     'else':     'ekans',
     'for':      'forretres',
@@ -84,8 +84,8 @@ class Lexer:
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
         'gardevoir' : 'GARDEVOIR',
-        'true': 'BOOLEAN_LITERAL',
-        'false': 'BOOLEAN_LITERAL',
+        'trumbeak': 'BOOLEAN_LITERAL',
+        'falinks': 'BOOLEAN_LITERAL',
 
         # Símbolos como palabras
         'as'  : 'EQUALS',
@@ -165,15 +165,23 @@ class Lexer:
 
     def t_CHAR_LITERAL(self, t):
         r'cs(.*?)cs'
-        contenido = t.value[2:-2]   # quitar los dos 'cs' de apertura y cierre
- 
+        contenido = t.value[2:-2]
+
         if contenido == "":
             fila, col = self.get_pos(t)
             self.encolar_error_unico(
-                f"Error léxico: literal vacío cs cs en fila {fila}, columna {col}."
+                f"Error léxico: literal char vacío en fila {fila}, columna {col}."
             )
             return None
- 
+
+        if len(contenido) != 1:
+            fila, col = self.get_pos(t)
+            self.encolar_error_unico(
+                f"Error léxico: literal char inválido en fila {fila}, columna {col}. "
+                f"'charizar' debe contener exactamente 1 carácter entre cs...cs."
+            )
+            return None
+
         t.value = contenido
         return t
 

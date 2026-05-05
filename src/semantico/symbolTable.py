@@ -38,7 +38,7 @@ class SymbolTable:
             if name in self.global_scope:
                 # No hacer print aquí — el error semántico lo reporta handle_declaration
                 return False
-            self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value}
+            self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value, 'kind': 'variable'}
             print(f" [GLOBAL] Variable '{name}' ({type_}) registrada")
             return True
         else:
@@ -49,7 +49,7 @@ class SymbolTable:
             if name in current:
                 # No hacer print aquí — el error semántico lo reporta handle_declaration
                 return False
-            current[name] = {'type': type_, 'scope': 'local', 'value': value}
+            current[name] = {'type': type_, 'scope': 'local', 'value': value, 'kind': 'variable'}
             print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
             return True
 

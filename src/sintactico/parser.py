@@ -12,6 +12,7 @@ class Parser:
         self.parser   = yacc.yacc(module=self, debug=False, write_tables=False)
 
     precedence = (
+        ('nonassoc', 'GT', 'LT', 'RELOP'),
         ('left', 'MAS', 'MENOS'),
         ('left', 'MUL', 'DIV'),
     )
@@ -120,50 +121,35 @@ class Parser:
         p[0] = p[1]
 
     def p_for_loop(self, p):
-        'for_loop : FORRETRES LPAREN for_init SEMICOLON condition SEMICOLON assignment_no_semicolon RPAREN LBRACE program RBRACE'
-        init = p[3]; condition = p[5]; update = p[7]
+        'for_loop : FORRETRES LPAREN for_init SEMICOLON expression SEMICOLON assignment_no_semicolon RPAREN LBRACE program RBRACE'
+        init = p[3]; expression = p[5]; update = p[7]
         body = p[10] if isinstance(p[10], list) else []
-        if not callable(condition):
-            self.errors.encolar_error("La condición del for no es válida.")
-            p[0] = lambda: None
-            return
-        p[0] = self.semantic.handle_for(init, condition, update, body)
+    
+        p[0] = self.semantic.handle_for(init, expression, update, body)
 
     def p_do_while_loop(self, p):
-        'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN condition RPAREN SEMICOLON'
+        'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN expression RPAREN SEMICOLON'
         body      = p[3] if isinstance(p[3], list) else []
-        condition = p[7]
-        if not callable(condition):
-            self.errors.encolar_error("La condición del do-while no es válida.")
-            p[0] = lambda: None
-            return
-        p[0] = self.semantic.handle_do_while(condition, body)
+        expression = p[7]
+        
+        p[0] = self.semantic.handle_do_while(expression, body)
 
     def p_while_loop(self, p):
-        'while_loop : WAILORD LPAREN condition RPAREN LBRACE program RBRACE'
+        'while_loop : WAILORD LPAREN expression RPAREN LBRACE program RBRACE'
         body      = p[6] if isinstance(p[6], list) else []
-        condition = p[3]
-        if not callable(condition):
-            self.errors.encolar_error("La condición del while no es válida.")
-            p[0] = lambda: None
-            return
-        p[0] = self.semantic.handle_while(condition, body)
+        expression = p[3]
+       
+        p[0] = self.semantic.handle_while(expression, body)
 
     # ── If / else ─────────────────────────────
 
     def p_if_statement(self, p):
-        '''if_statement : EVEE LPAREN condition RPAREN LBRACE program RBRACE
-                        | EVEE LPAREN condition RPAREN LBRACE program RBRACE EKANS LBRACE program RBRACE'''
-        condition = p[3]
+        '''if_statement : EVEE LPAREN expression RPAREN LBRACE program RBRACE
+                        | EVEE LPAREN expression RPAREN LBRACE program RBRACE EKANS LBRACE program RBRACE'''
+        expression = p[3]
         if_body   = p[6]
         else_body = p[10] if len(p) > 8 else []
-        p[0] = self.semantic.handle_if(condition, if_body, else_body)
-
-    def p_condition(self, p):
-        '''condition : expression RELOP expression
-                     | expression GT expression
-                     | expression LT expression'''
-        p[0] = self.semantic.evaluate_condition_dynamic(p[1], p[2], p[3])
+        p[0] = self.semantic.handle_if(expression, if_body, else_body)
 
     # ── Switch ────────────────────────────────
 
@@ -216,11 +202,11 @@ class Parser:
 
     def p_expression(self, p):
         '''expression : expression MAS term
-                      | expression MENOS term'''
-        left  = p[1]
-        op    = p[2]
-        right = p[3]
-        p[0] = (left, op, right)
+                    | expression MENOS term
+                    | expression GT term
+                    | expression LT term
+                    | expression RELOP term'''
+        p[0] = (p[1], p[2], p[3])
 
     def p_expression_term(self, p):
         'expression : term'
@@ -229,10 +215,7 @@ class Parser:
     def p_term(self, p):
         '''term : term MUL factor
                 | term DIV factor'''
-        left  = p[1]
-        op    = p[2]
-        right = p[3]
-        p[0] = (left, op, right)
+        p[0] = (p[1], p[2], p[3])
 
     def p_term_factor(self, p):
         'term : factor'

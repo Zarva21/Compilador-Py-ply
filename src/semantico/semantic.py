@@ -1,3 +1,6 @@
+from ast import expr
+from cProfile import label
+
 from src.intercode.optimize import Optimize
 from src.semantico.handle import handle_declaration
 from src.semantico.handle import handle_assignment
@@ -17,6 +20,8 @@ from src.semantico.handle import handle_if
 from src.semantico.handle import handle_switch
 from src.semantico.handle import _save_iteration_state
 from src.semantico.handle import _resolve_ir
+from src.semantico.handle import validate_boolean_expression
+from src.semantico.handle import _infer_type
 
 
 class Semantic:
@@ -28,6 +33,12 @@ class Semantic:
         self.intercode_generator = interCodeGenerator
         self.en_funcion          = False
         self.en_loop             = False   # FIX: flag para detectar contexto de loop
+        self.current_function = None
+        self.current_return_type = None
+        self.current_function_has_return = False
+        self.break_context_stack = []
+
+
 
     # ── Registro inmediato de función ─────────────────────────────────────
     def register_function(self, name, return_type, params, body):
@@ -57,6 +68,9 @@ class Semantic:
 
     def handle_term(self, left, operator, right):
         return self.handle_expression(left, operator, right)
+
+    def validate_boolean_expression(self, expr):
+        return validate_boolean_expression(self, expr)
 
     def handle_factor(self, value):
         return value
@@ -109,11 +123,39 @@ class Semantic:
 
     def handle_break(self):
         def action():
-            self.intercode_generator.emit("goto END_SWITCH_LABEL")
+            target = self.current_break_context()
+            if target is None:
+                self.errors.encolar_error(
+                    "Error semántico: 'breloom' solo puede usarse dentro de switch, while, for o do-while."
+                )
+                return
+            self.intercode_generator.emit(f"goto {target}")
         return action
 
     def handle_return(self, value):
         def action():
+            if self.current_return_type is None:
+                self.errors.encolar_error("Error semántico: 'raikou' fuera de una función.")
+                return
+
+            inferred = _infer_type(self, value)
+
+            if self.current_return_type == 'gardevoir':
+                self.errors.encolar_error(
+                    f"Error semántico: la función '{self.current_function}' es 'gardevoir' y no debe retornar un valor."
+                )
+                return
+
+            if inferred != 'unknown' and inferred != self.current_return_type:
+                numeric = {'entei', 'floatzel'}
+                if not (inferred in numeric and self.current_return_type in numeric):
+                    self.errors.encolar_error(
+                        f"Error semántico: la función '{self.current_function}' debe retornar '{self.current_return_type}', "
+                        f"pero se encontró '{inferred}'."
+                    )
+                    return
+
+            self.current_function_has_return = True
             ir_val = _resolve_ir(self, value)
             self.intercode_generator.emit(f"raikou {ir_val}")
         return action
@@ -130,3 +172,15 @@ class Semantic:
 
     def _save_iteration_state(self):
         _save_iteration_state(self)
+
+
+
+    def push_break_context(self, label):
+        self.break_context_stack.append(label)
+
+    def pop_break_context(self):
+        if self.break_context_stack:
+            self.break_context_stack.pop()
+
+    def current_break_context(self):
+        return self.break_context_stack[-1] if self.break_context_stack else None

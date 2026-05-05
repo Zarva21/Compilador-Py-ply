@@ -58,11 +58,27 @@ def _evaluate_runtime(self, val):
         l, op, r = val
         lv = _evaluate_runtime(self, l)
         rv = _evaluate_runtime(self, r)
-        # Si algún operando es sentinel de loop, propagar
+
         if lv is _LOOP_MODIFIED or rv is _LOOP_MODIFIED:
             return _LOOP_MODIFIED
         if lv is None or rv is None:
             return None
+
+        # Operadores relacionales
+        if op == 'ma':
+            return lv > rv
+        if op == 'me':
+            return lv < rv
+        if op == 'ig':
+            return lv == rv
+        if op == 'ni':
+            return lv != rv
+        if op == 'mai':
+            return lv >= rv
+        if op == 'mei':
+            return lv <= rv
+
+        # Operadores aritméticos
         return _apply_operator(self, lv, op, rv)
 
     # String: puede ser variable, literal o booleano textual
@@ -100,11 +116,44 @@ def _evaluate_runtime(self, val):
 
     return None
 
+class TypedCall:
+    def __init__(self, fn, return_type, name):
+        self.fn = fn
+        self.return_type = return_type
+        self.name = name
+
+    def __call__(self):
+        return self.fn()
+    
 
 # ─────────────────────────────────────────────────────────────────────────────
 # _infer_type
 # ─────────────────────────────────────────────────────────────────────────────
 def _infer_type(self, val):
+    
+    if isinstance(val, TypedCall):
+        return val.return_type
+
+    if isinstance(val, tuple) and len(val) == 3:
+        l, op, r = val
+
+        relational_ops = {'ma', 'me', 'mai', 'mei', 'ig', 'ni'}
+        arithmetic_ops = {'+', '-', '*', '/', 'su', 're', 'mu', 'di'}
+
+        if op in relational_ops:
+            return 'boofalant'
+
+        if op in arithmetic_ops:
+            lt = _infer_type(self, l)
+            rt = _infer_type(self, r)
+
+            if lt == 'floatzel' or rt == 'floatzel':
+                return 'floatzel'
+            if lt == 'entei' and rt == 'entei':
+                return 'entei'
+
+        return 'unknown'
+
     if isinstance(val, bool):
         return 'boofalant'
     if isinstance(val, int):
@@ -141,6 +190,25 @@ def _infer_type(self, val):
             pass
 
     return 'unknown'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# validate_boolean_expression
+# ─────────────────────────────────────────────────────────────────────────────
+
+def validate_boolean_expression(self, expr):
+    inferred = _infer_type(self, expr)
+
+    if inferred == 'unknown':
+        return True
+
+    if inferred != 'boofalant':
+        self.errors.encolar_error(
+            f"Error semántico: la condición debe ser de tipo 'boofalant', no '{inferred}'."
+        )
+        return False
+
+    return True
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -436,14 +504,15 @@ def handle_assignment(self, name, value):
         #    Si en_loop=True -> la variable puede cambiar N veces ->
         #    conservamos el valor estático conocido antes del loop.
         if getattr(self, 'en_loop', False):
-            return   # No tocar la tabla — conservar valor inicial
+            return
 
         raw = _evaluate_runtime(self, value)
         if raw is _LOOP_MODIFIED:
             return
 
-        real_value = _normalize_string_value(var_type, raw)
-        self.symbol_table.update_symbol(name, real_value)
+        if raw is not None:
+            real_value = _normalize_string_value(var_type, raw)
+            self.symbol_table.update_symbol(name, real_value)
 
     return action
 
@@ -484,7 +553,7 @@ def handle_print(self, value):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# evaluate_condition_dynamic
+# evaluate_condition_dynamic quitar
 # ─────────────────────────────────────────────────────────────────────────────
 def evaluate_condition_dynamic(self, left, op, right):
     def condition_fn():
@@ -526,28 +595,37 @@ def handle_expression(self, left, operator, right):
 # ─────────────────────────────────────────────────────────────────────────────
 # Estructuras de control
 # ─────────────────────────────────────────────────────────────────────────────
-def handle_if(self, condition_fn, if_body, else_body):
+def handle_if(self, condition_expr, if_body, else_body):
     def action():
         false_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
 
         self.intercode_generator.emit("// INICIO IF")
-        condition_fn()
-        cond_temp = condition_fn.temp_result
+
+        cond_temp = _resolve_ir(self, condition_expr)
+        if cond_temp == '?':
+            return
+
+        if not validate_boolean_expression(self, condition_expr):
+            return
+
         self.intercode_generator.emit(f"if !({cond_temp}) goto {false_label}")
 
         self.symbol_table.enter_scope()
         for stmt in if_body:
-            if callable(stmt): stmt()
+            if callable(stmt):
+                stmt()
         self.symbol_table.exit_scope()
-        self.intercode_generator.emit(f"goto {end_label}")
 
+        self.intercode_generator.emit(f"goto {end_label}")
         self.intercode_generator.emit(f"{false_label}:")
+
         if else_body:
             self.intercode_generator.emit("// ELSE")
             self.symbol_table.enter_scope()
             for stmt in else_body:
-                if callable(stmt): stmt()
+                if callable(stmt):
+                    stmt()
             self.symbol_table.exit_scope()
 
         self.intercode_generator.emit(f"{end_label}:")
@@ -556,27 +634,36 @@ def handle_if(self, condition_fn, if_body, else_body):
     return action
 
 
-def handle_while(self, condition_fn, body):
+def handle_while(self, condition_expr, body):
     def action():
         start_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
 
         self.intercode_generator.emit("// INICIO WHILE")
         self.intercode_generator.emit(f"{start_label}:")
-        condition_fn()
-        cond_temp = condition_fn.temp_result
+
+        cond_temp = _resolve_ir(self, condition_expr)
+        if cond_temp == '?':
+            return
+
+        if not validate_boolean_expression(self, condition_expr):
+            return
+
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
-        # FIX: activar en_loop antes de ejecutar el cuerpo
         prev_loop = getattr(self, 'en_loop', False)
         self.en_loop = True
 
+        self.push_break_context(end_label)
+
         self.symbol_table.enter_scope()
         for stmt in body:
-            if callable(stmt): stmt()
+            if callable(stmt):
+                stmt()
         self.symbol_table.exit_scope()
 
-        # Restaurar estado anterior (permite loops anidados)
+        self.pop_break_context()
+
         self.en_loop = prev_loop
 
         self.intercode_generator.emit(f"goto {start_label}")
@@ -586,29 +673,41 @@ def handle_while(self, condition_fn, body):
     return action
 
 
-def handle_for(self, init_stmt, condition_fn, update_stmt, body):
+def handle_for(self, init_stmt, condition_expr, update_stmt, body):
     def action():
         start_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
 
-        if callable(init_stmt): init_stmt()
+        if callable(init_stmt):
+            init_stmt()
 
         self.intercode_generator.emit("// INICIO FOR")
         self.intercode_generator.emit(f"{start_label}:")
-        condition_fn()
-        cond_temp = condition_fn.temp_result
+
+        cond_temp = _resolve_ir(self, condition_expr)
+        if cond_temp == '?':
+            return
+
+        if not validate_boolean_expression(self, condition_expr):
+            return
+
         self.intercode_generator.emit(f"if !({cond_temp}) goto {end_label}")
 
-        # FIX: activar en_loop
         prev_loop = getattr(self, 'en_loop', False)
         self.en_loop = True
 
+        self.push_break_context(end_label)
+
         self.symbol_table.enter_scope()
         for stmt in body:
-            if callable(stmt): stmt()
+            if callable(stmt):
+                stmt()
         self.symbol_table.exit_scope()
 
-        if callable(update_stmt): update_stmt()
+        if callable(update_stmt):
+            update_stmt()
+
+        self.pop_break_context()
 
         self.en_loop = prev_loop
 
@@ -619,28 +718,39 @@ def handle_for(self, init_stmt, condition_fn, update_stmt, body):
     return action
 
 
-def handle_do_while(self, condition_fn, body):
+def handle_do_while(self, condition_expr, body):
     def action():
         start_label = self.intercode_generator.new_label()
+        end_label   = self.intercode_generator.new_label()
 
-        self.intercode_generator.emit("//INICIO DO-WHILE")
+        self.intercode_generator.emit("// INICIO DO-WHILE")
         self.intercode_generator.emit(f"{start_label}:")
 
-        # FIX: activar en_loop
         prev_loop = getattr(self, 'en_loop', False)
         self.en_loop = True
 
+        self.push_break_context(end_label)
+
         self.symbol_table.enter_scope()
         for stmt in body:
-            if callable(stmt): stmt()
+            if callable(stmt):
+                stmt()
         self.symbol_table.exit_scope()
+
+        self.pop_break_context()
 
         self.en_loop = prev_loop
 
-        condition_fn()
-        cond_temp = condition_fn.temp_result
+        cond_temp = _resolve_ir(self, condition_expr)
+        if cond_temp == '?':
+            return
+
+        if not validate_boolean_expression(self, condition_expr):
+            return
+
         self.intercode_generator.emit(f"if ({cond_temp}) goto {start_label}")
-        self.intercode_generator.emit("//FIN DO-WHILE")
+        self.intercode_generator.emit(f"{end_label}:")
+        self.intercode_generator.emit("// FIN DO-WHILE")
 
     return action
 
@@ -651,6 +761,7 @@ def handle_do_while(self, condition_fn, body):
 def handle_method_call(self, name, args=None):
     args = args or []
     print(f" [CALL] Preparando llamada a función '{name}' con argumentos: {args}")
+
     def call_with_scope():
         if name not in self.methods:
             self.errors.encolar_error(f"Error semántico: función '{name}' no definida.")
@@ -669,8 +780,8 @@ def handle_method_call(self, name, args=None):
         arg_ir_names = []
         for i, arg in enumerate(args):
             ir_name = _resolve_ir(self, arg)
-            param_type, param_name = expected_params[i]
-            arg_type = _infer_type(self, ir_name)
+            param_type, _ = expected_params[i]
+            arg_type = _infer_type(self, arg)   # <- importante: inferir sobre arg, no sobre ir_name
             if arg_type != 'unknown' and arg_type != param_type:
                 numeric = {'entei', 'floatzel'}
                 if not (arg_type in numeric and param_type in numeric):
@@ -684,12 +795,11 @@ def handle_method_call(self, name, args=None):
             self.intercode_generator.emit(f"param {arg_name}")
 
         args_str = ', '.join(arg_ir_names)
-        print(f" [CALL] Llamada a función '{name}' con argumentos IR resueltos: {args_str}")
         self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
-
         return temp
 
-    return call_with_scope
+    ret_type = self.methods.get(name, {}).get('return_type', 'unknown')
+    return TypedCall(call_with_scope, ret_type, name)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -699,7 +809,10 @@ def handle_method_declaration(self, name, body):
     def flatten(stmts):
         flat = []
         for s in stmts:
-            flat.extend(flatten(s)) if isinstance(s, list) else flat.append(s)
+            if isinstance(s, list):
+                flat.extend(flatten(s))
+            else:
+                flat.append(s)
         return flat
 
     def action():
@@ -709,7 +822,11 @@ def handle_method_declaration(self, name, body):
 
         method_info = self.methods.get(name, {})
         ret_type = method_info.get('return_type', 'gardevoir') if isinstance(method_info, dict) else 'gardevoir'
-        params   = method_info.get('params', [])               if isinstance(method_info, dict) else []
+        params   = method_info.get('params', []) if isinstance(method_info, dict) else []
+
+        self.current_function = name
+        self.current_return_type = ret_type
+        self.current_function_has_return = False
 
         params_str = ', '.join(f"{t} {n}" for t, n in params)
         self.intercode_generator.emit(f"function {ret_type}  {name}({params_str}):")
@@ -723,12 +840,22 @@ def handle_method_declaration(self, name, body):
             print(f" [PARAM]  Variable '{param_name}' ({param_type}) registrada")
 
         for stmt in flat_body:
-            if callable(stmt): stmt()
+            if callable(stmt):
+                stmt()
+
+        if ret_type != 'gardevoir' and not self.current_function_has_return:
+            self.errors.encolar_error(
+                f"Error semántico: la función '{name}' debe retornar un valor de tipo '{ret_type}'."
+            )
 
         self.en_funcion = False
         self.symbol_table.exit_scope()
         print(f" [END FUNC] Fin de función '{name}'")
         self.intercode_generator.emit("end")
+
+        self.current_function = None
+        self.current_return_type = None
+        self.current_function_has_return = False
 
     return action
 
@@ -753,17 +880,56 @@ def handle_switch(self, var_name, cases, default_body):
                 (val, case_body if isinstance(case_body, list) else [case_body])
             )
 
+        end_label = self.intercode_generator.new_label()
+        self.push_break_context(end_label)
+
         self.intercode_generator.emit(f"// SWITCH_START {var_name}")
         for val, case_body in processed_cases:
             self.intercode_generator.emit(f"// CASE {repr(val)}")
             for stmt in case_body:
-                if callable(stmt): stmt()
-            self.intercode_generator.emit("// BREAK")
+                if callable(stmt):
+                    stmt()
 
         self.intercode_generator.emit("// DEFAULT")
         if default_body:
             for stmt in default_body:
-                if callable(stmt): stmt()
+                if callable(stmt):
+                    stmt()
+
+        self.pop_break_context()
+        self.intercode_generator.emit(f"{end_label}:")
         self.intercode_generator.emit("// SWITCH_END")
 
     return action
+
+def _evaluate_static(self, expr):
+    if isinstance(expr, tuple) and len(expr) == 3:
+        l, op, r = expr
+
+        l_val = _evaluate_static(self, l)
+        r_val = _evaluate_static(self, r)
+
+        if l_val is None or r_val is None:
+            return None
+
+        if op == 'ma': return l_val > r_val
+        if op == 'me': return l_val < r_val
+        if op == 'ig': return l_val == r_val
+        if op == 'ni': return l_val != r_val
+        if op == 'mai': return l_val >= r_val
+        if op == 'mei': return l_val <= r_val
+
+        if op in ['su', '+']: return l_val + r_val
+        if op in ['re', '-']: return l_val - r_val
+        if op in ['mu', '*']: return l_val * r_val
+        if op in ['di', '/']: return l_val / r_val
+
+    elif isinstance(expr, (int, float, bool)):
+        return expr
+
+    elif isinstance(expr, str):
+        symbol = self.symbol_table.get_symbol(expr)
+        if symbol:
+            return symbol.get('value')
+
+    return None
