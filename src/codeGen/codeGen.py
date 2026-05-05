@@ -69,8 +69,8 @@ class ccodeGen:
     def _translate_ops(self, expr):
         """
         Traduce operadores Pokémon dentro de una expresión IR a C++.
-        Ejemplo: 'a ma 3'  → 'a > 3'
-                 'x mu 2'  → 'x * 2'
+        Ejemplo: 'a ma 3'  -> 'a > 3'
+                 'x mu 2'  -> 'x * 2'
         Solo reemplaza tokens exactos separados por espacios para evitar
         reemplazar partes de nombres de variables.
         """
@@ -78,7 +78,7 @@ class ccodeGen:
         return ' '.join(self.OPS.get(t, t) for t in tokens)
 
     def _parse_function_header(self, line):
-        """Parsea 'function entei cuadrado(entei n):' → (ret_cpp, fname, params_cpp)"""
+        """Parsea 'function entei cuadrado(entei n):' -> (ret_cpp, fname, params_cpp)"""
         content = line[len('function '):]
         if content.endswith(':'):
             content = content[:-1].strip()
@@ -384,7 +384,7 @@ class ccodeGen:
         if line.startswith('call '):
             return f'{line[5:].strip()};'
 
-        # if !(cond) goto → abre bloque if o while
+        # if !(cond) goto -> abre bloque if o while
         if line.startswith('if !('):
             cond_raw  = line[5:line.index(') goto')].strip()
             cond_real = temp_conds.get(cond_raw, self._translate_ops(cond_raw))
@@ -392,7 +392,7 @@ class ccodeGen:
             indent += 1
             return [f'{prefix}if ({cond_real}) {{']
 
-        # if (cond) goto → cierre do-while
+        # if (cond) goto -> cierre do-while
         if line.startswith('if ('):
             cond_raw  = line[4:line.index(') goto')].strip()
             cond_real = temp_conds.get(cond_raw, self._translate_ops(cond_raw))

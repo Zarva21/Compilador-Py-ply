@@ -58,7 +58,7 @@ class Lexer:
     tokens = [
         'NUMBER', 'IDENTIFIER', 'EQUALS', 'SEMICOLON', 'LBRACE', 'RBRACE',
         'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 
-        'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'COLON',
+        'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'BOOLEAN_LITERAL', 'COLON',
 
         'MAS', 'MENOS', 'MUL', 'DIV'
     ]
@@ -84,8 +84,7 @@ class Lexer:
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
         'gardevoir' : 'GARDEVOIR',
-        'trumbeak': 'BOOLEAN_LITERAL',
-        'falinks': 'BOOLEAN_LITERAL',
+        
 
         # Símbolos como palabras
         'as'  : 'EQUALS',
@@ -162,6 +161,14 @@ class Lexer:
             f"¿Olvidaste el 'cd' de cierre?"
         )
         return None
+
+    def t_BOOLEAN_LITERAL(self, t):
+        r'trumbeak|falinks'
+        if t.value == 'trumbeak':
+            t.value = True
+        else:
+            t.value = False
+        return t
 
     def t_CHAR_LITERAL(self, t):
         r'cs(.*?)cs'

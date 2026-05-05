@@ -5,7 +5,7 @@ from src.intercode.optimize import Optimize
 from src.semantico.handle import handle_declaration
 from src.semantico.handle import handle_assignment
 from src.semantico.handle import handle_expression
-from src.semantico.handle import handle_expression_statement   # ← nuevo
+from src.semantico.handle import handle_expression_statement   # nuevo
 from src.semantico.handle import handle_print
 from src.semantico.handle import _get_value
 from src.semantico.handle import _apply_operator

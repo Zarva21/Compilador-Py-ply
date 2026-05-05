@@ -49,11 +49,11 @@ def _evaluate_runtime(self, val):
     if isinstance(val, (int, float)):
         return val
 
-    # Callable → llamada a función, no evaluable en compile-time
+    # Callable -> llamada a función, no evaluable en compile-time
     if callable(val):
         return None
 
-    # Tupla → expresión aritmética diferida → resolver recursivamente
+    # Tupla -> expresión aritmética diferida -> resolver recursivamente
     if isinstance(val, tuple) and len(val) == 3:
         l, op, r = val
         lv = _evaluate_runtime(self, l)
@@ -88,11 +88,11 @@ def _evaluate_runtime(self, val):
         if val == 'false':
             return False
 
-        # Literal string con comillas dobles → devolver sin comillas
+        # Literal string con comillas dobles -> devolver sin comillas
         if val.startswith('"') and val.endswith('"') and len(val) >= 2:
             return val[1:-1]
 
-        # Literal char con comillas simples → devolver sin comillas
+        # Literal char con comillas simples -> devolver sin comillas
         if val.startswith("'") and val.endswith("'") and len(val) >= 2:
             return val[1:-1]
 
@@ -431,9 +431,13 @@ def handle_declaration(self, name, var_type,value=None):
                 if error:
                     self.errors.encolar_error(error)
                     return
+
                 ir_value = value
 
-                if isinstance(value, str):
+                if isinstance(value, bool):
+                    ir_value = 'true' if value else 'false'
+
+                elif isinstance(value, str):
                     if var_type.lower() == 'charizar':
                         if not (value.startswith("'") and value.endswith("'")):
                             ir_value = f"'{value}'"
@@ -490,7 +494,11 @@ def handle_assignment(self, name, value):
                 return
 
             ir_value = value
-            if isinstance(value, str):
+
+            if isinstance(value, bool):
+                ir_value = 'true' if value else 'false'
+
+            elif isinstance(value, str):
                 if var_type.lower() == 'charizar':
                     if not (value.startswith("'") and value.endswith("'")):
                         ir_value = f"'{value}'"
@@ -523,16 +531,16 @@ def handle_assignment(self, name, value):
 def handle_expression_statement(self, expr, line=None):
     """
     Detecta si la expresión tiene efecto lateral.
-    - callable  → es llamada a función → dejar pasar (emite IR)
-    - tuple/literal → operación aritmética suelta → error semántico
+    - callable  -> es llamada a función -> dejar pasar (emite IR)
+    - tuple/literal -> operación aritmética suelta -> error semántico
     """
     def action():
-        # Si es callable es una method_call → tiene efecto
+        # Si es callable es una method_call -> tiene efecto
         if callable(expr):
             expr()
             return
 
-        # Cualquier otra expresión suelta (aritmética, literal, variable) → sin efecto
+        # Cualquier otra expresión suelta (aritmética, literal, variable) -> sin efecto
         line_info = f" en línea {line}" if line else ""
         self.errors.encolar_error(
             f"Error semántico: expresión sin efecto{line_info}. "

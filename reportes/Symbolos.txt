@@ -1,0 +1,20 @@
+entei a as 5 pyc
+entei b as 10 pyc
+stantler c as csxcs pyc
+charizar d as cszcs pyc
+
+a as a su b pyc
+
+pikachu cdvalor de ccd pyc
+pikachu cdinicio del programacd pyc
+
+evee ps a ma 3 pc ls
+    pikachu cda es mayor que 3cd pyc
+lc
+
+wailord ps a me b pc ls
+    pikachu cdloop ejecutandosecd pyc
+    a as a su 1 pyc
+lc
+
+pikachu cdfin del programacd pyc

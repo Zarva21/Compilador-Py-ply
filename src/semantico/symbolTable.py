@@ -121,7 +121,7 @@ class SymbolTable:
         """
         Tabla HTML de símbolos.
         Muestra el valor real evaluado estáticamente por _evaluate_runtime.
-        Si la variable no tiene valor (loop, función, sin inicialización) → "?"
+        Si la variable no tiene valor (loop, función, sin inicialización) -> "?"
         """
         html = """
         <style>

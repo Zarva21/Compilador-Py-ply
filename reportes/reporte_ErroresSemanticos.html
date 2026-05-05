@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte – Errores.txt</title>
+    <title>Reporte – ErroresSemanticos.txt</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -64,7 +64,7 @@
 <body>
 
     <h1> Reporte del Compilador Pokémon</h1>
-    <p class="subtitle">Archivo analizado: <strong>Errores.txt</strong></p>
+    <p class="subtitle">Archivo analizado: <strong>ErroresSemanticos.txt</strong></p>
 
     <div class="section">
         <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
@@ -107,43 +107,25 @@
 <tr><td>37</td><td>MAS</td><td>su</td><td>15</td><td>8</td></tr>
 <tr><td>38</td><td>IDENTIFIER</td><td>texto</td><td>15</td><td>11</td></tr>
 <tr><td>39</td><td>SEMICOLON</td><td>pyc</td><td>15</td><td>17</td></tr>
-<tr><td>40</td><td>CHARIZAR</td><td>charizar</td><td>18</td><td>1</td></tr>
-<tr><td>41</td><td>IDENTIFIER</td><td>d</td><td>18</td><td>10</td></tr>
-<tr><td>42</td><td>EQUALS</td><td>as</td><td>18</td><td>12</td></tr>
-<tr><td>43</td><td>SEMICOLON</td><td>pyc</td><td>18</td><td>24</td></tr>
-<tr><td>44</td><td>PIKACHU</td><td>pikachu</td><td>21</td><td>1</td></tr>
-<tr><td>45</td><td>LPAREN</td><td>ps</td><td>21</td><td>9</td></tr>
-<tr><td>46</td><td>IDENTIFIER</td><td>x</td><td>21</td><td>12</td></tr>
-<tr><td>47</td><td>RPAREN</td><td>pc</td><td>21</td><td>14</td></tr>
-<tr><td>48</td><td>SEMICOLON</td><td>pyc</td><td>21</td><td>17</td></tr>
-<tr><td>49</td><td>ENTEI</td><td>entei</td><td>24</td><td>1</td></tr>
-<tr><td>50</td><td>IDENTIFIER</td><td>z</td><td>24</td><td>7</td></tr>
-<tr><td>51</td><td>EQUALS</td><td>as</td><td>24</td><td>9</td></tr>
-<tr><td>52</td><td>NUMBER</td><td>5</td><td>24</td><td>12</td></tr>
-<tr><td>53</td><td>SEMICOLON</td><td>pyc</td><td>24</td><td>14</td></tr>
-<tr><td>54</td><td>EVEE</td><td>evee</td><td>25</td><td>1</td></tr>
-<tr><td>55</td><td>LPAREN</td><td>ps</td><td>25</td><td>6</td></tr>
-<tr><td>56</td><td>IDENTIFIER</td><td>z</td><td>25</td><td>9</td></tr>
-<tr><td>57</td><td>GT</td><td>ma</td><td>25</td><td>11</td></tr>
-<tr><td>58</td><td>NUMBER</td><td>3</td><td>25</td><td>14</td></tr>
-<tr><td>59</td><td>RPAREN</td><td>pc</td><td>25</td><td>16</td></tr>
-<tr><td>60</td><td>LBRACE</td><td>ls</td><td>25</td><td>19</td></tr>
-<tr><td>61</td><td>PIKACHU</td><td>pikachu</td><td>26</td><td>5</td></tr>
-<tr><td>62</td><td>STRING_LITERAL</td><td>hola </td><td>26</td><td>13</td></tr>
-<tr><td>63</td><td>SEMICOLON</td><td>pyc</td><td>26</td><td>23</td></tr>
+<tr><td>40</td><td>PIKACHU</td><td>pikachu</td><td>18</td><td>1</td></tr>
+<tr><td>41</td><td>LPAREN</td><td>ps</td><td>18</td><td>9</td></tr>
+<tr><td>42</td><td>IDENTIFIER</td><td>x</td><td>18</td><td>12</td></tr>
+<tr><td>43</td><td>RPAREN</td><td>pc</td><td>18</td><td>14</td></tr>
+<tr><td>44</td><td>SEMICOLON</td><td>pyc</td><td>18</td><td>17</td></tr>
 </table>
     </div>
 
     <div class="section">
         <h2 class="err"> Errores Léxicos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Léxicos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Léxico</td><td>literal char inválido 'charizar' debe contener exactamente 1 carácter entre cs...cs.</td><td>18</td><td>15</td></tr>
-</table></div>
+        <p style='color: green;'>No se encontraron errores.</p>
     </div>
 
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
-        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Sintáctico</td><td>'pyc' inesperado ¿Sobra un 'pyc' o falta completar la instrucción?</td><td>18</td><td>24</td></tr>
-<tr><td>2</td><td>Sintáctico</td><td>final inesperado del archivo. ¿Falta cerrar una llave '}' o completar una instrucción?</td><td>-</td><td>-</td></tr>
+        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Error</td><td>Error semántico: variable 'b' no declarada.</td><td>-</td><td>-</td></tr>
+<tr><td>2</td><td>Error</td><td>Error semántico: expresión sin efecto en línea 23. El resultado de la expresión no se asigna ni utiliza.</td><td>-</td><td>-</td></tr>
+<tr><td>3</td><td>Error</td><td>Error semántico: variable 'c' ya declarada. ¿Quisiste asignar?</td><td>-</td><td>-</td></tr>
+<tr><td>4</td><td>Error</td><td>Error semántico: no se puede aplicar 'su' entre 'stantler' y 'entei'. Ambos operandos deben ser del mismo tipo.</td><td>-</td><td>-</td></tr>
 </table></div>
     </div>
 
