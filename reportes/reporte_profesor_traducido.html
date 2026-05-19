@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte – profesor_traducido.txt</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f4f6f9;
+            color: #333;
+            padding: 30px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+        .section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eee;
+        }
+        .section h2.ok  { color: #27ae60; }
+        .section h2.err { color: #e74c3c; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+        }
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover td { background: #f9f9f9; }
+        .no-errors { color: #27ae60; font-style: italic; }
+        .error-section h2 { color: #e74c3c; font-size: 1.1rem; margin-bottom: 12px; }
+        .error-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .error-table th { background: #c0392b; color: white; padding: 9px 14px; text-align: left; }
+        .error-table td { padding: 9px 14px; border-bottom: 1px solid #fdd; }
+        .error-table tr:hover td { background: #fff5f5; }
+    </style>
+</head>
+<body>
+
+    <h1> Reporte del Compilador Pokémon</h1>
+    <p class="subtitle">Archivo analizado: <strong>profesor_traducido.txt</strong></p>
+
+    <div class="section">
+        <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
+        <table><tr><th>#</th><th>Tipo</th><th>Valor</th><th>Línea</th><th>Columna</th></tr><tr><td>1</td><td>GARDEVOIR</td><td>gardevoir</td><td>5</td><td>1</td></tr>
+<tr><td>2</td><td>IDENTIFIER</td><td>mostrarMensaje</td><td>5</td><td>11</td></tr>
+<tr><td>3</td><td>LPAREN</td><td>ps</td><td>5</td><td>26</td></tr>
+<tr><td>4</td><td>STANTLER</td><td>stantler</td><td>5</td><td>29</td></tr>
+<tr><td>5</td><td>IDENTIFIER</td><td>mensaje</td><td>5</td><td>38</td></tr>
+<tr><td>6</td><td>RPAREN</td><td>pc</td><td>5</td><td>46</td></tr>
+<tr><td>7</td><td>LBRACE</td><td>ls</td><td>5</td><td>49</td></tr>
+<tr><td>8</td><td>PIKACHU</td><td>pikachu</td><td>6</td><td>5</td></tr>
+<tr><td>9</td><td>LPAREN</td><td>ps</td><td>6</td><td>13</td></tr>
+<tr><td>10</td><td>IDENTIFIER</td><td>mensaje</td><td>6</td><td>16</td></tr>
+<tr><td>11</td><td>RPAREN</td><td>pc</td><td>6</td><td>24</td></tr>
+<tr><td>12</td><td>SEMICOLON</td><td>pyc</td><td>6</td><td>27</td></tr>
+<tr><td>13</td><td>RBRACE</td><td>lc</td><td>7</td><td>1</td></tr>
+<tr><td>14</td><td>SUICUNE</td><td>suicune</td><td>9</td><td>1</td></tr>
+<tr><td>15</td><td>FLOATZEL</td><td>floatzel</td><td>9</td><td>9</td></tr>
+<tr><td>16</td><td>IDENTIFIER</td><td>calcularPotencia</td><td>9</td><td>18</td></tr>
+<tr><td>17</td><td>LPAREN</td><td>ps</td><td>9</td><td>35</td></tr>
+<tr><td>18</td><td>FLOATZEL</td><td>floatzel</td><td>9</td><td>38</td></tr>
+<tr><td>19</td><td>IDENTIFIER</td><td>base</td><td>9</td><td>47</td></tr>
+<tr><td>20</td><td>COMMA</td><td>co</td><td>9</td><td>52</td></tr>
+<tr><td>21</td><td>ENTEI</td><td>entei</td><td>9</td><td>55</td></tr>
+<tr><td>22</td><td>IDENTIFIER</td><td>exponente</td><td>9</td><td>61</td></tr>
+<tr><td>23</td><td>RPAREN</td><td>pc</td><td>9</td><td>71</td></tr>
+<tr><td>24</td><td>LBRACE</td><td>ls</td><td>9</td><td>74</td></tr>
+<tr><td>25</td><td>FLOATZEL</td><td>floatzel</td><td>10</td><td>5</td></tr>
+<tr><td>26</td><td>IDENTIFIER</td><td>resultado</td><td>10</td><td>14</td></tr>
+<tr><td>27</td><td>EQUALS</td><td>as</td><td>10</td><td>24</td></tr>
+<tr><td>28</td><td>NUMBER</td><td>1.0</td><td>10</td><td>27</td></tr>
+<tr><td>29</td><td>SEMICOLON</td><td>pyc</td><td>10</td><td>31</td></tr>
+<tr><td>30</td><td>FORRETRES</td><td>forretres</td><td>11</td><td>5</td></tr>
+<tr><td>31</td><td>LPAREN</td><td>ps</td><td>11</td><td>15</td></tr>
+<tr><td>32</td><td>ENTEI</td><td>entei</td><td>11</td><td>18</td></tr>
+<tr><td>33</td><td>IDENTIFIER</td><td>i</td><td>11</td><td>24</td></tr>
+<tr><td>34</td><td>EQUALS</td><td>as</td><td>11</td><td>26</td></tr>
+<tr><td>35</td><td>NUMBER</td><td>0</td><td>11</td><td>29</td></tr>
+<tr><td>36</td><td>SEMICOLON</td><td>pyc</td><td>11</td><td>31</td></tr>
+<tr><td>37</td><td>IDENTIFIER</td><td>i</td><td>11</td><td>35</td></tr>
+<tr><td>38</td><td>LT</td><td>me</td><td>11</td><td>37</td></tr>
+<tr><td>39</td><td>IDENTIFIER</td><td>exponente</td><td>11</td><td>40</td></tr>
+<tr><td>40</td><td>SEMICOLON</td><td>pyc</td><td>11</td><td>50</td></tr>
+<tr><td>41</td><td>IDENTIFIER</td><td>i</td><td>11</td><td>54</td></tr>
+<tr><td>42</td><td>EQUALS</td><td>as</td><td>11</td><td>56</td></tr>
+<tr><td>43</td><td>IDENTIFIER</td><td>i</td><td>11</td><td>59</td></tr>
+<tr><td>44</td><td>MAS</td><td>su</td><td>11</td><td>61</td></tr>
+<tr><td>45</td><td>NUMBER</td><td>1</td><td>11</td><td>64</td></tr>
+<tr><td>46</td><td>RPAREN</td><td>pc</td><td>11</td><td>66</td></tr>
+<tr><td>47</td><td>LBRACE</td><td>ls</td><td>11</td><td>69</td></tr>
+<tr><td>48</td><td>IDENTIFIER</td><td>resultado</td><td>12</td><td>9</td></tr>
+<tr><td>49</td><td>EQUALS</td><td>as</td><td>12</td><td>19</td></tr>
+<tr><td>50</td><td>IDENTIFIER</td><td>resultado</td><td>12</td><td>22</td></tr>
+<tr><td>51</td><td>MUL</td><td>mu</td><td>12</td><td>32</td></tr>
+<tr><td>52</td><td>IDENTIFIER</td><td>base</td><td>12</td><td>35</td></tr>
+<tr><td>53</td><td>SEMICOLON</td><td>pyc</td><td>12</td><td>40</td></tr>
+<tr><td>54</td><td>RBRACE</td><td>lc</td><td>13</td><td>5</td></tr>
+<tr><td>55</td><td>RAIKOU</td><td>raikou</td><td>14</td><td>5</td></tr>
+<tr><td>56</td><td>IDENTIFIER</td><td>resultado</td><td>14</td><td>12</td></tr>
+<tr><td>57</td><td>SEMICOLON</td><td>pyc</td><td>14</td><td>22</td></tr>
+<tr><td>58</td><td>RBRACE</td><td>lc</td><td>15</td><td>1</td></tr>
+<tr><td>59</td><td>GARDEVOIR</td><td>gardevoir</td><td>17</td><td>1</td></tr>
+<tr><td>60</td><td>IDENTIFIER</td><td>duplicarValores</td><td>17</td><td>11</td></tr>
+<tr><td>61</td><td>LPAREN</td><td>ps</td><td>17</td><td>27</td></tr>
+<tr><td>62</td><td>ENTEI</td><td>entei</td><td>17</td><td>30</td></tr>
+<tr><td>63</td><td>IDENTIFIER</td><td>valorA</td><td>17</td><td>36</td></tr>
+<tr><td>64</td><td>COMMA</td><td>co</td><td>17</td><td>43</td></tr>
+<tr><td>65</td><td>ENTEI</td><td>entei</td><td>17</td><td>46</td></tr>
+<tr><td>66</td><td>IDENTIFIER</td><td>valorB</td><td>17</td><td>52</td></tr>
+<tr><td>67</td><td>RPAREN</td><td>pc</td><td>17</td><td>59</td></tr>
+<tr><td>68</td><td>LBRACE</td><td>ls</td><td>17</td><td>62</td></tr>
+<tr><td>69</td><td>IDENTIFIER</td><td>valorA</td><td>18</td><td>5</td></tr>
+<tr><td>70</td><td>EQUALS</td><td>as</td><td>18</td><td>12</td></tr>
+<tr><td>71</td><td>IDENTIFIER</td><td>valorA</td><td>18</td><td>15</td></tr>
+<tr><td>72</td><td>MUL</td><td>mu</td><td>18</td><td>22</td></tr>
+<tr><td>73</td><td>NUMBER</td><td>2</td><td>18</td><td>25</td></tr>
+<tr><td>74</td><td>SEMICOLON</td><td>pyc</td><td>18</td><td>27</td></tr>
+<tr><td>75</td><td>IDENTIFIER</td><td>valorB</td><td>19</td><td>5</td></tr>
+<tr><td>76</td><td>EQUALS</td><td>as</td><td>19</td><td>12</td></tr>
+<tr><td>77</td><td>IDENTIFIER</td><td>valorB</td><td>19</td><td>15</td></tr>
+<tr><td>78</td><td>MUL</td><td>mu</td><td>19</td><td>22</td></tr>
+<tr><td>79</td><td>NUMBER</td><td>2</td><td>19</td><td>25</td></tr>
+<tr><td>80</td><td>SEMICOLON</td><td>pyc</td><td>19</td><td>27</td></tr>
+<tr><td>81</td><td>PIKACHU</td><td>pikachu</td><td>20</td><td>5</td></tr>
+<tr><td>82</td><td>LPAREN</td><td>ps</td><td>20</td><td>13</td></tr>
+<tr><td>83</td><td>IDENTIFIER</td><td>valorA</td><td>20</td><td>16</td></tr>
+<tr><td>84</td><td>RPAREN</td><td>pc</td><td>20</td><td>23</td></tr>
+<tr><td>85</td><td>SEMICOLON</td><td>pyc</td><td>20</td><td>26</td></tr>
+<tr><td>86</td><td>PIKACHU</td><td>pikachu</td><td>21</td><td>5</td></tr>
+<tr><td>87</td><td>LPAREN</td><td>ps</td><td>21</td><td>13</td></tr>
+<tr><td>88</td><td>IDENTIFIER</td><td>valorB</td><td>21</td><td>16</td></tr>
+<tr><td>89</td><td>RPAREN</td><td>pc</td><td>21</td><td>23</td></tr>
+<tr><td>90</td><td>SEMICOLON</td><td>pyc</td><td>21</td><td>26</td></tr>
+<tr><td>91</td><td>RBRACE</td><td>lc</td><td>22</td><td>1</td></tr>
+<tr><td>92</td><td>ENTEI</td><td>entei</td><td>24</td><td>1</td></tr>
+<tr><td>93</td><td>IDENTIFIER</td><td>opcion</td><td>24</td><td>7</td></tr>
+<tr><td>94</td><td>EQUALS</td><td>as</td><td>24</td><td>14</td></tr>
+<tr><td>95</td><td>NUMBER</td><td>1</td><td>24</td><td>17</td></tr>
+<tr><td>96</td><td>SEMICOLON</td><td>pyc</td><td>24</td><td>19</td></tr>
+<tr><td>97</td><td>DODUO</td><td>doduo</td><td>26</td><td>1</td></tr>
+<tr><td>98</td><td>LBRACE</td><td>ls</td><td>26</td><td>7</td></tr>
+<tr><td>99</td><td>PIKACHU</td><td>pikachu</td><td>27</td><td>5</td></tr>
+<tr><td>100</td><td>STRING_LITERAL</td><td>MENU DE OPERACIONES C++</td><td>27</td><td>13</td></tr>
+<tr><td>101</td><td>SEMICOLON</td><td>pyc</td><td>27</td><td>41</td></tr>
+<tr><td>102</td><td>PIKACHU</td><td>pikachu</td><td>28</td><td>5</td></tr>
+<tr><td>103</td><td>STRING_LITERAL</td><td>1. Operaciones matematicas basicas</td><td>28</td><td>13</td></tr>
+<tr><td>104</td><td>SEMICOLON</td><td>pyc</td><td>28</td><td>52</td></tr>
+<tr><td>105</td><td>PIKACHU</td><td>pikachu</td><td>29</td><td>5</td></tr>
+<tr><td>106</td><td>STRING_LITERAL</td><td>2. Demostracion while</td><td>29</td><td>13</td></tr>
+<tr><td>107</td><td>SEMICOLON</td><td>pyc</td><td>29</td><td>39</td></tr>
+<tr><td>108</td><td>PIKACHU</td><td>pikachu</td><td>30</td><td>5</td></tr>
+<tr><td>109</td><td>STRING_LITERAL</td><td>3. Demostracion for</td><td>30</td><td>13</td></tr>
+<tr><td>110</td><td>SEMICOLON</td><td>pyc</td><td>30</td><td>37</td></tr>
+<tr><td>111</td><td>PIKACHU</td><td>pikachu</td><td>31</td><td>5</td></tr>
+<tr><td>112</td><td>STRING_LITERAL</td><td>4. Uso de funciones</td><td>31</td><td>13</td></tr>
+<tr><td>113</td><td>SEMICOLON</td><td>pyc</td><td>31</td><td>37</td></tr>
+<tr><td>114</td><td>PIKACHU</td><td>pikachu</td><td>32</td><td>5</td></tr>
+<tr><td>115</td><td>STRING_LITERAL</td><td>5. Uso de procedimientos</td><td>32</td><td>13</td></tr>
+<tr><td>116</td><td>SEMICOLON</td><td>pyc</td><td>32</td><td>42</td></tr>
+<tr><td>117</td><td>PIKACHU</td><td>pikachu</td><td>33</td><td>5</td></tr>
+<tr><td>118</td><td>STRING_LITERAL</td><td>9. Salir</td><td>33</td><td>13</td></tr>
+<tr><td>119</td><td>SEMICOLON</td><td>pyc</td><td>33</td><td>26</td></tr>
+<tr><td>120</td><td>SWELLO</td><td>swello</td><td>35</td><td>5</td></tr>
+<tr><td>121</td><td>LPAREN</td><td>ps</td><td>35</td><td>12</td></tr>
+<tr><td>122</td><td>IDENTIFIER</td><td>opcion</td><td>35</td><td>15</td></tr>
+<tr><td>123</td><td>RPAREN</td><td>pc</td><td>35</td><td>22</td></tr>
+<tr><td>124</td><td>LBRACE</td><td>ls</td><td>35</td><td>25</td></tr>
+<tr><td>125</td><td>KECLEON</td><td>kecleon</td><td>36</td><td>9</td></tr>
+<tr><td>126</td><td>NUMBER</td><td>1</td><td>36</td><td>17</td></tr>
+<tr><td>127</td><td>COLON</td><td>dp</td><td>36</td><td>19</td></tr>
+<tr><td>128</td><td>FLOATZEL</td><td>floatzel</td><td>37</td><td>13</td></tr>
+<tr><td>129</td><td>IDENTIFIER</td><td>a</td><td>37</td><td>22</td></tr>
+<tr><td>130</td><td>EQUALS</td><td>as</td><td>37</td><td>24</td></tr>
+<tr><td>131</td><td>NUMBER</td><td>15.5</td><td>37</td><td>27</td></tr>
+<tr><td>132</td><td>SEMICOLON</td><td>pyc</td><td>37</td><td>32</td></tr>
+<tr><td>133</td><td>FLOATZEL</td><td>floatzel</td><td>38</td><td>13</td></tr>
+<tr><td>134</td><td>IDENTIFIER</td><td>b</td><td>38</td><td>22</td></tr>
+<tr><td>135</td><td>EQUALS</td><td>as</td><td>38</td><td>24</td></tr>
+<tr><td>136</td><td>NUMBER</td><td>4.5</td><td>38</td><td>27</td></tr>
+<tr><td>137</td><td>SEMICOLON</td><td>pyc</td><td>38</td><td>31</td></tr>
+<tr><td>138</td><td>FLOATZEL</td><td>floatzel</td><td>39</td><td>13</td></tr>
+<tr><td>139</td><td>IDENTIFIER</td><td>suma</td><td>39</td><td>22</td></tr>
+<tr><td>140</td><td>EQUALS</td><td>as</td><td>39</td><td>27</td></tr>
+<tr><td>141</td><td>IDENTIFIER</td><td>a</td><td>39</td><td>30</td></tr>
+<tr><td>142</td><td>MAS</td><td>su</td><td>39</td><td>32</td></tr>
+<tr><td>143</td><td>IDENTIFIER</td><td>b</td><td>39</td><td>35</td></tr>
+<tr><td>144</td><td>SEMICOLON</td><td>pyc</td><td>39</td><td>37</td></tr>
+<tr><td>145</td><td>FLOATZEL</td><td>floatzel</td><td>40</td><td>13</td></tr>
+<tr><td>146</td><td>IDENTIFIER</td><td>resta</td><td>40</td><td>22</td></tr>
+<tr><td>147</td><td>EQUALS</td><td>as</td><td>40</td><td>28</td></tr>
+<tr><td>148</td><td>IDENTIFIER</td><td>a</td><td>40</td><td>31</td></tr>
+<tr><td>149</td><td>MENOS</td><td>re</td><td>40</td><td>33</td></tr>
+<tr><td>150</td><td>IDENTIFIER</td><td>b</td><td>40</td><td>36</td></tr>
+<tr><td>151</td><td>SEMICOLON</td><td>pyc</td><td>40</td><td>38</td></tr>
+<tr><td>152</td><td>FLOATZEL</td><td>floatzel</td><td>41</td><td>13</td></tr>
+<tr><td>153</td><td>IDENTIFIER</td><td>multiplicacion</td><td>41</td><td>22</td></tr>
+<tr><td>154</td><td>EQUALS</td><td>as</td><td>41</td><td>37</td></tr>
+<tr><td>155</td><td>IDENTIFIER</td><td>a</td><td>41</td><td>40</td></tr>
+<tr><td>156</td><td>MUL</td><td>mu</td><td>41</td><td>42</td></tr>
+<tr><td>157</td><td>IDENTIFIER</td><td>b</td><td>41</td><td>45</td></tr>
+<tr><td>158</td><td>SEMICOLON</td><td>pyc</td><td>41</td><td>47</td></tr>
+<tr><td>159</td><td>FLOATZEL</td><td>floatzel</td><td>42</td><td>13</td></tr>
+<tr><td>160</td><td>IDENTIFIER</td><td>division</td><td>42</td><td>22</td></tr>
+<tr><td>161</td><td>EQUALS</td><td>as</td><td>42</td><td>31</td></tr>
+<tr><td>162</td><td>IDENTIFIER</td><td>a</td><td>42</td><td>34</td></tr>
+<tr><td>163</td><td>DIV</td><td>di</td><td>42</td><td>36</td></tr>
+<tr><td>164</td><td>IDENTIFIER</td><td>b</td><td>42</td><td>39</td></tr>
+<tr><td>165</td><td>SEMICOLON</td><td>pyc</td><td>42</td><td>41</td></tr>
+<tr><td>166</td><td>PIKACHU</td><td>pikachu</td><td>43</td><td>13</td></tr>
+<tr><td>167</td><td>LPAREN</td><td>ps</td><td>43</td><td>21</td></tr>
+<tr><td>168</td><td>IDENTIFIER</td><td>suma</td><td>43</td><td>24</td></tr>
+<tr><td>169</td><td>RPAREN</td><td>pc</td><td>43</td><td>29</td></tr>
+<tr><td>170</td><td>SEMICOLON</td><td>pyc</td><td>43</td><td>32</td></tr>
+<tr><td>171</td><td>PIKACHU</td><td>pikachu</td><td>44</td><td>13</td></tr>
+<tr><td>172</td><td>LPAREN</td><td>ps</td><td>44</td><td>21</td></tr>
+<tr><td>173</td><td>IDENTIFIER</td><td>resta</td><td>44</td><td>24</td></tr>
+<tr><td>174</td><td>RPAREN</td><td>pc</td><td>44</td><td>30</td></tr>
+<tr><td>175</td><td>SEMICOLON</td><td>pyc</td><td>44</td><td>33</td></tr>
+<tr><td>176</td><td>PIKACHU</td><td>pikachu</td><td>45</td><td>13</td></tr>
+<tr><td>177</td><td>LPAREN</td><td>ps</td><td>45</td><td>21</td></tr>
+<tr><td>178</td><td>IDENTIFIER</td><td>multiplicacion</td><td>45</td><td>24</td></tr>
+<tr><td>179</td><td>RPAREN</td><td>pc</td><td>45</td><td>39</td></tr>
+<tr><td>180</td><td>SEMICOLON</td><td>pyc</td><td>45</td><td>42</td></tr>
+<tr><td>181</td><td>PIKACHU</td><td>pikachu</td><td>46</td><td>13</td></tr>
+<tr><td>182</td><td>LPAREN</td><td>ps</td><td>46</td><td>21</td></tr>
+<tr><td>183</td><td>IDENTIFIER</td><td>division</td><td>46</td><td>24</td></tr>
+<tr><td>184</td><td>RPAREN</td><td>pc</td><td>46</td><td>33</td></tr>
+<tr><td>185</td><td>SEMICOLON</td><td>pyc</td><td>46</td><td>36</td></tr>
+<tr><td>186</td><td>BRELOOM</td><td>breloom</td><td>47</td><td>13</td></tr>
+<tr><td>187</td><td>SEMICOLON</td><td>pyc</td><td>47</td><td>21</td></tr>
+<tr><td>188</td><td>KECLEON</td><td>kecleon</td><td>48</td><td>9</td></tr>
+<tr><td>189</td><td>NUMBER</td><td>2</td><td>48</td><td>17</td></tr>
+<tr><td>190</td><td>COLON</td><td>dp</td><td>48</td><td>19</td></tr>
+<tr><td>191</td><td>ENTEI</td><td>entei</td><td>49</td><td>13</td></tr>
+<tr><td>192</td><td>IDENTIFIER</td><td>contador</td><td>49</td><td>19</td></tr>
+<tr><td>193</td><td>EQUALS</td><td>as</td><td>49</td><td>28</td></tr>
+<tr><td>194</td><td>NUMBER</td><td>1</td><td>49</td><td>31</td></tr>
+<tr><td>195</td><td>SEMICOLON</td><td>pyc</td><td>49</td><td>33</td></tr>
+<tr><td>196</td><td>WAILORD</td><td>wailord</td><td>50</td><td>13</td></tr>
+<tr><td>197</td><td>LPAREN</td><td>ps</td><td>50</td><td>21</td></tr>
+<tr><td>198</td><td>IDENTIFIER</td><td>contador</td><td>50</td><td>24</td></tr>
+<tr><td>199</td><td>RELOP</td><td>mei</td><td>50</td><td>33</td></tr>
+<tr><td>200</td><td>NUMBER</td><td>5</td><td>50</td><td>37</td></tr>
+<tr><td>201</td><td>RPAREN</td><td>pc</td><td>50</td><td>39</td></tr>
+<tr><td>202</td><td>LBRACE</td><td>ls</td><td>50</td><td>42</td></tr>
+<tr><td>203</td><td>PIKACHU</td><td>pikachu</td><td>51</td><td>17</td></tr>
+<tr><td>204</td><td>LPAREN</td><td>ps</td><td>51</td><td>25</td></tr>
+<tr><td>205</td><td>IDENTIFIER</td><td>contador</td><td>51</td><td>28</td></tr>
+<tr><td>206</td><td>RPAREN</td><td>pc</td><td>51</td><td>37</td></tr>
+<tr><td>207</td><td>SEMICOLON</td><td>pyc</td><td>51</td><td>40</td></tr>
+<tr><td>208</td><td>IDENTIFIER</td><td>contador</td><td>52</td><td>17</td></tr>
+<tr><td>209</td><td>EQUALS</td><td>as</td><td>52</td><td>26</td></tr>
+<tr><td>210</td><td>IDENTIFIER</td><td>contador</td><td>52</td><td>29</td></tr>
+<tr><td>211</td><td>MAS</td><td>su</td><td>52</td><td>38</td></tr>
+<tr><td>212</td><td>NUMBER</td><td>1</td><td>52</td><td>41</td></tr>
+<tr><td>213</td><td>SEMICOLON</td><td>pyc</td><td>52</td><td>43</td></tr>
+<tr><td>214</td><td>RBRACE</td><td>lc</td><td>53</td><td>13</td></tr>
+<tr><td>215</td><td>BRELOOM</td><td>breloom</td><td>54</td><td>13</td></tr>
+<tr><td>216</td><td>SEMICOLON</td><td>pyc</td><td>54</td><td>21</td></tr>
+<tr><td>217</td><td>KECLEON</td><td>kecleon</td><td>55</td><td>9</td></tr>
+<tr><td>218</td><td>NUMBER</td><td>3</td><td>55</td><td>17</td></tr>
+<tr><td>219</td><td>COLON</td><td>dp</td><td>55</td><td>19</td></tr>
+<tr><td>220</td><td>FORRETRES</td><td>forretres</td><td>56</td><td>13</td></tr>
+<tr><td>221</td><td>LPAREN</td><td>ps</td><td>56</td><td>23</td></tr>
+<tr><td>222</td><td>ENTEI</td><td>entei</td><td>56</td><td>26</td></tr>
+<tr><td>223</td><td>IDENTIFIER</td><td>j</td><td>56</td><td>32</td></tr>
+<tr><td>224</td><td>EQUALS</td><td>as</td><td>56</td><td>34</td></tr>
+<tr><td>225</td><td>NUMBER</td><td>2</td><td>56</td><td>37</td></tr>
+<tr><td>226</td><td>SEMICOLON</td><td>pyc</td><td>56</td><td>39</td></tr>
+<tr><td>227</td><td>IDENTIFIER</td><td>j</td><td>56</td><td>43</td></tr>
+<tr><td>228</td><td>RELOP</td><td>mei</td><td>56</td><td>45</td></tr>
+<tr><td>229</td><td>NUMBER</td><td>10</td><td>56</td><td>49</td></tr>
+<tr><td>230</td><td>SEMICOLON</td><td>pyc</td><td>56</td><td>52</td></tr>
+<tr><td>231</td><td>IDENTIFIER</td><td>j</td><td>56</td><td>56</td></tr>
+<tr><td>232</td><td>EQUALS</td><td>as</td><td>56</td><td>58</td></tr>
+<tr><td>233</td><td>IDENTIFIER</td><td>j</td><td>56</td><td>61</td></tr>
+<tr><td>234</td><td>MAS</td><td>su</td><td>56</td><td>63</td></tr>
+<tr><td>235</td><td>NUMBER</td><td>2</td><td>56</td><td>66</td></tr>
+<tr><td>236</td><td>RPAREN</td><td>pc</td><td>56</td><td>68</td></tr>
+<tr><td>237</td><td>LBRACE</td><td>ls</td><td>56</td><td>71</td></tr>
+<tr><td>238</td><td>PIKACHU</td><td>pikachu</td><td>57</td><td>17</td></tr>
+<tr><td>239</td><td>LPAREN</td><td>ps</td><td>57</td><td>25</td></tr>
+<tr><td>240</td><td>IDENTIFIER</td><td>j</td><td>57</td><td>28</td></tr>
+<tr><td>241</td><td>RPAREN</td><td>pc</td><td>57</td><td>30</td></tr>
+<tr><td>242</td><td>SEMICOLON</td><td>pyc</td><td>57</td><td>33</td></tr>
+<tr><td>243</td><td>RBRACE</td><td>lc</td><td>58</td><td>13</td></tr>
+<tr><td>244</td><td>BRELOOM</td><td>breloom</td><td>59</td><td>13</td></tr>
+<tr><td>245</td><td>SEMICOLON</td><td>pyc</td><td>59</td><td>21</td></tr>
+<tr><td>246</td><td>KECLEON</td><td>kecleon</td><td>60</td><td>9</td></tr>
+<tr><td>247</td><td>NUMBER</td><td>4</td><td>60</td><td>17</td></tr>
+<tr><td>248</td><td>COLON</td><td>dp</td><td>60</td><td>19</td></tr>
+<tr><td>249</td><td>FLOATZEL</td><td>floatzel</td><td>61</td><td>13</td></tr>
+<tr><td>250</td><td>IDENTIFIER</td><td>base</td><td>61</td><td>22</td></tr>
+<tr><td>251</td><td>EQUALS</td><td>as</td><td>61</td><td>27</td></tr>
+<tr><td>252</td><td>NUMBER</td><td>2.0</td><td>61</td><td>30</td></tr>
+<tr><td>253</td><td>SEMICOLON</td><td>pyc</td><td>61</td><td>34</td></tr>
+<tr><td>254</td><td>ENTEI</td><td>entei</td><td>62</td><td>13</td></tr>
+<tr><td>255</td><td>IDENTIFIER</td><td>exp</td><td>62</td><td>19</td></tr>
+<tr><td>256</td><td>EQUALS</td><td>as</td><td>62</td><td>23</td></tr>
+<tr><td>257</td><td>NUMBER</td><td>3</td><td>62</td><td>26</td></tr>
+<tr><td>258</td><td>SEMICOLON</td><td>pyc</td><td>62</td><td>28</td></tr>
+<tr><td>259</td><td>FLOATZEL</td><td>floatzel</td><td>63</td><td>13</td></tr>
+<tr><td>260</td><td>IDENTIFIER</td><td>res</td><td>63</td><td>22</td></tr>
+<tr><td>261</td><td>EQUALS</td><td>as</td><td>63</td><td>26</td></tr>
+<tr><td>262</td><td>IDENTIFIER</td><td>calcularPotencia</td><td>63</td><td>29</td></tr>
+<tr><td>263</td><td>LPAREN</td><td>ps</td><td>63</td><td>46</td></tr>
+<tr><td>264</td><td>IDENTIFIER</td><td>base</td><td>63</td><td>49</td></tr>
+<tr><td>265</td><td>COMMA</td><td>co</td><td>63</td><td>54</td></tr>
+<tr><td>266</td><td>IDENTIFIER</td><td>exp</td><td>63</td><td>57</td></tr>
+<tr><td>267</td><td>RPAREN</td><td>pc</td><td>63</td><td>61</td></tr>
+<tr><td>268</td><td>SEMICOLON</td><td>pyc</td><td>63</td><td>64</td></tr>
+<tr><td>269</td><td>PIKACHU</td><td>pikachu</td><td>64</td><td>13</td></tr>
+<tr><td>270</td><td>LPAREN</td><td>ps</td><td>64</td><td>21</td></tr>
+<tr><td>271</td><td>IDENTIFIER</td><td>res</td><td>64</td><td>24</td></tr>
+<tr><td>272</td><td>RPAREN</td><td>pc</td><td>64</td><td>28</td></tr>
+<tr><td>273</td><td>SEMICOLON</td><td>pyc</td><td>64</td><td>31</td></tr>
+<tr><td>274</td><td>BRELOOM</td><td>breloom</td><td>65</td><td>13</td></tr>
+<tr><td>275</td><td>SEMICOLON</td><td>pyc</td><td>65</td><td>21</td></tr>
+<tr><td>276</td><td>KECLEON</td><td>kecleon</td><td>66</td><td>9</td></tr>
+<tr><td>277</td><td>NUMBER</td><td>5</td><td>66</td><td>17</td></tr>
+<tr><td>278</td><td>COLON</td><td>dp</td><td>66</td><td>19</td></tr>
+<tr><td>279</td><td>ENTEI</td><td>entei</td><td>67</td><td>13</td></tr>
+<tr><td>280</td><td>IDENTIFIER</td><td>num1</td><td>67</td><td>19</td></tr>
+<tr><td>281</td><td>EQUALS</td><td>as</td><td>67</td><td>24</td></tr>
+<tr><td>282</td><td>NUMBER</td><td>10</td><td>67</td><td>27</td></tr>
+<tr><td>283</td><td>SEMICOLON</td><td>pyc</td><td>67</td><td>30</td></tr>
+<tr><td>284</td><td>ENTEI</td><td>entei</td><td>68</td><td>13</td></tr>
+<tr><td>285</td><td>IDENTIFIER</td><td>num2</td><td>68</td><td>19</td></tr>
+<tr><td>286</td><td>EQUALS</td><td>as</td><td>68</td><td>24</td></tr>
+<tr><td>287</td><td>NUMBER</td><td>25</td><td>68</td><td>27</td></tr>
+<tr><td>288</td><td>SEMICOLON</td><td>pyc</td><td>68</td><td>30</td></tr>
+<tr><td>289</td><td>IDENTIFIER</td><td>duplicarValores</td><td>69</td><td>13</td></tr>
+<tr><td>290</td><td>LPAREN</td><td>ps</td><td>69</td><td>29</td></tr>
+<tr><td>291</td><td>IDENTIFIER</td><td>num1</td><td>69</td><td>32</td></tr>
+<tr><td>292</td><td>COMMA</td><td>co</td><td>69</td><td>37</td></tr>
+<tr><td>293</td><td>IDENTIFIER</td><td>num2</td><td>69</td><td>40</td></tr>
+<tr><td>294</td><td>RPAREN</td><td>pc</td><td>69</td><td>45</td></tr>
+<tr><td>295</td><td>SEMICOLON</td><td>pyc</td><td>69</td><td>48</td></tr>
+<tr><td>296</td><td>BRELOOM</td><td>breloom</td><td>70</td><td>13</td></tr>
+<tr><td>297</td><td>SEMICOLON</td><td>pyc</td><td>70</td><td>21</td></tr>
+<tr><td>298</td><td>KECLEON</td><td>kecleon</td><td>71</td><td>9</td></tr>
+<tr><td>299</td><td>NUMBER</td><td>9</td><td>71</td><td>17</td></tr>
+<tr><td>300</td><td>COLON</td><td>dp</td><td>71</td><td>19</td></tr>
+<tr><td>301</td><td>IDENTIFIER</td><td>mostrarMensaje</td><td>72</td><td>13</td></tr>
+<tr><td>302</td><td>LPAREN</td><td>ps</td><td>72</td><td>28</td></tr>
+<tr><td>303</td><td>STRING_LITERAL</td><td>saliendo del programa con exito</td><td>72</td><td>31</td></tr>
+<tr><td>304</td><td>RPAREN</td><td>pc</td><td>72</td><td>67</td></tr>
+<tr><td>305</td><td>SEMICOLON</td><td>pyc</td><td>72</td><td>70</td></tr>
+<tr><td>306</td><td>BRELOOM</td><td>breloom</td><td>73</td><td>13</td></tr>
+<tr><td>307</td><td>SEMICOLON</td><td>pyc</td><td>73</td><td>21</td></tr>
+<tr><td>308</td><td>DEOXYS</td><td>deoxys</td><td>74</td><td>9</td></tr>
+<tr><td>309</td><td>COLON</td><td>dp</td><td>74</td><td>16</td></tr>
+<tr><td>310</td><td>IDENTIFIER</td><td>mostrarMensaje</td><td>75</td><td>13</td></tr>
+<tr><td>311</td><td>LPAREN</td><td>ps</td><td>75</td><td>28</td></tr>
+<tr><td>312</td><td>STRING_LITERAL</td><td>opcion invalida intente de nuevo</td><td>75</td><td>31</td></tr>
+<tr><td>313</td><td>RPAREN</td><td>pc</td><td>75</td><td>68</td></tr>
+<tr><td>314</td><td>SEMICOLON</td><td>pyc</td><td>75</td><td>71</td></tr>
+<tr><td>315</td><td>BRELOOM</td><td>breloom</td><td>76</td><td>13</td></tr>
+<tr><td>316</td><td>SEMICOLON</td><td>pyc</td><td>76</td><td>21</td></tr>
+<tr><td>317</td><td>RBRACE</td><td>lc</td><td>77</td><td>5</td></tr>
+<tr><td>318</td><td>IDENTIFIER</td><td>opcion</td><td>79</td><td>5</td></tr>
+<tr><td>319</td><td>EQUALS</td><td>as</td><td>79</td><td>12</td></tr>
+<tr><td>320</td><td>NUMBER</td><td>9</td><td>79</td><td>15</td></tr>
+<tr><td>321</td><td>SEMICOLON</td><td>pyc</td><td>79</td><td>17</td></tr>
+<tr><td>322</td><td>RBRACE</td><td>lc</td><td>80</td><td>1</td></tr>
+<tr><td>323</td><td>WAILORD</td><td>wailord</td><td>80</td><td>4</td></tr>
+<tr><td>324</td><td>LPAREN</td><td>ps</td><td>80</td><td>12</td></tr>
+<tr><td>325</td><td>IDENTIFIER</td><td>opcion</td><td>80</td><td>15</td></tr>
+<tr><td>326</td><td>RELOP</td><td>ni</td><td>80</td><td>22</td></tr>
+<tr><td>327</td><td>NUMBER</td><td>9</td><td>80</td><td>25</td></tr>
+<tr><td>328</td><td>RPAREN</td><td>pc</td><td>80</td><td>27</td></tr>
+<tr><td>329</td><td>SEMICOLON</td><td>pyc</td><td>80</td><td>30</td></tr>
+</table>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Léxicos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Sintácticos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Semánticos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    
+    <div class="section">
+        <h2 class="ok"> Código Intermedio</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>function gardevoir  mostrarMensaje(stantler mensaje):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>cout &lt;&lt; mensaje &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>function floatzel  calcularPotencia(floatzel base, entei exponente):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>resultado = 1.0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>i = 0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>// INICIO FOR</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>L0:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>if i &gt;= exponente goto L1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>resultado = resultado * base</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>i = i + 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>goto L0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>L1:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// FIN FOR</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>raikou resultado</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>function gardevoir  duplicarValores(entei valorA, entei valorB):</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>valorA = valorA * 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>valorB = valorB * 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>cout &lt;&lt; valorA &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>cout &lt;&lt; valorB &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>end</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>opcion = 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>// INICIO DO-WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>L2:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>cout &lt;&lt; "MENU DE OPERACIONES C++" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>cout &lt;&lt; "1. Operaciones matematicas basicas" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>cout &lt;&lt; "2. Demostracion while" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>cout &lt;&lt; "3. Demostracion for" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>cout &lt;&lt; "4. Uso de funciones" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>cout &lt;&lt; "5. Uso de procedimientos" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>cout &lt;&lt; "9. Salir" &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>// SWITCH_START opcion</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>// CASE 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>a = 15.5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>b = 4.5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>suma = a + b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>resta = a - b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>multiplicacion = a * b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>division = a / b</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>cout &lt;&lt; suma &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>cout &lt;&lt; resta &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>cout &lt;&lt; multiplicacion &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>cout &lt;&lt; division &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>// CASE 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>contador = 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>// INICIO WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>L5:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>if contador &gt; 5 goto L6</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>cout &lt;&lt; contador &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>contador = contador + 1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>goto L5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>L6:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>// FIN WHILE</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>// CASE 3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>j = 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>// INICIO FOR</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>L7:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>if j &gt; 10 goto L8</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td>cout &lt;&lt; j &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>j = j + 2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td>goto L7</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>L8:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>// FIN FOR</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>67</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>// CASE 4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>base = 2.0</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>exp = 3</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>param base</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>param exp</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>t13 = call calcularPotencia(base, exp)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>res = t13</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>cout &lt;&lt; res &lt;&lt; endl</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>// CASE 5</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>num1 = 10</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>num2 = 25</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>param num1</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>param num2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>t14 = call duplicarValores(num1, num2)</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>// CASE 9</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>param "saliendo del programa con exito"</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>t15 = call mostrarMensaje("saliendo del programa con exito")</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>// DEFAULT</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>param "opcion invalida intente de nuevo"</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>t16 = call mostrarMensaje("opcion invalida intente de nuevo")</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>goto L4</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>L4:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>// SWITCH_END</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>opcion = 9</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>if opcion != 9 goto L2</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>L3:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>// FIN DO-WHILE</td></tr>
+
+        </table>
+    </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Código C++ Generado</h2>
+        
+    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
+        <table style='width:100%;border-collapse:collapse;
+                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
+            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>#include &lt;iostream&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>#include &lt;string&gt;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>void mostrarMensaje(string mensaje) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    cout &lt;&lt; mensaje &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>float calcularPotencia(float base, int exponente) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    float resultado = 1.0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    int i = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    if (i &lt; exponente) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>    resultado = resultado * base;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>    i = i + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>return resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>void duplicarValores(int valorA, int valorB) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>    valorA = valorA * 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>    valorB = valorB * 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>    cout &lt;&lt; valorA &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>    cout &lt;&lt; valorB &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>int main() {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    float a;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>    float b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>    float base;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>    int contador;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>    float division;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>    int exp;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>    int exponente;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>    int i;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>    int j;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>    string mensaje;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>    float multiplicacion;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>    int num1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>    int num2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>    int opcion;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>    float res;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>    float resta;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>    float resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>    float suma;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>    int valorA;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>    int valorB;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>    opcion = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>    do {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>        cout &lt;&lt; "MENU DE OPERACIONES C++" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>        cout &lt;&lt; "1. Operaciones matematicas basicas" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>        cout &lt;&lt; "2. Demostracion while" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>        cout &lt;&lt; "3. Demostracion for" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>        cout &lt;&lt; "4. Uso de funciones" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>        cout &lt;&lt; "5. Uso de procedimientos" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>        cout &lt;&lt; "9. Salir" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>        switch (opcion) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>        case 1:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>            a = 15.5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>            b = 4.5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td>            suma = a + b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>            resta = a - b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td>            multiplicacion = a * b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>            division = a / b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>            cout &lt;&lt; suma &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>67</td><td>            cout &lt;&lt; resta &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>            cout &lt;&lt; multiplicacion &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>            cout &lt;&lt; division &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>        case 2:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>            contador = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>            while (contador &lt;= 5) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>                cout &lt;&lt; contador &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>                contador = contador + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>            }  // fin while</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>        case 3:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>            j = 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>            while (j &lt;= 10) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>                cout &lt;&lt; j &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>                j = j + 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>            }  // fin for</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>        case 4:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>            base = 2.0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>            exp = 3;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>            auto t13 = calcularPotencia(base, exp);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>            res = t13;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>            cout &lt;&lt; res &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>        case 5:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>            num1 = 10;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>            num2 = 25;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>            auto t14 = duplicarValores(num1, num2);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>        case 9:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>            auto t15 = mostrarMensaje("saliendo del programa con exito");</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>        default:</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>            auto t16 = mostrarMensaje("opcion invalida intente de nuevo");</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>        }  // fin switch</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>        opcion = 9;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>98</td><td>    } while (opcion != 9);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>99</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>100</td><td>}</td></tr>
+
+        </table>
+    </div>
+    </div>
+    
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        
+        <style>
+            .sym-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+            .sym-table th { background:#2c3e50; color:white; padding:9px 14px; text-align:left; }
+            .sym-table td { padding:9px 14px; border-bottom:1px solid #eee; }
+            .sym-table tr:hover td { background:#f9f9f9; }
+            .scope-global { color:#1a5276; font-weight:600; }
+            .scope-local  { color:#117a65; font-weight:600; }
+            .val-dynamic  { color:#e67e22; font-style:italic; }
+            .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
+        </style>
+        <table class="sym-table">
+            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+        <tr><td>opcion</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="val-real">1</span></td></tr><tr><td>mensaje</td><td>stantler</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>base</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>exponente</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>resultado</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">1.0</span></td></tr><tr><td>i</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">0</span></td></tr><tr><td>valorA</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>valorB</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>a</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">15.5</span></td></tr><tr><td>b</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">4.5</span></td></tr><tr><td>suma</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">20.0</span></td></tr><tr><td>resta</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">11.0</span></td></tr><tr><td>multiplicacion</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">69.75</span></td></tr><tr><td>division</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">3.4444444444444446</span></td></tr><tr><td>contador</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">1</span></td></tr><tr><td>j</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">2</span></td></tr><tr><td>base</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">2.0</span></td></tr><tr><td>exp</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">3</span></td></tr><tr><td>res</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>num1</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">10</span></td></tr><tr><td>num2</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">25</span></td></tr></table>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+estructura Fecha ls
+    entei dia pyc
+    entei dia pyc
+lc pyc
+
+Fecha f pyc
+f pu mes as 5 pyc
+
+Persona p pyc

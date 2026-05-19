@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from src.sintactico.errorsParser import p_error
-from src.semantico.handle import handle_expression_statement
+from src.semantico.handle import handle_expression_statement, make_literal
 
 
 class Parser:
@@ -11,10 +11,18 @@ class Parser:
         self.tokens   = lexer.tokens
         self.parser   = yacc.yacc(module=self, debug=False, write_tables=False)
 
+    def _mark_position(self, name, token_slice):
+        setter = getattr(self.semantic, 'set_position', None)
+        if callable(setter):
+            setter(name, self.errors.find_line(token_slice), self.errors.find_column(token_slice))
+
     precedence = (
+        ('left', 'OROR'),
+        ('left', 'ANDOR'),
+        ('right', 'NOT'),
         ('nonassoc', 'GT', 'LT', 'RELOP'),
         ('left', 'MAS', 'MENOS'),
-        ('left', 'MUL', 'DIV'),
+        ('left', 'MUL', 'DIV', 'MOD'),
     )
 
     # ── Programa ──────────────────────────────
@@ -37,6 +45,11 @@ class Parser:
 
     def p_statement(self, p):
         '''statement : function_declaration
+                     | struct_declaration
+                     | struct_instance_declaration
+                     | field_assignment
+                     | array_declaration
+                     | array_assignment
                      | declaration
                      | assignment
                      | while_loop
@@ -45,7 +58,10 @@ class Parser:
                      | if_statement
                      | switch_statement
                      | method_call SEMICOLON
+                     | input_statement
+                     | update_statement
                      | break_statement
+                     | continue_statement
                      | return_statement
                      | print_statement'''
         p[0] = p[1] if p[1] is not None else (lambda: None)
@@ -58,7 +74,7 @@ class Parser:
         if len(p) == 6:
             p[0] = self.semantic.handle_print(p[3])
         else:
-            val = self.semantic.handle_factor(p[2])
+            val = make_literal('stantler', p[2])
             p[0] = self.semantic.handle_print(val)
 
     def p_print_error(self, p):
@@ -73,6 +89,53 @@ class Parser:
 
     # ── Declaraciones ─────────────────────────
 
+    def p_basic_type(self, p):
+        '''basic_type : ENTEI
+                      | FLOATZEL
+                      | CHARIZAR
+                      | BOOFALANT
+                      | STANTLER'''
+        p[0] = p[1]
+
+    def p_struct_declaration(self, p):
+        'struct_declaration : ESTRUCTURA IDENTIFIER LBRACE struct_fields RBRACE SEMICOLON'
+        self._mark_position(p[2], p.slice[2])
+        p[0] = self.semantic.handle_struct_declaration(p[2], p[4])
+
+    def p_struct_fields(self, p):
+        '''struct_fields : struct_field
+                         | struct_fields struct_field'''
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[2]]
+
+    def p_struct_field(self, p):
+        'struct_field : basic_type IDENTIFIER SEMICOLON'
+        p[0] = (p[1], p[2])
+
+    def p_struct_instance_declaration(self, p):
+        'struct_instance_declaration : IDENTIFIER IDENTIFIER SEMICOLON'
+        self._mark_position(p[2], p.slice[2])
+        p[0] = self.semantic.handle_struct_instance_declaration(p[1], p[2])
+
+    def p_array_declaration(self, p):
+        '''array_declaration : ENTEI IDENTIFIER LBRACKET expression RBRACKET SEMICOLON
+                             | ENTEI IDENTIFIER LBRACKET expression RBRACKET EQUALS LBRACE array_values RBRACE SEMICOLON
+                             | FLOATZEL IDENTIFIER LBRACKET expression RBRACKET SEMICOLON
+                             | FLOATZEL IDENTIFIER LBRACKET expression RBRACKET EQUALS LBRACE array_values RBRACE SEMICOLON
+                             | CHARIZAR IDENTIFIER LBRACKET expression RBRACKET SEMICOLON
+                             | CHARIZAR IDENTIFIER LBRACKET expression RBRACKET EQUALS LBRACE array_values RBRACE SEMICOLON
+                             | BOOFALANT IDENTIFIER LBRACKET expression RBRACKET SEMICOLON
+                             | BOOFALANT IDENTIFIER LBRACKET expression RBRACKET EQUALS LBRACE array_values RBRACE SEMICOLON
+                             | STANTLER IDENTIFIER LBRACKET expression RBRACKET SEMICOLON
+                             | STANTLER IDENTIFIER LBRACKET expression RBRACKET EQUALS LBRACE array_values RBRACE SEMICOLON'''
+        self._mark_position(p[2], p.slice[2])
+        values = p[8] if len(p) == 11 else None
+        p[0] = self.semantic.handle_array_declaration(p[2], p[1], p[4], values)
+
+    def p_array_values(self, p):
+        '''array_values : expression
+                        | array_values COMMA expression'''
+        p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
+
     def p_declaration(self, p):
         '''declaration : ENTEI IDENTIFIER SEMICOLON
                        | ENTEI IDENTIFIER EQUALS expression SEMICOLON
@@ -84,10 +147,22 @@ class Parser:
                        | BOOFALANT IDENTIFIER EQUALS expression SEMICOLON
                        | STANTLER IDENTIFIER SEMICOLON
                        | STANTLER IDENTIFIER EQUALS expression SEMICOLON'''
-        
+
+        if p.lineno(1) != p.lineno(2):
+            fila = p.lineno(1)
+            tipo = p[1]
+            self.errors.encolar_error(
+                f"Error sintáctico: declaración incompleta de tipo '{tipo}' en fila {fila}. "
+                f"Después del tipo debe venir un identificador en la misma línea. "
+                f"Sintaxis correcta: {tipo} nombreVariable pyc"
+            )
+            p[0] = self.semantic.handle_assignment(p[2], p[4]) if len(p) > 4 else None
+            return
+
         identifier = p[2]
         value      = p[4] if len(p) > 4 else None
         type_      = p[1]
+        self._mark_position(identifier, p.slice[2])
         p[0] = self.semantic.handle_declaration(identifier, type_, value=value)
 
     def p_declaration_no_semicolon(self, p):
@@ -96,10 +171,21 @@ class Parser:
                                     | CHARIZAR IDENTIFIER EQUALS expression
                                     | BOOFALANT IDENTIFIER EQUALS expression
                                     | STANTLER IDENTIFIER EQUALS expression'''
-        
+
+        if p.lineno(1) != p.lineno(2):
+            fila = p.lineno(1)
+            tipo = p[1]
+            self.errors.encolar_error(
+                f"Error sintáctico: declaración incompleta de tipo '{tipo}' en fila {fila}. "
+                f"Después del tipo debe venir un identificador en la misma línea."
+            )
+            p[0] = self.semantic.handle_assignment(p[2], p[4])
+            return
+
         identifier = p[2]
         value      = p[4]
         type_      = p[1]
+        self._mark_position(identifier, p.slice[2])
         p[0] = self.semantic.handle_declaration(identifier, type_, value=value)
         
 
@@ -107,11 +193,44 @@ class Parser:
 
     def p_assignment(self, p):
         'assignment : IDENTIFIER EQUALS expression SEMICOLON'
+        self._mark_position(p[1], p.slice[1])
         p[0] = self.semantic.handle_assignment(p[1], p[3])
 
     def p_assignment_no_semicolon(self, p):
         'assignment_no_semicolon : IDENTIFIER EQUALS expression'
+        self._mark_position(p[1], p.slice[1])
         p[0] = self.semantic.handle_assignment(p[1], p[3])
+
+    def p_array_assignment(self, p):
+        'array_assignment : IDENTIFIER LBRACKET expression RBRACKET EQUALS expression SEMICOLON'
+        self._mark_position(p[1], p.slice[1])
+        p[0] = self.semantic.handle_array_assignment(p[1], p[3], p[6])
+
+    def p_field_assignment(self, p):
+        'field_assignment : IDENTIFIER DOT IDENTIFIER EQUALS expression SEMICOLON'
+        self._mark_position(p[1], p.slice[1])
+        p[0] = self.semantic.handle_field_assignment(p[1], p[3], p[5])
+
+    # Entrada tipo cin
+    def p_input_statement(self, p):
+        'input_statement : PSYDUCK LPAREN IDENTIFIER RPAREN SEMICOLON'
+        self._mark_position(p[3], p.slice[3])
+        p[0] = self.semantic.handle_input(p[3])
+
+    # Incremento / decremento compacto
+    def p_update_statement(self, p):
+        '''update_statement : IDENTIFIER MASMAS SEMICOLON
+                            | IDENTIFIER MENOSMENOS SEMICOLON'''
+        self._mark_position(p[1], p.slice[1])
+        delta = 1 if p.slice[2].type == 'MASMAS' else -1
+        p[0] = self.semantic.handle_increment(p[1], delta)
+
+    def p_update_no_semicolon(self, p):
+        '''update_no_semicolon : IDENTIFIER MASMAS
+                               | IDENTIFIER MENOSMENOS'''
+        self._mark_position(p[1], p.slice[1])
+        delta = 1 if p.slice[2].type == 'MASMAS' else -1
+        p[0] = self.semantic.handle_increment(p[1], delta)
 
     # ── Ciclos ────────────────────────────────
 
@@ -120,8 +239,13 @@ class Parser:
                     | assignment_no_semicolon'''
         p[0] = p[1]
 
+    def p_for_update(self, p):
+        '''for_update : assignment_no_semicolon
+                      | update_no_semicolon'''
+        p[0] = p[1]
+
     def p_for_loop(self, p):
-        'for_loop : FORRETRES LPAREN for_init SEMICOLON expression SEMICOLON assignment_no_semicolon RPAREN LBRACE program RBRACE'
+        'for_loop : FORRETRES LPAREN for_init SEMICOLON expression SEMICOLON for_update RPAREN LBRACE program RBRACE'
         init = p[3]; expression = p[5]; update = p[7]
         body = p[10] if isinstance(p[10], list) else []
     
@@ -191,6 +315,12 @@ class Parser:
         'break_statement : BRELOOM SEMICOLON'
         p[0] = self.semantic.handle_break()
 
+    def p_continue_statement(self, p):
+        'continue_statement : PIDGEY SEMICOLON'
+        line = self.errors.find_line(p.slice[1])
+        col = self.errors.find_column(p.slice[1])
+        p[0] = self.semantic.handle_continue(line, col)
+
     def p_return_statement(self, p):
         'return_statement : RAIKOU expression SEMICOLON'
         value = p[2]
@@ -205,7 +335,9 @@ class Parser:
                     | expression MENOS term
                     | expression GT term
                     | expression LT term
-                    | expression RELOP term'''
+                    | expression RELOP term
+                    | expression ANDOR expression
+                    | expression OROR expression'''
         p[0] = (p[1], p[2], p[3])
 
     def p_expression_term(self, p):
@@ -214,7 +346,8 @@ class Parser:
 
     def p_term(self, p):
         '''term : term MUL factor
-                | term DIV factor'''
+                | term DIV factor
+                | term MOD factor'''
         p[0] = (p[1], p[2], p[3])
 
     def p_term_factor(self, p):
@@ -223,20 +356,42 @@ class Parser:
 
     def p_factor(self, p):
         '''factor : NUMBER
+                  | field_access
+                  | array_access
                   | IDENTIFIER
                   | STRING_LITERAL
                   | CHAR_LITERAL
                   | BOOLEAN_LITERAL
+                  | NOT factor
                   | LPAREN expression RPAREN
                   | method_call'''
-        if len(p) == 4:
+        if len(p) == 3:
+            p[0] = ('not', p[2])
+        elif len(p) == 4:
             p[0] = p[2]
+        elif len(p) == 2 and p.slice[1].type == 'STRING_LITERAL':
+            p[0] = make_literal('stantler', p[1])
+        elif len(p) == 2 and p.slice[1].type == 'CHAR_LITERAL':
+            p[0] = make_literal('charizar', p[1])
         elif len(p) == 2 and callable(p[1]):
             p[0] = p[1]
+        elif len(p) == 2 and p.slice[1].type == 'IDENTIFIER':
+            self._mark_position(p[1], p.slice[1])
+            p[0] = self.semantic.handle_factor(p[1])
         else:
             p[0] = self.semantic.handle_factor(p[1])
 
     # ── Funciones ─────────────────────────────
+
+    def p_array_access(self, p):
+        'array_access : IDENTIFIER LBRACKET expression RBRACKET'
+        self._mark_position(p[1], p.slice[1])
+        p[0] = self.semantic.make_array_access(p[1], p[3])
+
+    def p_field_access(self, p):
+        'field_access : IDENTIFIER DOT IDENTIFIER'
+        self._mark_position(p[1], p.slice[1])
+        p[0] = self.semantic.make_field_access(p[1], p[3])
 
     def p_function_declaration(self, p):
         '''function_declaration : SUICUNE type IDENTIFIER LPAREN params RPAREN LBRACE program RBRACE
@@ -343,6 +498,7 @@ class Parser:
     # ── Parse ─────────────────────────────────
 
     def parse(self, data, execute=True):
+        self.lexer.lexer.lineno = 1
         self.lexer.lexer.input(data)
         parsed = self.parser.parse(data, lexer=self.lexer.lexer)
         print("Parsing completado.")
@@ -356,6 +512,6 @@ class Parser:
                     stmt()
 
             self.semantic.symbol_table.guardar_snapshot_final()
-            
+
 
         return parsed

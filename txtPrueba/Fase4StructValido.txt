@@ -1,0 +1,14 @@
+estructura Fecha ls
+    entei dia pyc
+    entei mes pyc
+    entei anio pyc
+lc pyc
+
+Fecha fechaDefault pyc
+fechaDefault pu dia as 15 pyc
+fechaDefault pu mes as 5 pyc
+fechaDefault pu anio as 2026 pyc
+
+entei d as fechaDefault pu dia pyc
+pikachu ps d pc pyc
+pikachu ps fechaDefault pu mes pc pyc

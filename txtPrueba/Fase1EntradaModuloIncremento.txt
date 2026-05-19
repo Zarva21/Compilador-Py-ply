@@ -1,0 +1,11 @@
+entei opcion pyc
+psyduck ps opcion pc pyc
+
+entei a as 10 pyc
+entei b as 3 pyc
+entei r as a mo b pyc
+
+a masmas pyc
+b menosmenos pyc
+
+pikachu ps r pc pyc

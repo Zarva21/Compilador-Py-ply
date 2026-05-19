@@ -1,7 +1,7 @@
 entei a as 5 pyc
 entei b as 10 pyc
-stantler c as csxcs pyc
-charizar d as cszcs pyc
+
+charizar d as cs z
 
 a as a su b pyc
 

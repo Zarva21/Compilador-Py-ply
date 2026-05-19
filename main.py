@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from src.Extras.errores import Errors
 from src.lexer.lexer import Lexer
 from src.sintactico.parser import Parser
+from src.sintactico.preprocess import limpiar_declaraciones_incompletas
 
 # ──────────────────────────────────────────────
 # Generador del reporte HTML
@@ -44,9 +45,9 @@ def generar_seccion_codigo(codigo):
     </div>"""
 
 
-def generar_html(tokens, lex_errors_html, parse_errors_html,
+def generar_html(tokens, lex_errors_html, parse_errors_html, semantic_errors_html,
                  intercode, cpp_code, sym_table_html,
-                 archivo_fuente, hay_errores):
+                 archivo_fuente, hay_errores, mostrar_tabla=False):
 
     # Filas de tokens
     filas_tokens = ""
@@ -69,7 +70,7 @@ def generar_html(tokens, lex_errors_html, parse_errors_html,
         seccion_cpp = f"""
     <div class="section">
         <h2 class="ok"> Código C++ Generado</h2>
-        {generar_seccion_codigo(cpp_code)}aja
+        {generar_seccion_codigo(cpp_code)}
     </div>"""
 
         seccion_tabla = f"""
@@ -79,10 +80,17 @@ def generar_html(tokens, lex_errors_html, parse_errors_html,
          "<p style='color:green;font-style:italic;'>Tabla vacía.</p>"}
     </div>"""
     else:
-        msg = "<p style='color:#e74c3c;font-style:italic;'>No disponible — corrige los errores primero.</p>"
-        seccion_intercode = f'<div class="section"><h2 class="err"> Código Intermedio</h2>{msg}</div>'
-        seccion_cpp       = f'<div class="section"><h2 class="err"> Código C++ Generado</h2>{msg}</div>'
-        seccion_tabla     = ""
+        seccion_intercode = ""
+        seccion_cpp       = ""
+        if mostrar_tabla:
+            seccion_tabla = f"""
+    <div class="section">
+        <h2 class="ok"> Tabla de Símbolos</h2>
+        {sym_table_html if sym_table_html else
+         "<p style='color:green;font-style:italic;'>Tabla vacía.</p>"}
+    </div>"""
+        else:
+            seccion_tabla = ""
 
     html = f"""<!DOCTYPE html>
 <html lang="es">
@@ -167,6 +175,11 @@ def generar_html(tokens, lex_errors_html, parse_errors_html,
         {parse_errors_html}
     </div>
 
+    <div class="section">
+        <h2 class="err"> Errores Semánticos</h2>
+        {semantic_errors_html}
+    </div>
+
     {seccion_intercode}
     {seccion_cpp}
     {seccion_tabla}
@@ -222,9 +235,12 @@ def analizar():
 
     # ── Análisis sintáctico + semántico ──
     parse_errors = Errors(contenido)
+    semantic_errors = Errors(contenido)
     intercode    = []
     cpp_code     = []
     sym_html     = ""
+    mostrar_tabla = False
+    hay_errores = lex_errors.has_errors()
 
     try:
         from src.semantico.semantic import Semantic
@@ -234,12 +250,20 @@ def analizar():
 
         sym_table = SymbolTable()
         codegen   = interCodeGenerator()
-        semantic  = Semantic(sym_table, parse_errors, lexer, codegen)
+        semantic  = Semantic(sym_table, semantic_errors, lexer, codegen)
 
+        contenido_parser = limpiar_declaraciones_incompletas(contenido, parse_errors, lex_errors)
         parser = Parser(lexer, parse_errors, semantic)
-        parser.parse(contenido, execute=True)
+        parser.parse(contenido_parser, execute=True)
 
-        hay_errores = bool(lex_errors.errors or parse_errors.errors)
+        hay_errores = (
+            lex_errors.has_errors()
+            or parse_errors.has_errors()
+            or semantic_errors.has_errors()
+        )
+
+        mostrar_tabla = True
+        sym_html = sym_table.toHtml()
 
         if not hay_errores:
             # Optimizar
@@ -262,22 +286,25 @@ def analizar():
             # Tabla de símbolos
             sym_html = sym_table.toHtml()
         else:
-            intercode = codegen.get_code()
+            intercode = []
+            cpp_code = []
 
     except ImportError as e:
         print(f"   Semántica no disponible ({e}), usando modo básico...")
         semantic = _DummySemantic()
-        parser   = Parser(lexer, parse_errors, semantic)
-        parser.parse(contenido, execute=False)
-        hay_errores = bool(lex_errors.errors or parse_errors.errors)
+        if not lex_errors.has_errors():
+            parser   = Parser(lexer, parse_errors, semantic)
+            parser.parse(contenido, execute=False)
+        hay_errores = lex_errors.has_errors() or parse_errors.has_errors()
 
     # ── Generar HTML ──
     lex_html   = lex_errors.errorHtml("Léxicos")
     parse_html = parse_errors.errorHtml("Sintácticos")
+    semantic_html = semantic_errors.errorHtml("Semánticos")
     html = generar_html(
-        tokens, lex_html, parse_html,
+        tokens, lex_html, parse_html, semantic_html,
         intercode, cpp_code, sym_html,
-        nombre, hay_errores
+        nombre, hay_errores, mostrar_tabla
     )
 
     nombre_base = os.path.splitext(nombre)[0]
@@ -290,8 +317,9 @@ def analizar():
     with open(salida, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"   Errores léxicos:     {len(lex_errors.errors)}")
-    print(f"   Errores sintácticos: {len(parse_errors.errors)}")
+    print(f"   Errores léxicos:     {lex_errors.count_errors()}")
+    print(f"   Errores sintácticos: {parse_errors.count_errors()}")
+    print(f"   Errores semánticos:  {semantic_errors.count_errors()}")
     print(f"\nReporte generado: {salida}")
     if not hay_errores:
         print("¡Análisis completado sin errores!")

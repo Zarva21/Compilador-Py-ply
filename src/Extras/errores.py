@@ -1,4 +1,12 @@
 import re
+import unicodedata
+
+
+def _sin_acentos(texto):
+    normalizado = unicodedata.normalize('NFKD', texto)
+    return ''.join(c for c in normalizado if not unicodedata.combining(c))
+
+
 class Errors:
     def __init__(self,content):
         self.errors = []  
@@ -35,9 +43,19 @@ class Errors:
         else:
             tipo = 'Error'
 
+        error_normalizado = _sin_acentos(error.lower())
+        if 'lexico' in error_normalizado:
+            tipo = 'Léxico'
+        elif 'sintactico' in error_normalizado:
+            tipo = 'Sintáctico'
+        elif 'semantico' in error_normalizado:
+            tipo = 'Semántico'
+        elif 'advertencia' in error_normalizado:
+            tipo = 'Advertencia'
+
         # Limpiar descripción
         descripcion = re.sub(r'\s*en (la )?fila \d+[\s,]*(y\s*)?(col(umna)?\s*\d+)?\.?', '', error).strip()
-        descripcion = re.sub(r'^(Error (léxico|sintáctico)|Advertencia):\s*', '', descripcion, flags=re.IGNORECASE).strip()
+        descripcion = re.sub(r'^(Error (léxico|sintáctico|semántico)|Advertencia):\s*', '', descripcion, flags=re.IGNORECASE).strip()
 
         self.errors.append({
             'tipo': tipo,
@@ -45,6 +63,18 @@ class Errors:
             'fila': fila or '-',
             'col': col or '-'
         })
+
+    def has_errors(self):
+        return any(
+            not (isinstance(error, dict) and error.get('tipo') == 'Advertencia')
+            for error in self.errors
+        )
+
+    def count_errors(self):
+        return sum(
+            1 for error in self.errors
+            if not (isinstance(error, dict) and error.get('tipo') == 'Advertencia')
+        )
 
     def find_line(self, token):
         """Encuentra la fila (número de línea) de un token en el texto de entrada"""

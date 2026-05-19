@@ -1,0 +1,7 @@
+entei a as 10 pyc
+boofalant activo as trumbeak pyc
+stantler texto as cdhola cd pyc
+
+boofalant error1 as a andor activo pyc
+boofalant error2 as texto oror activo pyc
+boofalant error3 as not a pyc

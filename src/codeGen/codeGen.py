@@ -16,6 +16,10 @@ class ccodeGen:
         're':  '-',
         'mu':  '*',
         'di':  '/',
+        'mo':  '%',
+        'andor': '&&',
+        'oror':  '||',
+        'not':   '!',
         'as':  '=',
         'ig':  '==',
         'ni':  '!=',
@@ -29,12 +33,14 @@ class ccodeGen:
         self.ir               = ir
         self.symbol_table     = symbol_table or {}
         self.cpp_code         = []
-        self.indent_level     = 2
+        self.indent_level     = 1
         self.temp_conditions  = {}
         self.label_to_index   = {}
         self._next_is_while   = False
         self._next_is_for     = False
         self._next_is_dowhile = False
+        self._next_goto_is_continue = False
+        self._next_label_is_continue_target = False
         self._declared_vars   = set()
         self._main_locals = set()
 
@@ -66,6 +72,21 @@ class ccodeGen:
                 return f'"{right}"'
         return right
 
+    def _array_initializer(self, values, cpp_t='auto'):
+        if not isinstance(values, list):
+            return ''
+        formatted = []
+        for value in values:
+            if isinstance(value, bool):
+                formatted.append('true' if value else 'false')
+            elif isinstance(value, str):
+                formatted.append(f"'{value}'" if cpp_t == 'char' else f'"{value}"')
+            elif value is None:
+                formatted.append('0')
+            else:
+                formatted.append(str(value))
+        return ' = {' + ', '.join(formatted) + '}'
+
     def _translate_ops(self, expr):
         """
         Traduce operadores Pokémon dentro de una expresión IR a C++.
@@ -76,6 +97,30 @@ class ccodeGen:
         """
         tokens = expr.split()
         return ' '.join(self.OPS.get(t, t) for t in tokens)
+
+    def _invert_condition(self, expr):
+        expr = self._translate_ops(expr)
+        parts = expr.split()
+        inverse = {
+            '<': '>=',
+            '>': '<=',
+            '<=': '>',
+            '>=': '<',
+            '==': '!=',
+            '!=': '==',
+        }
+        if len(parts) == 3 and parts[1] in inverse:
+            return f'{parts[0]} {inverse[parts[1]]} {parts[2]}'
+        return f'!({expr})'
+
+    def _parse_plain_if_goto(self, line):
+        if not line.startswith('if ') or 'goto' not in line:
+            return None
+        if line.startswith('if !(') or line.startswith('if ('):
+            return None
+        body = line[3:].strip()
+        cond, target = body.rsplit('goto', 1)
+        return cond.strip(), target.strip()
 
     def _parse_function_header(self, line):
         """Parsea 'function entei cuadrado(entei n):' -> (ret_cpp, fname, params_cpp)"""
@@ -117,11 +162,28 @@ class ccodeGen:
     # ── Generación principal ──────────────────────────────────────────────
 
     def generate(self):
+        struct_defs = {}
+        filtered_ir_source = []
+        current_struct = None
+        for raw in self.ir:
+            stripped = raw.strip()
+            if stripped.startswith('struct '):
+                current_struct = stripped.split(None, 1)[1].strip()
+                struct_defs.setdefault(current_struct, [])
+                continue
+            if stripped.startswith('field '):
+                parts = stripped.split()
+                if len(parts) == 4:
+                    _, struct_name, field_name, field_type = parts
+                    struct_defs.setdefault(struct_name, []).append((field_type, field_name))
+                continue
+            filtered_ir_source.append(raw)
+
         func_ir = []
         main_ir = []
         in_func = False
 
-        for line in self.ir:
+        for line in filtered_ir_source:
             stripped = line.strip()
             if stripped.startswith('function ') and stripped.endswith(':'):
                 in_func = True
@@ -174,6 +236,14 @@ class ccodeGen:
             '',
         ]
 
+        for struct_name, fields in struct_defs.items():
+            self.cpp_code.append(f'struct {struct_name} {{')
+            for field_type, field_name in fields:
+                cpp_t = self.TIPOS.get(field_type.lower(), 'auto')
+                self.cpp_code.append(f'    {cpp_t} {field_name};')
+            self.cpp_code.append('};')
+            self.cpp_code.append('')
+
         if func_cpp:
             self.cpp_code.extend(func_cpp)
             self.cpp_code.append('')
@@ -181,8 +251,13 @@ class ccodeGen:
         self.cpp_code.append('int main() {')
 
         for var_name, info in sorted(self.symbol_table.items()):
-            cpp_t = self.TIPOS.get(info.get('type', '').lower(), 'auto')
-            self.cpp_code.append(f'    {cpp_t} {var_name};')
+            cpp_t = info.get('type') if info.get('kind') == 'struct_instance' else self.TIPOS.get(info.get('type', '').lower(), 'auto')
+            if info.get('kind') == 'array':
+                size = info.get('size') or 0
+                init = self._array_initializer(info.get('value'), cpp_t)
+                self.cpp_code.append(f'    {cpp_t} {var_name}[{size}]{init};')
+            else:
+                self.cpp_code.append(f'    {cpp_t} {var_name};')
             self._declared_vars.add(var_name)
         self.cpp_code.append('')
 
@@ -210,6 +285,8 @@ class ccodeGen:
         indent       = 1
         open_blocks  = []   # pila de bloques abiertos dentro de la función actual
         func_temp_conditions = {}
+        next_goto_is_continue = False
+        next_label_is_continue_target = False
 
         # Pre-extraer temporales de condición
         for line in func_ir:
@@ -301,6 +378,14 @@ class ccodeGen:
                 elif tag == '// INICIO WHILE':
                     i += 1; continue
 
+                elif tag == '// CONTINUE':
+                    next_goto_is_continue = True
+                    i += 1; continue
+
+                elif tag == '// CONTINUE_LABEL':
+                    next_label_is_continue_target = True
+                    i += 1; continue
+
                 elif tag == '// INICIO FOR':
                     i += 1; continue
 
@@ -311,13 +396,13 @@ class ccodeGen:
                         result.append('    ' * indent + '}')
                     i += 1; continue
 
-                elif tag == '//INICIO DO-WHILE':
+                elif tag in ('//INICIO DO-WHILE', '// INICIO DO-WHILE'):
                     result.append(prefix + 'do {')
                     indent += 1
                     open_blocks.append('do')
                     i += 1; continue
 
-                elif tag == '//FIN DO-WHILE':
+                elif tag in ('//FIN DO-WHILE', '// FIN DO-WHILE'):
                     i += 1; continue
 
                 else:
@@ -325,14 +410,32 @@ class ccodeGen:
 
             # ── Etiquetas ──
             if line.endswith(':') and not line.startswith('if'):
+                if next_label_is_continue_target:
+                    result.append('    ' * indent + f'{line[:-1]}: ;')
+                    next_label_is_continue_target = False
                 i += 1; continue
 
             # ── param (se salta, solo documentativo) ──
             if line.startswith('param '):
                 i += 1; continue
 
+            if line.startswith('array ') or line.startswith('array_init '):
+                i += 1; continue
+
+            if line.startswith('struct ') or line.startswith('field '):
+                i += 1; continue
+
             # ── goto ──
             if line.startswith('goto'):
+                if next_goto_is_continue:
+                    target = line.split('goto', 1)[1].strip()
+                    current_loop = next((b for b in reversed(open_blocks) if b in ('for', 'while', 'do')), None)
+                    if current_loop == 'for':
+                        result.append('    ' * indent + f'goto {target};')
+                    else:
+                        result.append('    ' * indent + 'continue;')
+                    next_goto_is_continue = False
+                    i += 1; continue
                 # No emitir goto en C++ — la estructura la manejan los comentarios
                 i += 1; continue
 
@@ -377,9 +480,15 @@ class ccodeGen:
         if line.startswith('cout'):
             return f'{self._translate_ops(line)};'
 
+        if line.startswith('cin >>'):
+            return f'{line};'
+
         if '= call ' in line:
             left, right = line.split('= call ', 1)
             return f'auto {left.strip()} = {right.strip()};'
+
+        if '= new ' in line:
+            return None
 
         if line.startswith('call '):
             return f'{line[5:].strip()};'
@@ -402,12 +511,26 @@ class ccodeGen:
                 return [f'{"    " * indent}}} while ({cond_real});']
             return None
 
+        parsed_plain_if = self._parse_plain_if_goto(line)
+        if parsed_plain_if:
+            cond_raw, _ = parsed_plain_if
+            cond_real = self._translate_ops(cond_raw)
+            if open_blocks and open_blocks[-1] == 'do':
+                open_blocks.pop()
+                indent -= 1
+                return [f'{"    " * indent}}} while ({cond_real});']
+            open_blocks.append('if')
+            return [f'{prefix}if ({self._invert_condition(cond_raw)}) {{']
+
         if '=' in line and not line.startswith('if'):
             left, right = map(str.strip, line.split('=', 1))
             right_cpp   = self._translate_ops(right)
 
             if left.startswith('t') and left[1:].isdigit() and left in temp_conds:
                 return None
+
+            if ('[' in left and ']' in left) or '.' in left:
+                return f'{left} = {right_cpp};'
 
             if left.startswith('t') and left[1:].isdigit():
                 return f'auto {left} = {right_cpp};'
@@ -455,6 +578,14 @@ class ccodeGen:
                 elif tag == '// INICIO WHILE':
                     self._next_is_while = True
                     self._next_is_for   = False
+                    i += 1; continue
+
+                elif tag == '// CONTINUE':
+                    self._next_goto_is_continue = True
+                    i += 1; continue
+
+                elif tag == '// CONTINUE_LABEL':
+                    self._next_label_is_continue_target = True
                     i += 1; continue
 
                 elif tag == '// FIN WHILE':
@@ -509,22 +640,31 @@ class ccodeGen:
                         self.cpp_code.append(f'{self._indent()}}}  // fin switch')
                     i += 1; continue
 
-                elif tag == '//INICIO DO-WHILE':
+                elif tag in ('//INICIO DO-WHILE', '// INICIO DO-WHILE'):
                     self.cpp_code.append(f'{self._indent()}do {{')
                     self.indent_level += 1
                     open_blocks.append('do')
                     i += 1; continue
 
-                elif tag == '//FIN DO-WHILE':
+                elif tag in ('//FIN DO-WHILE', '// FIN DO-WHILE'):
                     i += 1; continue
 
                 else:
                     i += 1; continue
 
             if line.endswith(':') and not line.startswith('if'):
+                if self._next_label_is_continue_target:
+                    self.cpp_code.append(f'{self._indent()}{line[:-1]}: ;')
+                    self._next_label_is_continue_target = False
                 i += 1; continue
 
             if line.startswith('param '):
+                i += 1; continue
+
+            if line.startswith('array ') or line.startswith('array_init '):
+                i += 1; continue
+
+            if line.startswith('struct ') or line.startswith('field '):
                 i += 1; continue
 
             if line.startswith('if !('):
@@ -560,7 +700,47 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}}} while ({cond_real});')
                 i += 1; continue
 
+            parsed_plain_if = self._parse_plain_if_goto(line)
+            if parsed_plain_if:
+                cond_raw, target = parsed_plain_if
+                cond_real = self._translate_ops(cond_raw)
+
+                if open_blocks and open_blocks[-1] == 'do':
+                    open_blocks.pop()
+                    self.indent_level -= 1
+                    self.cpp_code.append(f'{self._indent()}}} while ({cond_real});')
+                elif self._next_is_while:
+                    self.cpp_code.append(f'{self._indent()}while ({self._invert_condition(cond_raw)}) {{')
+                    open_blocks.append('while')
+                    self._next_is_while = False
+                    self.indent_level += 1
+                elif self._next_is_for:
+                    self.cpp_code.append(f'{self._indent()}while ({self._invert_condition(cond_raw)}) {{')
+                    open_blocks.append('for')
+                    self._next_is_for = False
+                    self.indent_level += 1
+                else:
+                    target_idx = self.label_to_index.get(target, i + 1)
+                    if target_idx > i:
+                        self.cpp_code.append(f'{self._indent()}if ({self._invert_condition(cond_raw)}) {{')
+                        open_blocks.append('if')
+                        self.indent_level += 1
+                    else:
+                        self.cpp_code.append(f'{self._indent()}while ({cond_real}) {{')
+                        open_blocks.append('while')
+                        self.indent_level += 1
+                i += 1; continue
+
             if line.startswith('goto'):
+                if self._next_goto_is_continue:
+                    target = line.split('goto', 1)[1].strip()
+                    current_loop = next((b for b in reversed(open_blocks) if b in ('for', 'while', 'do')), None)
+                    if current_loop == 'for':
+                        self.cpp_code.append(f'{self._indent()}goto {target};')
+                    else:
+                        self.cpp_code.append(f'{self._indent()}continue;')
+                    self._next_goto_is_continue = False
+                    i += 1; continue
                 target     = line.split('goto')[1].strip()
                 target_idx = self.label_to_index.get(target, i + 1)
                 if target_idx < i and open_blocks:
@@ -571,6 +751,10 @@ class ccodeGen:
 
             if line.startswith('cout'):
                 self.cpp_code.append(f'{self._indent()}{self._translate_ops(line)};')
+                i += 1; continue
+
+            if line.startswith('cin >>'):
+                self.cpp_code.append(f'{self._indent()}{line};')
                 i += 1; continue
 
             if line.startswith('raikou '):
@@ -588,6 +772,9 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
                 i += 1; continue
 
+            if '= new ' in line:
+                i += 1; continue
+
             if line.startswith('call '):
                 self.cpp_code.append(f'{self._indent()}{line[5:].strip()};')
                 i += 1; continue
@@ -597,6 +784,11 @@ class ccodeGen:
                 right_cpp   = self._translate_ops(right)
 
                 if left.startswith('t') and left[1:].isdigit() and left in self.temp_conditions:
+                    i += 1
+                    continue
+
+                if ('[' in left and ']' in left) or '.' in left:
+                    self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
                     i += 1
                     continue
 
@@ -622,3 +814,4 @@ class ccodeGen:
 
     def get_cpp_code(self):
         return '\n'.join(self.cpp_code)
+

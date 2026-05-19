@@ -1,0 +1,80 @@
+cm Traduccion didactica del programa C++ del profesor a lenguaje Pokemon
+cm Nota: struct, arreglos, cin, referencias &, ++, += y % no estan soportados
+cm directamente por esta gramatica, por eso se representan con estructuras equivalentes.
+
+gardevoir mostrarMensaje ps stantler mensaje pc ls
+    pikachu ps mensaje pc pyc
+lc
+
+suicune floatzel calcularPotencia ps floatzel base co entei exponente pc ls
+    floatzel resultado as 1.0 pyc
+    forretres ps entei i as 0 pyc i me exponente pyc i as i su 1 pc ls
+        resultado as resultado mu base pyc
+    lc
+    raikou resultado pyc
+lc
+
+gardevoir duplicarValores ps entei valorA co entei valorB pc ls
+    valorA as valorA mu 2 pyc
+    valorB as valorB mu 2 pyc
+    pikachu ps valorA pc pyc
+    pikachu ps valorB pc pyc
+lc
+
+entei opcion as 1 pyc
+
+doduo ls
+    pikachu cdMENU DE OPERACIONES C++cd pyc
+    pikachu cd1. Operaciones matematicas basicascd pyc
+    pikachu cd2. Demostracion whilecd pyc
+    pikachu cd3. Demostracion forcd pyc
+    pikachu cd4. Uso de funcionescd pyc
+    pikachu cd5. Uso de procedimientoscd pyc
+    pikachu cd9. Salircd pyc
+
+    swello ps opcion pc ls
+        kecleon 1 dp
+            floatzel a as 15.5 pyc
+            floatzel b as 4.5 pyc
+            floatzel suma as a su b pyc
+            floatzel resta as a re b pyc
+            floatzel multiplicacion as a mu b pyc
+            floatzel division as a di b pyc
+            pikachu ps suma pc pyc
+            pikachu ps resta pc pyc
+            pikachu ps multiplicacion pc pyc
+            pikachu ps division pc pyc
+            breloom pyc
+        kecleon 2 dp
+            entei contador as 1 pyc
+            wailord ps contador mei 5 pc ls
+                pikachu ps contador pc pyc
+                contador as contador su 1 pyc
+            lc
+            breloom pyc
+        kecleon 3 dp
+            forretres ps entei j as 2 pyc j mei 10 pyc j as j su 2 pc ls
+                pikachu ps j pc pyc
+            lc
+            breloom pyc
+        kecleon 4 dp
+            floatzel base as 2.0 pyc
+            entei exp as 3 pyc
+            floatzel res as calcularPotencia ps base co exp pc pyc
+            pikachu ps res pc pyc
+            breloom pyc
+        kecleon 5 dp
+            entei num1 as 10 pyc
+            entei num2 as 25 pyc
+            duplicarValores ps num1 co num2 pc pyc
+            breloom pyc
+        kecleon 9 dp
+            mostrarMensaje ps cdsaliendo del programa con exitocd pc pyc
+            breloom pyc
+        deoxys dp
+            mostrarMensaje ps cdopcion invalida intente de nuevocd pc pyc
+            breloom pyc
+    lc
+
+    opcion as 9 pyc
+lc wailord ps opcion ni 9 pc pyc

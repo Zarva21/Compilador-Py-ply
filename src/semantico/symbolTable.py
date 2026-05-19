@@ -53,6 +53,60 @@ class SymbolTable:
             print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
             return True
 
+    def add_array_symbol(self, name, type_, scope, size, value=None):
+        data = {
+            'type': type_,
+            'scope': scope,
+            'value': value,
+            'kind': 'array',
+            'size': size,
+        }
+        if scope == 'global':
+            if name in self.global_scope:
+                return False
+            self.global_scope[name] = data
+            print(f" [GLOBAL] Arreglo '{name}' ({type_}[{size}]) registrado")
+            return True
+
+        current = self.current_scope()
+        if current is None or name in current:
+            return False
+        current[name] = data
+        print(f" [LOCAL]  Arreglo '{name}' ({type_}[{size}]) registrado")
+        return True
+
+    def add_struct_instance(self, name, struct_type, scope, fields):
+        data = {
+            'type': struct_type,
+            'scope': scope,
+            'value': fields,
+            'kind': 'struct_instance',
+            'fields': fields,
+        }
+        if scope == 'global':
+            if name in self.global_scope:
+                return False
+            self.global_scope[name] = data
+            print(f" [GLOBAL] Struct '{name}' ({struct_type}) registrado")
+            return True
+
+        current = self.current_scope()
+        if current is None or name in current:
+            return False
+        current[name] = data
+        print(f" [LOCAL]  Struct '{name}' ({struct_type}) registrado")
+        return True
+
+    def update_struct_field(self, name, field, value):
+        sym = self.get_symbol(name)
+        if sym is None or sym.get('kind') != 'struct_instance':
+            return False
+        fields = sym.setdefault('fields', {})
+        if field in fields:
+            fields[field]['value'] = value
+        sym['value'] = fields
+        return True
+
     def update_symbol(self, name, value):
         for scope in reversed(self.scope_stack):
             if name in scope:
@@ -91,7 +145,10 @@ class SymbolTable:
             result[name] = {
                 "type": info["type"],
                 "value": info.get("value"),
-                "scope": info.get("scope", "global")
+                "scope": info.get("scope", "global"),
+                "kind": info.get("kind", "variable"),
+                "size": info.get("size"),
+                "fields": info.get("fields"),
             }
 
         # Locales aún activos
@@ -101,7 +158,10 @@ class SymbolTable:
                     result[name] = {
                         "type": info["type"],
                         "value": info.get("value"),
-                        "scope": info.get("scope", "local")
+                        "scope": info.get("scope", "local"),
+                        "kind": info.get("kind", "variable"),
+                        "size": info.get("size"),
+                        "fields": info.get("fields"),
                     }
 
         # Locales cerrados
@@ -112,7 +172,10 @@ class SymbolTable:
                         result[name] = {
                             "type": info["type"],
                             "value": info.get("value"),
-                            "scope": info.get("scope", "local")
+                            "scope": info.get("scope", "local"),
+                            "kind": info.get("kind", "variable"),
+                            "size": info.get("size"),
+                            "fields": info.get("fields"),
                         }
 
         return result
@@ -156,6 +219,14 @@ class SymbolTable:
                 if tipo and tipo.lower() == 'charizar':
                     return f'<span class="val-real">\'{valor}\'</span>'
                 return f'<span class="val-real">"{valor}"</span>'
+            if isinstance(valor, list):
+                return f'<span class="val-real">[{", ".join(map(str, valor))}]</span>'
+            if isinstance(valor, dict):
+                parts = []
+                for key, item in valor.items():
+                    val = item.get('value') if isinstance(item, dict) else item
+                    parts.append(f"{key}:{'?' if val is None else val}")
+                return f'<span class="val-real">{{{", ".join(parts)}}}</span>'
             return f'<span class="val-real">{valor}</span>'
 
         for identifier, data in global_data.items():

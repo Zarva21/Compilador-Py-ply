@@ -10,6 +10,7 @@ os.chdir(BASE_DIR)
 from src.Extras.errores import Errors
 from src.lexer.lexer import Lexer
 from src.sintactico.parser import Parser
+from src.sintactico.preprocess import limpiar_declaraciones_incompletas
 from main import generar_html
 
 app = Flask(__name__)
@@ -55,10 +56,12 @@ def _run_analysis(codigo, nombre_archivo='editor'):
 
     # ── Análisis sintáctico + semántico ──
     parse_errors = Errors(codigo)
+    semantic_errors = Errors(codigo)
     intercode = []
     cpp_code = []
     sym_html = ''
-    hay_errores = False
+    hay_errores = lex_errors.has_errors()
+    mostrar_tabla = False
 
     try:
         from src.semantico.semantic import Semantic
@@ -68,11 +71,19 @@ def _run_analysis(codigo, nombre_archivo='editor'):
 
         sym_table = SymbolTable()
         codegen = interCodeGenerator()
-        semantic = Semantic(sym_table, parse_errors, lexer, codegen)
+        semantic = Semantic(sym_table, semantic_errors, lexer, codegen)
+        codigo_parser = limpiar_declaraciones_incompletas(codigo, parse_errors, lex_errors)
         parser = Parser(lexer, parse_errors, semantic)
-        parser.parse(codigo, execute=True)
+        parser.parse(codigo_parser, execute=True)
 
-        hay_errores = bool(lex_errors.errors or parse_errors.errors)
+        hay_errores = (
+            lex_errors.has_errors()
+            or parse_errors.has_errors()
+            or semantic_errors.has_errors()
+        )
+
+        mostrar_tabla = True
+        sym_html = sym_table.toHtml()
 
         if not hay_errores:
             semantic.optimize_intermediate_code()
@@ -83,10 +94,8 @@ def _run_analysis(codigo, nombre_archivo='editor'):
             cpp_code = gen.get_cpp_code().splitlines()
             sym_html = sym_table.toHtml()
         else:
-            try:
-                intercode = codegen.get_code()
-            except Exception:
-                pass
+            intercode = []
+            cpp_code = []
 
     except Exception as exc:
         hay_errores = True
@@ -100,11 +109,12 @@ def _run_analysis(codigo, nombre_archivo='editor'):
     # ── Generar reporte HTML ──
     lex_html   = lex_errors.errorHtml("Léxicos")
     parse_html = parse_errors.errorHtml("Sintácticos")
+    semantic_html = semantic_errors.errorHtml("Semánticos")
 
     html_reporte = generar_html(
-        tokens_raw, lex_html, parse_html,
+        tokens_raw, lex_html, parse_html, semantic_html,
         intercode, cpp_code, sym_html,
-        nombre_archivo, hay_errores
+        nombre_archivo, hay_errores, mostrar_tabla
     )
 
     nombre_base = os.path.splitext(nombre_archivo)[0]
@@ -134,6 +144,7 @@ def _run_analysis(codigo, nombre_archivo='editor'):
         'tokens': tokens_list,
         'lex_errors': lex_errors.errors,
         'parse_errors': parse_errors.errors,
+        'semantic_errors': semantic_errors.errors,
         'sym_html': sym_html,
         'intercode': intercode,
         'cpp_code': cpp_code,

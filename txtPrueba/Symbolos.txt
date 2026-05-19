@@ -1,6 +1,6 @@
 entei a as 5 pyc
 entei b as 10 pyc
-stantler c as csxcs pyc
+stantler c as cdxcd pyc
 charizar d as cszcs pyc
 
 a as a su b pyc

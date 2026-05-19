@@ -1,0 +1,10 @@
+boofalant activo as trumbeak pyc
+boofalant permiso as falinks pyc
+
+boofalant resultado1 as activo andor permiso pyc
+boofalant resultado2 as activo oror permiso pyc
+boofalant resultado3 as not activo pyc
+
+pikachu ps resultado1 pc pyc
+pikachu ps resultado2 pc pyc
+pikachu ps resultado3 pc pyc

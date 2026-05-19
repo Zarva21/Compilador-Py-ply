@@ -1,0 +1,5 @@
+entei numeros cora 3 corc as ls 1 co 2 co 3 co 4 lc pyc
+floatzel f as 1.5 pyc
+entei r as numeros cora f corc pyc
+stantler texto as cdhola cd pyc
+numeros cora 1 corc as texto pyc

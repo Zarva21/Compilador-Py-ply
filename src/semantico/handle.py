@@ -42,7 +42,94 @@ def _save_iteration_state(self):
 _LOOP_MODIFIED = object()
 
 
+def make_literal(tipo, valor):
+    return {'kind': 'literal', 'type': tipo, 'value': valor}
+
+
+def _is_literal(val):
+    return isinstance(val, dict) and val.get('kind') == 'literal'
+
+
+def make_array_access(name, index):
+    return {'kind': 'array_access', 'name': name, 'index': index}
+
+
+def _is_array_access(val):
+    return isinstance(val, dict) and val.get('kind') == 'array_access'
+
+
+def make_field_access(name, field):
+    return {'kind': 'field_access', 'name': name, 'field': field}
+
+
+def _is_field_access(val):
+    return isinstance(val, dict) and val.get('kind') == 'field_access'
+
+
+def _literal_to_ir(val):
+    tipo = val.get('type')
+    valor = val.get('value')
+    if tipo == 'stantler':
+        return f'"{valor}"'
+    if tipo == 'charizar':
+        return f"'{valor}'"
+    if tipo == 'boofalant':
+        return 'true' if valor else 'false'
+    return str(valor)
+
+
+def _pos_suffix(self, name):
+    get_position = getattr(self, 'get_position', None)
+    pos = get_position(name) if callable(get_position) else None
+    if pos:
+        return f" en fila {pos[0]}, col {pos[1]}"
+    return ""
+
+
+def _ir_op(op):
+    return {
+        'su': '+',
+        're': '-',
+        'mu': '*',
+        'di': '/',
+        'mo': '%',
+        'andor': '&&',
+        'oror': '||',
+        'not': '!',
+        'ma': '>',
+        'me': '<',
+        'mai': '>=',
+        'mei': '<=',
+        'ig': '==',
+        'ni': '!=',
+    }.get(op, op)
+
+
 def _evaluate_runtime(self, val):
+    if _is_literal(val):
+        return val.get('value')
+
+    if _is_array_access(val):
+        sym = self.symbol_table.get_symbol(val['name'])
+        if sym is None or sym.get('kind') != 'array':
+            return None
+        values = sym.get('value')
+        index = _evaluate_runtime(self, val['index'])
+        if not isinstance(values, list) or not isinstance(index, int):
+            return None
+        if 0 <= index < len(values):
+            return values[index]
+        return None
+
+    if _is_field_access(val):
+        sym = self.symbol_table.get_symbol(val['name'])
+        if sym is None or sym.get('kind') != 'struct_instance':
+            return None
+        field_data = sym.get('fields', {}).get(val['field'])
+        if isinstance(field_data, dict):
+            return field_data.get('value')
+        return None
+
     # Tipos Python directos
     if isinstance(val, bool):
         return val
@@ -79,7 +166,20 @@ def _evaluate_runtime(self, val):
             return lv <= rv
 
         # Operadores aritméticos
+        if op == 'andor':
+            return (lv and rv) if isinstance(lv, bool) and isinstance(rv, bool) else None
+        if op == 'oror':
+            return (lv or rv) if isinstance(lv, bool) and isinstance(rv, bool) else None
+
         return _apply_operator(self, lv, op, rv)
+
+    if isinstance(val, tuple) and len(val) == 2 and val[0] == 'not':
+        operand = _evaluate_runtime(self, val[1])
+        if operand is _LOOP_MODIFIED:
+            return _LOOP_MODIFIED
+        if operand is None:
+            return None
+        return not operand if isinstance(operand, bool) else None
 
     # String: puede ser variable, literal o booleano textual
     if isinstance(val, str):
@@ -130,6 +230,22 @@ class TypedCall:
 # _infer_type
 # ─────────────────────────────────────────────────────────────────────────────
 def _infer_type(self, val):
+    if _is_literal(val):
+        return val.get('type', 'unknown')
+
+    if _is_array_access(val):
+        sym = self.symbol_table.get_symbol(val['name'])
+        if sym is not None and sym.get('kind') == 'array':
+            return sym.get('type', 'unknown')
+        return 'unknown'
+
+    if _is_field_access(val):
+        sym = self.symbol_table.get_symbol(val['name'])
+        if sym is None or sym.get('kind') != 'struct_instance':
+            return 'unknown'
+        struct_type = sym.get('type')
+        fields = getattr(self, 'struct_types', {}).get(struct_type, {})
+        return fields.get(val['field'], 'unknown')
     
     if isinstance(val, TypedCall):
         return val.return_type
@@ -138,14 +254,23 @@ def _infer_type(self, val):
         l, op, r = val
 
         relational_ops = {'ma', 'me', 'mai', 'mei', 'ig', 'ni'}
-        arithmetic_ops = {'+', '-', '*', '/', 'su', 're', 'mu', 'di'}
+        logical_ops = {'andor', 'oror', '&&', '||'}
+        arithmetic_ops = {'+', '-', '*', '/', '%', 'su', 're', 'mu', 'di', 'mo'}
 
         if op in relational_ops:
+            return 'boofalant'
+
+        if op in logical_ops:
             return 'boofalant'
 
         if op in arithmetic_ops:
             lt = _infer_type(self, l)
             rt = _infer_type(self, r)
+
+            if op in ('mo', '%'):
+                if lt == 'entei' and rt == 'entei':
+                    return 'entei'
+                return 'unknown'
 
             if lt == 'floatzel' or rt == 'floatzel':
                 return 'floatzel'
@@ -153,6 +278,9 @@ def _infer_type(self, val):
                 return 'entei'
 
         return 'unknown'
+
+    if isinstance(val, tuple) and len(val) == 2 and val[0] == 'not':
+        return 'boofalant'
 
     if isinstance(val, bool):
         return 'boofalant'
@@ -216,12 +344,24 @@ def validate_boolean_expression(self, expr):
 # ─────────────────────────────────────────────────────────────────────────────
 def _check_type_compatibility(self, type_l, op, type_r):
     numeric = {'entei', 'floatzel'}
+    op_norm = {
+        'su': '+', 're': '-', 'mu': '*', 'di': '/', 'mo': '%',
+        'andor': '&&', 'oror': '||',
+    }.get(op, op)
 
     if 'unknown' in (type_l, type_r):
         return None
 
+    if op_norm in ('&&', '||'):
+        if type_l == 'boofalant' and type_r == 'boofalant':
+            return None
+        return (
+            f"Error semántico: operador '{op}' solo permite operandos 'boofalant'. "
+            f"Se encontró '{type_l}' y '{type_r}'."
+        )
+
     if type_l == 'stantler' or type_r == 'stantler':
-        if type_l == 'stantler' and type_r == 'stantler' and op == '+':
+        if type_l == 'stantler' and type_r == 'stantler' and op_norm == '+':
             return None
         other = type_r if type_l == 'stantler' else type_l
         return (
@@ -230,15 +370,23 @@ def _check_type_compatibility(self, type_l, op, type_r):
             f"Ambos operandos deben ser del mismo tipo."
         )
 
+    if op_norm == '%':
+        if type_l == 'entei' and type_r == 'entei':
+            return None
+        return (
+            f"Error semántico: operador 'mo' (%) solo permite operandos 'entei'. "
+            f"Se encontró '{type_l}' y '{type_r}'."
+        )
+
     if type_l == 'charizar' or type_r == 'charizar':
-        if op in ('+', '-', '*', '/'):
+        if op_norm in ('+', '-', '*', '/', '%'):
             return (
                 f"Error semántico: operación aritmética '{op}' "
                 f"no permitida con tipo 'charizar'."
             )
 
     if type_l == 'boofalant' or type_r == 'boofalant':
-        if op in ('+', '-', '*', '/'):
+        if op_norm in ('+', '-', '*', '/', '%'):
             return (
                 f"Error semántico: operación aritmética '{op}' "
                 f"no permitida con tipo 'boofalant'."
@@ -254,20 +402,94 @@ def _check_type_compatibility(self, type_l, op, type_r):
 # _resolve_ir
 # ─────────────────────────────────────────────────────────────────────────────
 def _resolve_ir(self, val):
+    if _is_literal(val):
+        return _literal_to_ir(val)
+
+    if _is_array_access(val):
+        name = val['name']
+        index_expr = val['index']
+        sym = self.symbol_table.get_symbol(name)
+        if sym is None:
+            self.errors.encolar_error(f"Error semántico: arreglo '{name}' no declarado{_pos_suffix(self, name)}.")
+            return '?'
+        if sym.get('kind') != 'array':
+            self.errors.encolar_error(f"Error semántico: '{name}' no es un arreglo{_pos_suffix(self, name)}.")
+            return '?'
+
+        index_type = _infer_type(self, index_expr)
+        if index_type != 'unknown' and index_type != 'entei':
+            self.errors.encolar_error(
+                f"Error semántico: el índice de '{name}' debe ser 'entei', no '{index_type}'{_pos_suffix(self, name)}."
+            )
+            return '?'
+
+        index_value = _evaluate_runtime(self, index_expr)
+        size = sym.get('size')
+        if isinstance(index_value, int) and isinstance(size, int) and not (0 <= index_value < size):
+            self.errors.encolar_error(
+                f"Error semántico: índice {index_value} fuera de rango para arreglo '{name}' de tamaño {size}{_pos_suffix(self, name)}."
+            )
+            return '?'
+
+        index_ir = _resolve_ir(self, index_expr)
+        if index_ir == '?':
+            return '?'
+        temp = self.intercode_generator.new_temp()
+        self.intercode_generator.emit(f"{temp} = {name}[{index_ir}]")
+        return temp
+
+    if _is_field_access(val):
+        name = val['name']
+        field = val['field']
+        sym = self.symbol_table.get_symbol(name)
+        if sym is None:
+            self.errors.encolar_error(f"Error semántico: variable struct '{name}' no declarada{_pos_suffix(self, name)}.")
+            return '?'
+        if sym.get('kind') != 'struct_instance':
+            self.errors.encolar_error(f"Error semántico: '{name}' no es una instancia de struct{_pos_suffix(self, name)}.")
+            return '?'
+        struct_type = sym.get('type')
+        fields = getattr(self, 'struct_types', {}).get(struct_type, {})
+        if field not in fields:
+            self.errors.encolar_error(
+                f"Error semántico: campo '{field}' no existe en struct '{struct_type}'{_pos_suffix(self, name)}."
+            )
+            return '?'
+        temp = self.intercode_generator.new_temp()
+        self.intercode_generator.emit(f"{temp} = {name}.{field}")
+        return temp
+
     if isinstance(val, tuple) and len(val) == 3:
         l, op, r = val
         lv = _resolve_ir(self, l)
         rv = _resolve_ir(self, r)
 
-        type_l = _infer_type(self, lv)
-        type_r = _infer_type(self, rv)
+        type_l = _infer_type(self, l)
+        type_r = _infer_type(self, r)
         error  = _check_type_compatibility(self, type_l, op, type_r)
         if error:
             self.errors.encolar_error(error)
             return '?'
 
         temp = self.intercode_generator.new_temp()
-        self.intercode_generator.emit(f"{temp} = {lv} {op} {rv}")
+        self.intercode_generator.emit(f"{temp} = {lv} {_ir_op(op)} {rv}")
+        return temp
+
+    if isinstance(val, tuple) and len(val) == 2 and val[0] == 'not':
+        operand = val[1]
+        operand_type = _infer_type(self, operand)
+        if operand_type != 'unknown' and operand_type != 'boofalant':
+            self.errors.encolar_error(
+                f"Error semántico: operador 'not' solo permite operandos 'boofalant'. "
+                f"Se encontró '{operand_type}'."
+            )
+            return '?'
+
+        ir_val = _resolve_ir(self, operand)
+        if ir_val == '?':
+            return '?'
+        temp = self.intercode_generator.new_temp()
+        self.intercode_generator.emit(f"{temp} = !{ir_val}")
         return temp
 
     elif callable(val):
@@ -284,7 +506,18 @@ def _resolve_ir(self, val):
             return val
         if self.symbol_table.get_symbol(val) is not None:
             return val
-        return f'"{val}"'
+        try:
+            int(val)
+            return val
+        except ValueError:
+            pass
+        try:
+            float(val)
+            return val
+        except ValueError:
+            pass
+        self.errors.encolar_error(f"Error semántico: variable '{val}' no declarada{_pos_suffix(self, val)}.")
+        return '?'
     else:
         return str(val)
 
@@ -294,6 +527,10 @@ def _resolve_ir(self, val):
 # ─────────────────────────────────────────────────────────────────────────────
 def _apply_operator(self, a, op, b):
     try:
+        op = {
+            'su': '+', 're': '-', 'mu': '*', 'di': '/', 'mo': '%',
+            'andor': '&&', 'oror': '||',
+        }.get(op, op)
         if a is None or b is None:
             return None
         if op == '+':
@@ -311,6 +548,15 @@ def _apply_operator(self, a, op, b):
                 self.errors.encolar_error("Error semántico: división por cero.")
                 return None
             return a / b if isinstance(a, (int, float)) and isinstance(b, (int, float)) else None
+        if op == '%':
+            if b == 0:
+                self.errors.encolar_error("Error semántico: módulo por cero.")
+                return None
+            return a % b if isinstance(a, int) and isinstance(b, int) else None
+        if op == '&&':
+            return (a and b) if isinstance(a, bool) and isinstance(b, bool) else None
+        if op == '||':
+            return (a or b) if isinstance(a, bool) and isinstance(b, bool) else None
     except Exception:
         pass
     return None
@@ -332,6 +578,9 @@ def _check_declaration_type(self, name, var_type, value):
     if isinstance(value, tuple):
         return None
 
+    if isinstance(value, str) and self.symbol_table.get_symbol(value) is None:
+        return f"Error semántico: variable '{value}' no declarada{_pos_suffix(self, value)}."
+
     if var_type.lower() == 'charizar' and isinstance(value, str):
         contenido = value
         if contenido.startswith("'") and contenido.endswith("'"):
@@ -341,7 +590,7 @@ def _check_declaration_type(self, name, var_type, value):
                 f"Error semántico: variable '{name}' es de tipo 'charizar' "
                 f"y solo puede contener exactamente 1 carácter, "
                 f"pero se asignó '{contenido}' ({len(contenido)} caracteres). "
-                f"¿Quisiste usar 'stantler' para strings?"
+                f"¿Quisiste usar 'stantler' para strings?{_pos_suffix(self, name)}"
             )
 
     inferred = _infer_type(self, value if not isinstance(value, str) else value)
@@ -361,7 +610,7 @@ def _check_declaration_type(self, name, var_type, value):
     if inferred != 'unknown' and inferred not in allowed:
         return (
             f"Error semántico: no se puede asignar valor de tipo '{inferred}' "
-            f"a variable '{name}' declarada como '{var_type}'."
+            f"a variable '{name}' declarada como '{var_type}'{_pos_suffix(self, name)}."
         )
     return None
 
@@ -414,7 +663,7 @@ def handle_declaration(self, name, var_type,value=None):
 
         # 2. Emitir IR
         if value is not None:
-            if isinstance(value, tuple) and len(value) == 3:
+            if isinstance(value, tuple) or _is_array_access(value) or _is_field_access(value):
                 ir_val = _resolve_ir(self, value)
                 if ir_val != '?':
                     error = _check_declaration_type(self, name, var_type, value)
@@ -434,7 +683,9 @@ def handle_declaration(self, name, var_type,value=None):
 
                 ir_value = value
 
-                if isinstance(value, bool):
+                if _is_literal(value):
+                    ir_value = _literal_to_ir(value)
+                elif isinstance(value, bool):
                     ir_value = 'true' if value else 'false'
 
                 elif isinstance(value, str):
@@ -470,13 +721,13 @@ def handle_assignment(self, name, value):
     def action():
         sym = self.symbol_table.get_symbol(name)
         if sym is None:
-            self.errors.encolar_error(f"Error semántico: variable '{name}' no declarada.")
+            self.errors.encolar_error(f"Error semántico: variable '{name}' no declarada{_pos_suffix(self, name)}.")
             return
 
         var_type = sym['type']
 
         # 1. Emitir IR
-        if isinstance(value, tuple) and len(value) == 3:
+        if isinstance(value, tuple) or _is_array_access(value) or _is_field_access(value):
             ir_val = _resolve_ir(self, value)
             if ir_val == '?':
                 return
@@ -495,7 +746,9 @@ def handle_assignment(self, name, value):
 
             ir_value = value
 
-            if isinstance(value, bool):
+            if _is_literal(value):
+                ir_value = _literal_to_ir(value)
+            elif isinstance(value, bool):
                 ir_value = 'true' if value else 'false'
 
             elif isinstance(value, str):
@@ -528,6 +781,285 @@ def handle_assignment(self, name, value):
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_expression_statement
 # ─────────────────────────────────────────────────────────────────────────────
+def _format_array_value_for_ir(self, value):
+    if _is_literal(value):
+        return _literal_to_ir(value)
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    if isinstance(value, tuple) or _is_array_access(value):
+        return _resolve_ir(self, value)
+    if isinstance(value, str):
+        sym = self.symbol_table.get_symbol(value)
+        if sym is not None:
+            return value
+        return f'"{value}"'
+    return str(value)
+
+
+def _format_value_for_ir(self, value):
+    if _is_literal(value):
+        return _literal_to_ir(value)
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    if isinstance(value, tuple) or _is_array_access(value) or _is_field_access(value):
+        return _resolve_ir(self, value)
+    if isinstance(value, str):
+        sym = self.symbol_table.get_symbol(value)
+        if sym is not None:
+            return value
+        return f'"{value}"'
+    return str(value)
+
+
+def _normalize_array_runtime_value(var_type, value):
+    raw = value.get('value') if _is_literal(value) else value
+    return _normalize_string_value(var_type, raw)
+
+
+def handle_struct_declaration(self, name, fields):
+    def action():
+        if name in getattr(self, 'struct_types', {}):
+            self.errors.encolar_error(f"Error semántico: estructura '{name}' ya declarada{_pos_suffix(self, name)}.")
+            return
+
+        allowed = {'entei', 'floatzel', 'charizar', 'boofalant', 'stantler'}
+        field_map = {}
+        for field_type, field_name in fields:
+            if field_type not in allowed:
+                self.errors.encolar_error(
+                    f"Error semántico: campo '{field_name}' usa tipo no permitido '{field_type}' en estructura '{name}'."
+                )
+                return
+            if field_name in field_map:
+                self.errors.encolar_error(
+                    f"Error semántico: campo duplicado '{field_name}' en estructura '{name}'."
+                )
+                return
+            field_map[field_name] = field_type
+
+        self.struct_types[name] = field_map
+        self.intercode_generator.emit(f"struct {name}")
+        for field_name, field_type in field_map.items():
+            self.intercode_generator.emit(f"field {name} {field_name} {field_type}")
+
+    return action
+
+
+def handle_struct_instance_declaration(self, struct_name, var_name):
+    def action():
+        if struct_name not in getattr(self, 'struct_types', {}):
+            self.errors.encolar_error(f"Error semántico: estructura '{struct_name}' no declarada{_pos_suffix(self, struct_name)}.")
+            return
+
+        fields = {
+            field: {'type': field_type, 'value': None}
+            for field, field_type in self.struct_types[struct_name].items()
+        }
+        actual_scope = 'global' if len(self.symbol_table.scope_stack) == 1 else 'local'
+        registered = self.symbol_table.add_struct_instance(var_name, struct_name, actual_scope, fields)
+        if not registered:
+            self.errors.encolar_error(f"Error semántico: variable '{var_name}' ya declarada. ¿Quisiste asignar?")
+            return
+
+        self.intercode_generator.emit(f"{var_name} = new {struct_name}")
+
+    return action
+
+
+def handle_field_assignment(self, var_name, field_name, value):
+    def action():
+        sym = self.symbol_table.get_symbol(var_name)
+        if sym is None:
+            self.errors.encolar_error(f"Error semántico: variable struct '{var_name}' no declarada{_pos_suffix(self, var_name)}.")
+            return
+        if sym.get('kind') != 'struct_instance':
+            self.errors.encolar_error(f"Error semántico: '{var_name}' no es una instancia de struct{_pos_suffix(self, var_name)}.")
+            return
+
+        struct_type = sym.get('type')
+        fields = getattr(self, 'struct_types', {}).get(struct_type, {})
+        if field_name not in fields:
+            self.errors.encolar_error(
+                f"Error semántico: campo '{field_name}' no existe en struct '{struct_type}'{_pos_suffix(self, var_name)}."
+            )
+            return
+
+        field_type = fields[field_name]
+        error = _check_declaration_type(self, f"{var_name}.{field_name}", field_type, value)
+        if error:
+            self.errors.encolar_error(error)
+            return
+
+        value_ir = _format_value_for_ir(self, value)
+        if value_ir == '?':
+            return
+        self.intercode_generator.emit(f"{var_name}.{field_name} = {value_ir}")
+
+        raw = _evaluate_runtime(self, value)
+        if raw is not None:
+            self.symbol_table.update_struct_field(
+                var_name,
+                field_name,
+                _normalize_string_value(field_type, raw),
+            )
+
+    return action
+
+
+def handle_array_declaration(self, name, var_type, size_expr, values=None):
+    def action():
+        size_type = _infer_type(self, size_expr)
+        if size_type != 'unknown' and size_type != 'entei':
+            self.errors.encolar_error(
+                f"Error semántico: el tamaño del arreglo '{name}' debe ser 'entei', no '{size_type}'{_pos_suffix(self, name)}."
+            )
+            return
+
+        size_value = _evaluate_runtime(self, size_expr)
+        if isinstance(size_value, int) and size_value <= 0:
+            self.errors.encolar_error(
+                f"Error semántico: el tamaño del arreglo '{name}' debe ser mayor que 0{_pos_suffix(self, name)}."
+            )
+            return
+
+        actual_scope = 'global' if len(self.symbol_table.scope_stack) == 1 else 'local'
+        initial_values = None if values is None else []
+        registered = self.symbol_table.add_array_symbol(
+            name, var_type, actual_scope, size_value if isinstance(size_value, int) else None, initial_values
+        )
+        if not registered:
+            self.errors.encolar_error(f"Error semántico: variable '{name}' ya declarada. ¿Quisiste asignar?")
+            return
+
+        ir_values = []
+        if values is not None:
+            if isinstance(size_value, int) and len(values) > size_value:
+                self.errors.encolar_error(
+                    f"Error semántico: arreglo '{name}' tiene tamaño {size_value}, pero recibió {len(values)} valor(es)."
+                )
+                return
+
+            normalized = []
+            for value in values:
+                error = _check_declaration_type(self, name, var_type, value)
+                if error:
+                    self.errors.encolar_error(error)
+                    return
+                ir_val = _format_array_value_for_ir(self, value)
+                if ir_val == '?':
+                    return
+                ir_values.append(ir_val)
+                normalized.append(_normalize_array_runtime_value(var_type, value))
+            self.symbol_table.update_symbol(name, normalized)
+
+        size_ir = _resolve_ir(self, size_expr)
+        if size_ir == '?':
+            return
+        self.intercode_generator.emit(f"array {name} size {size_ir}")
+        if values is not None:
+            self.intercode_generator.emit(f"array_init {name} {', '.join(ir_values)}")
+
+    return action
+
+
+def handle_array_assignment(self, name, index_expr, value):
+    def action():
+        sym = self.symbol_table.get_symbol(name)
+        if sym is None:
+            self.errors.encolar_error(f"Error semántico: arreglo '{name}' no declarado{_pos_suffix(self, name)}.")
+            return
+        if sym.get('kind') != 'array':
+            self.errors.encolar_error(f"Error semántico: '{name}' no es un arreglo{_pos_suffix(self, name)}.")
+            return
+
+        index_type = _infer_type(self, index_expr)
+        if index_type != 'unknown' and index_type != 'entei':
+            self.errors.encolar_error(
+                f"Error semántico: el índice de '{name}' debe ser 'entei', no '{index_type}'{_pos_suffix(self, name)}."
+            )
+            return
+
+        index_value = _evaluate_runtime(self, index_expr)
+        size = sym.get('size')
+        if isinstance(index_value, int) and isinstance(size, int) and not (0 <= index_value < size):
+            self.errors.encolar_error(
+                f"Error semántico: índice {index_value} fuera de rango para arreglo '{name}' de tamaño {size}{_pos_suffix(self, name)}."
+            )
+            return
+
+        error = _check_declaration_type(self, name, sym.get('type'), value)
+        if error:
+            self.errors.encolar_error(error)
+            return
+
+        index_ir = _resolve_ir(self, index_expr)
+        value_ir = _format_array_value_for_ir(self, value)
+        if index_ir == '?' or value_ir == '?':
+            return
+
+        self.intercode_generator.emit(f"{name}[{index_ir}] = {value_ir}")
+
+        values = sym.get('value')
+        if not getattr(self, 'en_loop', False) and isinstance(values, list) and isinstance(index_value, int):
+            while len(values) <= index_value:
+                values.append(None)
+            values[index_value] = _normalize_array_runtime_value(sym.get('type'), value)
+            self.symbol_table.update_symbol(name, values)
+
+    return action
+
+
+def handle_input(self, name):
+    def action():
+        sym = self.symbol_table.get_symbol(name)
+        if sym is None:
+            self.errors.encolar_error(
+                f"Error semántico: variable '{name}' no declarada{_pos_suffix(self, name)}."
+            )
+            return
+
+        if name in getattr(self, 'methods', {}):
+            self.errors.encolar_error(
+                f"Error semántico: '{name}' es una función y no puede recibir entrada con psyduck."
+            )
+            return
+
+        self.symbol_table.update_symbol(name, None)
+        self.intercode_generator.emit(f"cin >> {name}")
+
+    return action
+
+
+def handle_increment(self, name, delta=1):
+    def action():
+        sym = self.symbol_table.get_symbol(name)
+        if sym is None:
+            self.errors.encolar_error(
+                f"Error semántico: variable '{name}' no declarada{_pos_suffix(self, name)}."
+            )
+            return
+
+        var_type = sym.get('type')
+        if var_type not in ('entei', 'floatzel'):
+            self.errors.encolar_error(
+                f"Error semántico: incremento/decremento solo permite variables numéricas. "
+                f"'{name}' es '{var_type}'{_pos_suffix(self, name)}."
+            )
+            return
+
+        op = '+' if delta >= 0 else '-'
+        self.intercode_generator.emit(f"{name} = {name} {op} 1")
+
+        if getattr(self, 'en_loop', False):
+            return
+
+        current = sym.get('value')
+        if isinstance(current, (int, float)):
+            self.symbol_table.update_symbol(name, current + delta)
+
+    return action
+
+
 def handle_expression_statement(self, expr, line=None):
     """
     Detecta si la expresión tiene efecto lateral.
@@ -541,7 +1073,7 @@ def handle_expression_statement(self, expr, line=None):
             return
 
         # Cualquier otra expresión suelta (aritmética, literal, variable) -> sin efecto
-        line_info = f" en línea {line}" if line else ""
+        line_info = f" en fila {line}, col 1" if line else ""
         self.errors.encolar_error(
             f"Error semántico: expresión sin efecto{line_info}. "
             f"El resultado de la expresión no se asigna ni utiliza."
@@ -579,7 +1111,7 @@ def evaluate_condition_dynamic(self, left, op, right):
                 )
 
         temp = self.intercode_generator.new_temp()
-        self.intercode_generator.emit(f"{temp} = {left_val} {op} {right_val}")
+        self.intercode_generator.emit(f"{temp} = {left_val} {_ir_op(op)} {right_val}")
         condition_fn.temp_result = temp
         return True
 
@@ -595,7 +1127,7 @@ def handle_expression(self, left, operator, right):
         lv   = _resolve_ir(self, left)
         rv   = _resolve_ir(self, right)
         temp = self.intercode_generator.new_temp()
-        self.intercode_generator.emit(f"{temp} = {lv} {operator} {rv}")
+        self.intercode_generator.emit(f"{temp} = {lv} {_ir_op(operator)} {rv}")
         return temp
     return action
 
@@ -663,6 +1195,7 @@ def handle_while(self, condition_expr, body):
         self.en_loop = True
 
         self.push_break_context(end_label)
+        self.push_continue_context(start_label)
 
         self.symbol_table.enter_scope()
         for stmt in body:
@@ -670,6 +1203,7 @@ def handle_while(self, condition_expr, body):
                 stmt()
         self.symbol_table.exit_scope()
 
+        self.pop_continue_context()
         self.pop_break_context()
 
         self.en_loop = prev_loop
@@ -685,6 +1219,7 @@ def handle_for(self, init_stmt, condition_expr, update_stmt, body):
     def action():
         start_label = self.intercode_generator.new_label()
         end_label   = self.intercode_generator.new_label()
+        continue_label = self.intercode_generator.new_label()
 
         if callable(init_stmt):
             init_stmt()
@@ -705,6 +1240,7 @@ def handle_for(self, init_stmt, condition_expr, update_stmt, body):
         self.en_loop = True
 
         self.push_break_context(end_label)
+        self.push_continue_context(continue_label)
 
         self.symbol_table.enter_scope()
         for stmt in body:
@@ -712,9 +1248,13 @@ def handle_for(self, init_stmt, condition_expr, update_stmt, body):
                 stmt()
         self.symbol_table.exit_scope()
 
+        self.intercode_generator.emit("// CONTINUE_LABEL")
+        self.intercode_generator.emit(f"{continue_label}:")
+
         if callable(update_stmt):
             update_stmt()
 
+        self.pop_continue_context()
         self.pop_break_context()
 
         self.en_loop = prev_loop
@@ -738,6 +1278,7 @@ def handle_do_while(self, condition_expr, body):
         self.en_loop = True
 
         self.push_break_context(end_label)
+        self.push_continue_context(start_label)
 
         self.symbol_table.enter_scope()
         for stmt in body:
@@ -745,6 +1286,7 @@ def handle_do_while(self, condition_expr, body):
                 stmt()
         self.symbol_table.exit_scope()
 
+        self.pop_continue_context()
         self.pop_break_context()
 
         self.en_loop = prev_loop

@@ -2,6 +2,16 @@ class Optimize:
     def __init__(self, ir):
         self.ir = ir
 
+    def _invert_relation(self, op):
+        return {
+            '<': '>=',
+            '>': '<=',
+            '<=': '>',
+            '>=': '<',
+            '==': '!=',
+            '!=': '==',
+        }.get(op)
+
     def remove_end_statements(self):
         # NO eliminar 'end' — son cierres de función necesarios
         pass
@@ -29,8 +39,10 @@ class Optimize:
 
                 is_call      = 'call ' in expr1          # t0 = call func(...)
                 is_used_next = expr2.strip() == left1.strip()
+                is_array_write = '[' in left1 and ']' in left1
+                is_field_write = '.' in left1
 
-                if is_used_next and not is_call:
+                if is_used_next and not is_call and not is_array_write and not is_field_write:
                     # colapsar: reemplazar t0 con la expresión directamente
                     optimized_ir.append(f"{left2.strip()} = {expr1.strip()}")
                     i += 2
@@ -58,6 +70,44 @@ class Optimize:
             optimized_ir.append(line)
         self.ir = optimized_ir
 
+    def simplify_condition_temporaries(self):
+        optimized_ir = []
+        i = 0
+
+        while i < len(self.ir):
+            line = self.ir[i].strip()
+            next_line = self.ir[i + 1].strip() if i + 1 < len(self.ir) else ''
+
+            if '=' in line and next_line.startswith('if'):
+                left, expr = map(str.strip, line.split('=', 1))
+                parts = expr.split()
+
+                if (
+                    left.startswith('t')
+                    and left[1:].isdigit()
+                    and len(parts) == 3
+                    and parts[1] in ('<', '>', '<=', '>=', '==', '!=')
+                    and 'goto' in next_line
+                ):
+                    target = next_line.split('goto', 1)[1].strip()
+
+                    if next_line.startswith(f"if !({left})"):
+                        inverted = self._invert_relation(parts[1])
+                        if inverted:
+                            optimized_ir.append(f"if {parts[0]} {inverted} {parts[2]} goto {target}")
+                            i += 2
+                            continue
+
+                    if next_line.startswith(f"if ({left})"):
+                        optimized_ir.append(f"if {expr} goto {target}")
+                        i += 2
+                        continue
+
+            optimized_ir.append(line)
+            i += 1
+
+        self.ir = optimized_ir
+
     def optimize_conditionals(self):
         optimized_ir = []
         i = 0
@@ -81,13 +131,26 @@ class Optimize:
         self.ir = optimized_ir
 
     def remove_unreachable_labels(self):
+        referenced_labels = set()
+        for line in self.ir:
+            stripped = line.strip()
+            if stripped.startswith('goto'):
+                referenced_labels.add(stripped.split('goto', 1)[1].strip())
+            elif stripped.startswith('if') and 'goto' in stripped:
+                referenced_labels.add(stripped.split('goto', 1)[1].strip())
+
         optimized_ir  = []
         last_was_goto = False
         for line in self.ir:
-            if last_was_goto and line.endswith(':'):
+            stripped = line.strip()
+            if last_was_goto and stripped.endswith(':'):
+                label = stripped[:-1].strip()
+                if label in referenced_labels:
+                    optimized_ir.append(line)
+                last_was_goto = False
                 continue
             optimized_ir.append(line)
-            last_was_goto = line.strip().startswith('goto')
+            last_was_goto = stripped.startswith('goto')
         self.ir = optimized_ir
 
     def optimize_goto_chains(self):
@@ -181,6 +244,7 @@ class Optimize:
         self.remove_end_statements()
         self.remove_redundant_temporaries()
         self.simplify_trivial_operations()
+        self.simplify_condition_temporaries()
         self.optimize_conditionals()
         self.remove_unreachable_labels()
         self.optimize_goto_chains()

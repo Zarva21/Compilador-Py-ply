@@ -7,6 +7,15 @@ from src.semantico.handle import handle_assignment
 from src.semantico.handle import handle_expression
 from src.semantico.handle import handle_expression_statement   # nuevo
 from src.semantico.handle import handle_print
+from src.semantico.handle import handle_input
+from src.semantico.handle import handle_increment
+from src.semantico.handle import handle_array_declaration
+from src.semantico.handle import handle_array_assignment
+from src.semantico.handle import make_array_access
+from src.semantico.handle import handle_struct_declaration
+from src.semantico.handle import handle_struct_instance_declaration
+from src.semantico.handle import handle_field_assignment
+from src.semantico.handle import make_field_access
 from src.semantico.handle import _get_value
 from src.semantico.handle import _apply_operator
 from src.semantico.handle import _evaluate_runtime
@@ -37,6 +46,9 @@ class Semantic:
         self.current_return_type = None
         self.current_function_has_return = False
         self.break_context_stack = []
+        self.continue_context_stack = []
+        self.positions = {}
+        self.struct_types = {}
 
 
 
@@ -75,8 +87,42 @@ class Semantic:
     def handle_factor(self, value):
         return value
 
+    def set_position(self, name, line=None, col=None):
+        if isinstance(name, str) and line:
+            self.positions[name] = (line, col or 1)
+
+    def get_position(self, name):
+        return self.positions.get(name)
+
     def handle_print(self, value):
         return handle_print(self, value)
+
+    def handle_input(self, name):
+        return handle_input(self, name)
+
+    def handle_increment(self, name, delta=1):
+        return handle_increment(self, name, delta)
+
+    def handle_array_declaration(self, name, var_type, size_expr, values=None):
+        return handle_array_declaration(self, name, var_type, size_expr, values)
+
+    def handle_array_assignment(self, name, index_expr, value):
+        return handle_array_assignment(self, name, index_expr, value)
+
+    def make_array_access(self, name, index_expr):
+        return make_array_access(name, index_expr)
+
+    def handle_struct_declaration(self, name, fields):
+        return handle_struct_declaration(self, name, fields)
+
+    def handle_struct_instance_declaration(self, struct_name, var_name):
+        return handle_struct_instance_declaration(self, struct_name, var_name)
+
+    def handle_field_assignment(self, var_name, field_name, value):
+        return handle_field_assignment(self, var_name, field_name, value)
+
+    def make_field_access(self, var_name, field_name):
+        return make_field_access(var_name, field_name)
 
     def _get_value(self, item):
         return _get_value(self, item)
@@ -132,6 +178,19 @@ class Semantic:
             self.intercode_generator.emit(f"goto {target}")
         return action
 
+    def handle_continue(self, line=None, col=None):
+        def action():
+            target = self.current_continue_context()
+            if target is None:
+                pos = f" en fila {line}, col {col}" if line else ""
+                self.errors.encolar_error(
+                    f"Error semántico: 'pidgey' solo puede usarse dentro de while, for o do-while{pos}."
+                )
+                return
+            self.intercode_generator.emit("// CONTINUE")
+            self.intercode_generator.emit(f"goto {target}")
+        return action
+
     def handle_return(self, value):
         def action():
             if self.current_return_type is None:
@@ -184,3 +243,13 @@ class Semantic:
 
     def current_break_context(self):
         return self.break_context_stack[-1] if self.break_context_stack else None
+
+    def push_continue_context(self, label):
+        self.continue_context_stack.append(label)
+
+    def pop_continue_context(self):
+        if self.continue_context_stack:
+            self.continue_context_stack.pop()
+
+    def current_continue_context(self):
+        return self.continue_context_stack[-1] if self.continue_context_stack else None

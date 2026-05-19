@@ -27,6 +27,15 @@ def sugerir_palabra_reservada(palabra, reservadas, umbral=3):
     return mejor if menor_dist <= umbral else None
 
 
+PALABRAS_RESERVADAS_SUGERIBLES = {
+    'entei', 'floatzel', 'charizar', 'boofalant', 'stantler',
+    'evee', 'ekans', 'wailord', 'doduo', 'forretres',
+    'swello', 'kecleon', 'deoxys', 'breloom', 'pikachu',
+    'raikou', 'suicune', 'gardevoir', 'psyduck', 'pidgey',
+    'masmas', 'menosmenos', 'andor', 'oror', 'not', 'estructura',
+}
+
+
 
 #Se indica para cada token
 class Lexer:
@@ -50,6 +59,11 @@ class Lexer:
     'return':   'raikou',
     'function': 'suicune',
     'void':     'gardevoir',
+    'cin':      'psyduck',
+    'continue': 'pidgey',
+    'and':      'andor',
+    'or':       'oror',
+    'not':      'not',
     'println':  'pikachu',
     'printf':   'pikachu',
     'cout':     'pikachu',
@@ -60,7 +74,8 @@ class Lexer:
         'LPAREN', 'RPAREN', 'GT', 'LT', 'DOT', 'COMMA', 
         'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'BOOLEAN_LITERAL', 'COLON',
 
-        'MAS', 'MENOS', 'MUL', 'DIV'
+        'MAS', 'MENOS', 'MUL', 'DIV', 'MOD', 'MASMAS', 'MENOSMENOS',
+        'ANDOR', 'OROR', 'NOT', 'LBRACKET', 'RBRACKET'
     ]
 
     reserved = {
@@ -81,6 +96,9 @@ class Lexer:
         'deoxys' : 'DEOXYS',
         'breloom' : 'BRELOOM',
         'pikachu': 'PIKACHU',
+        'psyduck': 'PSYDUCK',
+        'pidgey': 'PIDGEY',
+        'estructura': 'ESTRUCTURA',
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
         'gardevoir' : 'GARDEVOIR',
@@ -91,6 +109,8 @@ class Lexer:
         'pyc' : 'SEMICOLON',
         'ls'  : 'LBRACE',
         'lc'  : 'RBRACE',
+        'cora': 'LBRACKET',
+        'corc': 'RBRACKET',
         'ps'  : 'LPAREN',
         'pc'  : 'RPAREN',
         'ma'  : 'GT',
@@ -102,6 +122,12 @@ class Lexer:
         're'  : 'MENOS',
         'mu'  : 'MUL',
         'di'  : 'DIV',
+        'mo'  : 'MOD',
+        'masmas' : 'MASMAS',
+        'menosmenos' : 'MENOSMENOS',
+        'andor' : 'ANDOR',
+        'oror'  : 'OROR',
+        'not'   : 'NOT',
         # Operadores relacionales
         'mei' : 'RELOP',
         'mai' : 'RELOP',
@@ -126,6 +152,7 @@ class Lexer:
         self.lexer = lex.lex(module=self)
 
     def tokenize(self, data):
+        self.lexer.lineno = 1
         self.lexer.input(data)
         tokens = []
         for tok in self.lexer:
@@ -163,8 +190,8 @@ class Lexer:
         return None
 
     def t_BOOLEAN_LITERAL(self, t):
-        r'trumbeak|falinks'
-        if t.value == 'trumbeak':
+        r'trumbeak|falinks|true|false'
+        if t.value in ('trumbeak', 'true'):
             t.value = True
         else:
             t.value = False
@@ -209,9 +236,14 @@ class Lexer:
                 # Primero revisa si es una palabra de otro lenguaje (int, if, etc.)
                 sugerencia = self.SUGERENCIAS_LEXICAS.get(t.value.lower())
 
-                # Si no, usa Levenshtein para ver si se parece a una palabra reservada
+                # Si no, usa Levenshtein solo contra reservadas largas.
+                # Evita falsos positivos como variables "base" -> "as" o "suma" -> "ma".
                 if not sugerencia:
-                    sugerencia = sugerir_palabra_reservada(t.value, self.reserved.keys(), umbral=2)
+                    sugerencia = sugerir_palabra_reservada(
+                        t.value,
+                        PALABRAS_RESERVADAS_SUGERIBLES,
+                        umbral=1
+                    )
 
                 if sugerencia:
                     fila, col = self.get_pos(t)

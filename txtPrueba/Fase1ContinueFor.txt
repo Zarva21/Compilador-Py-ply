@@ -1,0 +1,6 @@
+entei suma as 0 pyc
+
+forretres ps entei i as 0 pyc i me 3 pyc i masmas pc ls
+    pidgey pyc
+    suma as suma su i pyc
+lc

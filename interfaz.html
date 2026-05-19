@@ -414,6 +414,13 @@
       </div>
     </div>
 
+    <div class="gb-view" id="view-semantic-errors">
+      <div class="r-wrap">
+        <div class="r-sec">ERRORES SEMANTICOS</div>
+        <div id="r-semantic-body"><div class="r-empty">-- ANALIZA PRIMERO --</div></div>
+      </div>
+    </div>
+
     <div class="gb-view" id="view-symbols">
       <div class="r-wrap">
         <div class="r-sec">TABLA DE SIMBOLOS</div>
@@ -466,6 +473,9 @@
       </li>
       <li class="menu-item" data-view="parse-errors">
         <span class="cur">►</span>SINTACT.
+      </li>
+      <li class="menu-item" data-view="semantic-errors">
+        <span class="cur">►</span>SEMANT.
       </li>
       <li class="menu-item" data-view="symbols">
         <span class="cur">►</span>SIMBOLOS
@@ -630,7 +640,9 @@ async function doAnalyze() {
     const data = await res.json();
     renderAll(data);
 
-    const errCount = (data.lex_errors||[]).length + (data.parse_errors||[]).length;
+    const errCount = (data.lex_errors||[]).length
+      + (data.parse_errors||[]).length
+      + (data.semantic_errors||[]).length;
     setHp(errCount);
 
     // Mostrar notificación del reporte generado
@@ -640,7 +652,9 @@ async function doAnalyze() {
 
     if (errCount > 0) {
       setStatus(errCount + ' ERRORES!');
-      const dest = (data.lex_errors||[]).length > 0 ? 'lex-errors' : 'parse-errors';
+      const dest = (data.lex_errors||[]).length > 0
+        ? 'lex-errors'
+        : ((data.parse_errors||[]).length > 0 ? 'parse-errors' : 'semantic-errors');
       selectItem(dest); goToView(dest);
       setBar('RESULTADO', 'ERRORES');
     } else {
@@ -690,8 +704,9 @@ function renderAll(data) {
   renderTokens(data.tokens      || []);
   renderErrors('lex',   data.lex_errors   || []);
   renderErrors('parse', data.parse_errors || []);
+  renderErrors('semantic', data.semantic_errors || []);
   renderSymbols(data.sym_html   || '');
-  renderIntercode(data.intercode || [], data.cpp_code || []);
+  renderIntercode(data.intercode || [], data.cpp_code || [], !!data.hay_errores);
 }
 
 function renderTokens(tokens) {
@@ -724,8 +739,12 @@ function renderSymbols(symHtml) {
   el.innerHTML = '<div class="sym-wrap">' + symHtml + '</div>';
 }
 
-function renderIntercode(intercode, cppCode) {
+function renderIntercode(intercode, cppCode, hayErrores) {
   const el = $('r-inter-body');
+  if (hayErrores) {
+    el.innerHTML = '<div class="r-empty">-- NO SE GENERA CODIGO CON ERRORES --</div>';
+    return;
+  }
   function block(title, lines) {
     if (!lines || !lines.length)
       return `<div class="r-code-block"><div class="r-code-hdr">${esc(title)}</div><div class="r-code-body">-- NO DISPONIBLE --</div></div>`;

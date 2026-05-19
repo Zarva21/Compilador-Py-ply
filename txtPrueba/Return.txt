@@ -4,7 +4,7 @@ suicune entei sumar ps entei a co entei b pc ls
 lc
 
 gardevoir imprimirMensaje ps pc ls
-    stantler mensaje as csHolacs pyc
+    stantler mensaje as cdHolacd pyc
     pikachu ps mensaje pc pyc
 lc
 
