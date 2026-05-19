@@ -1,0 +1,12 @@
+gardevoir duplicar ps ref entei a co ref entei b pc ls
+    a as a mu 2 pyc
+    b as b mu 2 pyc
+lc
+
+entei a as 10 pyc
+entei b as 25 pyc
+
+duplicar ps a co b pc pyc
+
+pikachu ps a pc pyc
+pikachu ps b pc pyc

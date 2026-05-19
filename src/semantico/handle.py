@@ -66,6 +66,30 @@ def _is_field_access(val):
     return isinstance(val, dict) and val.get('kind') == 'field_access'
 
 
+BASIC_TYPES = {'entei', 'floatzel', 'charizar', 'boofalant', 'stantler'}
+
+
+def _param_parts(param):
+    if isinstance(param, dict):
+        return param.get('type'), param.get('name'), bool(param.get('is_ref'))
+    if isinstance(param, (tuple, list)) and len(param) == 3:
+        return param[0], param[1], bool(param[2])
+    if isinstance(param, (tuple, list)) and len(param) == 2:
+        return param[0], param[1], False
+    return 'unknown', '?', False
+
+
+def _runtime_env_value(self, name):
+    for env in reversed(getattr(self, 'partial_eval_env_stack', [])):
+        if name in env:
+            return env[name]
+    return None
+
+
+def _has_runtime_env_value(self, name):
+    return any(name in env for env in getattr(self, 'partial_eval_env_stack', []))
+
+
 def _literal_to_ir(val):
     tipo = val.get('type')
     valor = val.get('value')
@@ -108,6 +132,9 @@ def _ir_op(op):
 def _evaluate_runtime(self, val):
     if _is_literal(val):
         return val.get('value')
+
+    if isinstance(val, TypedCall):
+        return val.evaluate_runtime()
 
     if _is_array_access(val):
         sym = self.symbol_table.get_symbol(val['name'])
@@ -207,6 +234,9 @@ def _evaluate_runtime(self, val):
             pass
 
         # Buscar en tabla de símbolos
+        if _has_runtime_env_value(self, val):
+            return _runtime_env_value(self, val)
+
         sym = self.symbol_table.get_symbol(val)
         if sym is not None:
             return sym.get('value')
@@ -217,13 +247,19 @@ def _evaluate_runtime(self, val):
     return None
 
 class TypedCall:
-    def __init__(self, fn, return_type, name):
+    def __init__(self, fn, return_type, name, runtime_fn=None):
         self.fn = fn
         self.return_type = return_type
         self.name = name
+        self.runtime_fn = runtime_fn
 
     def __call__(self):
         return self.fn()
+
+    def evaluate_runtime(self):
+        if callable(self.runtime_fn):
+            return self.runtime_fn()
+        return None
     
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -765,6 +801,7 @@ def handle_assignment(self, name, value):
         #    Si en_loop=True -> la variable puede cambiar N veces ->
         #    conservamos el valor estático conocido antes del loop.
         if getattr(self, 'en_loop', False):
+            self.symbol_table.update_symbol(name, None)
             return
 
         raw = _evaluate_runtime(self, value)
@@ -1051,6 +1088,7 @@ def handle_increment(self, name, delta=1):
         self.intercode_generator.emit(f"{name} = {name} {op} 1")
 
         if getattr(self, 'en_loop', False):
+            self.symbol_table.update_symbol(name, None)
             return
 
         current = sym.get('value')
@@ -1308,53 +1346,169 @@ def handle_do_while(self, condition_expr, body):
 # ─────────────────────────────────────────────────────────────────────────────
 # handle_method_call
 # ─────────────────────────────────────────────────────────────────────────────
+def _flatten_statements(stmts):
+    flat = []
+    for stmt in stmts or []:
+        if isinstance(stmt, list):
+            flat.extend(_flatten_statements(stmt))
+        else:
+            flat.append(stmt)
+    return flat
+
+
+def _validate_ref_argument(self, fn_name, index, param_type, arg):
+    if _is_literal(arg) or isinstance(arg, (int, float, bool)):
+        self.errors.encolar_error(
+            f"Error semántico: No se puede pasar un literal como argumento ref en la función '{fn_name}'."
+        )
+        return False
+
+    if isinstance(arg, tuple) or _is_array_access(arg) or _is_field_access(arg) or isinstance(arg, TypedCall) or callable(arg):
+        self.errors.encolar_error(
+            f"Error semántico: No se puede pasar una expresión como argumento ref en la función '{fn_name}'."
+        )
+        return False
+
+    if not isinstance(arg, str):
+        self.errors.encolar_error(
+            f"Error semántico: No se puede pasar una expresión como argumento ref en la función '{fn_name}'."
+        )
+        return False
+
+    sym = self.symbol_table.get_symbol(arg)
+    if sym is None:
+        self.errors.encolar_error(
+            f"Error semántico: variable '{arg}' no declarada para argumento ref {index} de '{fn_name}'{_pos_suffix(self, arg)}."
+        )
+        return False
+
+    if sym.get('kind') != 'variable':
+        self.errors.encolar_error(
+            f"Error semántico: argumento ref {index} de '{fn_name}' debe ser una variable básica, no '{sym.get('kind')}'."
+        )
+        return False
+
+    if sym.get('type') != param_type:
+        self.errors.encolar_error(
+            f"Error semántico: argumento ref {index} de '{fn_name}' es de tipo '{sym.get('type')}', se esperaba '{param_type}'."
+        )
+        return False
+
+    return True
+
+
+def _evaluate_simple_function_call(self, name, args):
+    methods = getattr(self, 'methods', {})
+    if name not in methods:
+        return None
+    if name in getattr(self, 'partial_eval_call_stack', []):
+        return None
+
+    method_info = methods.get(name, {})
+    if not isinstance(method_info, dict):
+        return None
+    if method_info.get('return_type') == 'gardevoir':
+        return None
+
+    params = method_info.get('params', []) or []
+    if len(params) != len(args):
+        return None
+
+    env = {}
+    for param, arg in zip(params, args):
+        param_type, param_name, is_ref = _param_parts(param)
+        if is_ref:
+            return None
+        value = _evaluate_runtime(self, arg)
+        if value is None or value is _LOOP_MODIFIED:
+            return None
+        arg_type = _infer_type(self, arg)
+        if arg_type != 'unknown' and arg_type != param_type:
+            numeric = {'entei', 'floatzel'}
+            if not (arg_type in numeric and param_type in numeric):
+                return None
+        env[param_name] = value
+
+    body = _flatten_statements(method_info.get('body', []))
+    if any(getattr(stmt, '_stmt_kind', None) == 'loop' for stmt in body):
+        return None
+
+    return_stmts = [stmt for stmt in body if getattr(stmt, '_stmt_kind', None) == 'return']
+    if len(return_stmts) != 1 or len(body) != 1:
+        return None
+
+    return_expr = getattr(return_stmts[0], '_return_value', None)
+    self.partial_eval_call_stack.append(name)
+    self.partial_eval_env_stack.append(env)
+    try:
+        return _evaluate_runtime(self, return_expr)
+    finally:
+        self.partial_eval_env_stack.pop()
+        self.partial_eval_call_stack.pop()
+
+
 def handle_method_call(self, name, args=None):
     args = args or []
-    print(f" [CALL] Preparando llamada a función '{name}' con argumentos: {args}")
+    print(f" [CALL] Preparando llamada a funcion '{name}' con argumentos: {args}")
 
     def call_with_scope():
         if name not in self.methods:
-            self.errors.encolar_error(f"Error semántico: función '{name}' no definida.")
+            self.errors.encolar_error(f"Error semantico: funcion '{name}' no definida.")
             return None
 
         expected_params = self.methods[name].get('params', [])
         if len(args) != len(expected_params):
             self.errors.encolar_error(
-                f"Error semántico: función '{name}' espera {len(expected_params)} "
+                f"Error semantico: funcion '{name}' espera {len(expected_params)} "
                 f"argumento(s), pero se pasaron {len(args)}."
             )
             return None
 
-        temp = self.intercode_generator.new_temp()
-
         arg_ir_names = []
         for i, arg in enumerate(args):
-            ir_name = _resolve_ir(self, arg)
-            param_type, _ = expected_params[i]
-            arg_type = _infer_type(self, arg)   # <- importante: inferir sobre arg, no sobre ir_name
-            if arg_type != 'unknown' and arg_type != param_type:
+            param_type, _, is_ref = _param_parts(expected_params[i])
+            if is_ref and not _validate_ref_argument(self, name, i + 1, param_type, arg):
+                return None
+
+            arg_type = _infer_type(self, arg)
+            if not is_ref and arg_type != 'unknown' and arg_type != param_type:
                 numeric = {'entei', 'floatzel'}
                 if not (arg_type in numeric and param_type in numeric):
                     self.errors.encolar_error(
-                        f"Error semántico: argumento {i+1} de '{name}' "
+                        f"Error semantico: argumento {i+1} de '{name}' "
                         f"es de tipo '{arg_type}', se esperaba '{param_type}'."
                     )
+                    return None
+
+            ir_name = _resolve_ir(self, arg)
+            if ir_name == '?':
+                return None
             arg_ir_names.append(ir_name)
 
-        for arg_name in arg_ir_names:
-            self.intercode_generator.emit(f"param {arg_name}")
+        for i, arg_name in enumerate(arg_ir_names):
+            _, _, is_ref = _param_parts(expected_params[i])
+            op = 'param_ref' if is_ref else 'param'
+            self.intercode_generator.emit(f"{op} {arg_name}")
 
         args_str = ', '.join(arg_ir_names)
+        ret_type = self.methods.get(name, {}).get('return_type', 'unknown')
+        if ret_type == 'gardevoir':
+            self.intercode_generator.emit(f"call {name}({args_str})")
+            return None
+
+        temp = self.intercode_generator.new_temp()
         self.intercode_generator.emit(f"{temp} = call {name}({args_str})")
         return temp
 
     ret_type = self.methods.get(name, {}).get('return_type', 'unknown')
-    return TypedCall(call_with_scope, ret_type, name)
+    return TypedCall(
+        call_with_scope,
+        ret_type,
+        name,
+        runtime_fn=lambda: _evaluate_simple_function_call(self, name, args),
+    )
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# handle_method_declaration
-# ─────────────────────────────────────────────────────────────────────────────
 def handle_method_declaration(self, name, body):
     def flatten(stmts):
         flat = []
@@ -1378,14 +1532,17 @@ def handle_method_declaration(self, name, body):
         self.current_return_type = ret_type
         self.current_function_has_return = False
 
-        params_str = ', '.join(f"{t} {n}" for t, n in params)
+        params_str = ', '.join(
+            f"{'ref ' if is_ref else ''}{param_type} {param_name}"
+            for param_type, param_name, is_ref in (_param_parts(p) for p in params)
+        )
         self.intercode_generator.emit(f"function {ret_type}  {name}({params_str}):")
 
         self.symbol_table.enter_scope()
         print(f" [FUNC]  Función '{name}' registrada con return_type='{ret_type}' y params={params}")
         self.en_funcion = True
 
-        for param_type, param_name in params:
+        for param_type, param_name, _ in (_param_parts(p) for p in params):
             self.symbol_table.add_symbol(param_name, param_type, 'local', None)
             print(f" [PARAM]  Variable '{param_name}' ({param_type}) registrada")
 

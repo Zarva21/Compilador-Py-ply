@@ -32,7 +32,7 @@ PALABRAS_RESERVADAS_SUGERIBLES = {
     'evee', 'ekans', 'wailord', 'doduo', 'forretres',
     'swello', 'kecleon', 'deoxys', 'breloom', 'pikachu',
     'raikou', 'suicune', 'gardevoir', 'psyduck', 'pidgey',
-    'masmas', 'menosmenos', 'andor', 'oror', 'not', 'estructura',
+    'masmas', 'menosmenos', 'andor', 'oror', 'not', 'estructura', 'ref',
 }
 
 
@@ -75,7 +75,7 @@ class Lexer:
         'RELOP', 'STRING_LITERAL', 'CHAR_LITERAL', 'BOOLEAN_LITERAL', 'COLON',
 
         'MAS', 'MENOS', 'MUL', 'DIV', 'MOD', 'MASMAS', 'MENOSMENOS',
-        'ANDOR', 'OROR', 'NOT', 'LBRACKET', 'RBRACKET'
+        'ANDOR', 'OROR', 'NOT', 'LBRACKET', 'RBRACKET', 'REF'
     ]
 
     reserved = {
@@ -99,6 +99,7 @@ class Lexer:
         'psyduck': 'PSYDUCK',
         'pidgey': 'PIDGEY',
         'estructura': 'ESTRUCTURA',
+        'ref': 'REF',
         'raikou' : 'RAIKOU',
         'suicune': 'SUICUNE',
         'gardevoir' : 'GARDEVOIR',

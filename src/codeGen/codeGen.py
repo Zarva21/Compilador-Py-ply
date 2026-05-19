@@ -150,7 +150,10 @@ class ccodeGen:
             for param in params_raw.split(','):
                 param   = param.strip()
                 p_parts = param.split()
-                if len(p_parts) == 2:
+                if len(p_parts) == 3 and p_parts[0] == 'ref':
+                    p_cpp = self.TIPOS.get(p_parts[1].lower(), 'auto')
+                    param_list.append(f'{p_cpp} &{p_parts[2]}')
+                elif len(p_parts) == 2:
                     p_cpp = self.TIPOS.get(p_parts[0].lower(), 'auto')
                     param_list.append(f'{p_cpp} {p_parts[1]}')
                 else:
@@ -318,7 +321,7 @@ class ccodeGen:
                         for param in params_cpp.split(','):
                             param = param.strip()
                             if param:
-                                param_name = param.split()[-1]
+                                param_name = param.split()[-1].lstrip('&')
                                 self._func_params.add(param_name)
                 else:
                     fname = line[len('function '):-1].strip()
@@ -416,7 +419,7 @@ class ccodeGen:
                 i += 1; continue
 
             # ── param (se salta, solo documentativo) ──
-            if line.startswith('param '):
+            if line.startswith('param ') or line.startswith('param_ref '):
                 i += 1; continue
 
             if line.startswith('array ') or line.startswith('array_init '):
@@ -658,7 +661,7 @@ class ccodeGen:
                     self._next_label_is_continue_target = False
                 i += 1; continue
 
-            if line.startswith('param '):
+            if line.startswith('param ') or line.startswith('param_ref '):
                 i += 1; continue
 
             if line.startswith('array ') or line.startswith('array_init '):

@@ -250,6 +250,7 @@ class Parser:
         body = p[10] if isinstance(p[10], list) else []
     
         p[0] = self.semantic.handle_for(init, expression, update, body)
+        setattr(p[0], '_stmt_kind', 'loop')
 
     def p_do_while_loop(self, p):
         'do_while_loop : DODUO LBRACE program RBRACE WAILORD LPAREN expression RPAREN SEMICOLON'
@@ -257,6 +258,7 @@ class Parser:
         expression = p[7]
         
         p[0] = self.semantic.handle_do_while(expression, body)
+        setattr(p[0], '_stmt_kind', 'loop')
 
     def p_while_loop(self, p):
         'while_loop : WAILORD LPAREN expression RPAREN LBRACE program RBRACE'
@@ -264,6 +266,7 @@ class Parser:
         expression = p[3]
        
         p[0] = self.semantic.handle_while(expression, body)
+        setattr(p[0], '_stmt_kind', 'loop')
 
     # ── If / else ─────────────────────────────
 
@@ -326,6 +329,8 @@ class Parser:
         value = p[2]
         def do_return():
             self.semantic.handle_return(value)()
+        setattr(do_return, '_stmt_kind', 'return')
+        setattr(do_return, '_return_value', value)
         p[0] = do_return
 
     # ── Expresiones ───────────────────────────
@@ -435,12 +440,12 @@ class Parser:
         p[0] = [p[1]] if len(p) == 2 else p[1] + [p[3]]
 
     def p_param(self, p):
-        '''param : ENTEI IDENTIFIER
-                 | FLOATZEL IDENTIFIER
-                 | CHARIZAR IDENTIFIER
-                 | BOOFALANT IDENTIFIER
-                 | STANTLER IDENTIFIER'''
-        p[0] = (p[1], p[2])
+        '''param : basic_type IDENTIFIER
+                 | REF basic_type IDENTIFIER'''
+        if len(p) == 3:
+            p[0] = (p[1], p[2], False)
+        else:
+            p[0] = (p[2], p[3], True)
 
     # ── Llamada a función ─────────────────────
 

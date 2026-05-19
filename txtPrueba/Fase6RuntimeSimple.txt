@@ -1,0 +1,8 @@
+entei a as 10 pyc
+entei b as 20 pyc
+entei r as a su b pyc
+
+boofalant flag as r ma 25 pyc
+
+pikachu ps r pc pyc
+pikachu ps flag pc pyc

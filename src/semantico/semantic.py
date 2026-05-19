@@ -49,6 +49,8 @@ class Semantic:
         self.continue_context_stack = []
         self.positions = {}
         self.struct_types = {}
+        self.partial_eval_env_stack = []
+        self.partial_eval_call_stack = []
 
 
 
