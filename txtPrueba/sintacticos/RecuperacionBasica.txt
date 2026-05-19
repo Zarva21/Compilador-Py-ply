@@ -1,0 +1,4 @@
+entei a as 5 pyc
+a su pyc
+entei b as 10 pyc
+pikachu ps b pc pyc

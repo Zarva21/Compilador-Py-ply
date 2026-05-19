@@ -11,12 +11,21 @@ class Errors:
     def __init__(self,content):
         self.errors = []  
         self.text=content
+        self._seen_errors = set()
 
     def getText(self):
         return self.text
     
     def encolar_error(self, error):
         if isinstance(error, dict):
+            tipo = error.get('tipo', '-')
+            fila = str(error.get('fila', '-'))
+            col = str(error.get('col', '-'))
+            descripcion = str(error.get('descripcion', '-')).strip()
+            key = (tipo, fila, col, _sin_acentos(descripcion.lower()))
+            if key in self._seen_errors:
+                return
+            self._seen_errors.add(key)
             self.errors.append(error)
             return
 
@@ -56,6 +65,11 @@ class Errors:
         # Limpiar descripción
         descripcion = re.sub(r'\s*en (la )?fila \d+[\s,]*(y\s*)?(col(umna)?\s*\d+)?\.?', '', error).strip()
         descripcion = re.sub(r'^(Error (léxico|sintáctico|semántico)|Advertencia):\s*', '', descripcion, flags=re.IGNORECASE).strip()
+
+        key = (tipo, str(fila or '-'), str(col or '-'), _sin_acentos(descripcion.lower()))
+        if key in self._seen_errors:
+            return
+        self._seen_errors.add(key)
 
         self.errors.append({
             'tipo': tipo,

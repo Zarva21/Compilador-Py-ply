@@ -1,7 +1,7 @@
 entei edad as 20 pyc
 floatzel promedio as 8.5 pyc
 charizar letra as csAcs pyc
-boofalant activo as trumbeak pyc
+boofalant activo as true pyc
 stantler nombre as cdRedcd pyc
 
 pikachu ps edad pc pyc

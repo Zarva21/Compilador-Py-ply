@@ -38,7 +38,7 @@ class SymbolTable:
             if name in self.global_scope:
                 # No hacer print aquí — el error semántico lo reporta handle_declaration
                 return False
-            self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value, 'kind': 'variable'}
+            self.global_scope[name] = {'type': type_, 'scope': 'global', 'value': value, 'kind': 'variable', 'metadata': {'mutable': True}}
             print(f" [GLOBAL] Variable '{name}' ({type_}) registrada")
             return True
         else:
@@ -49,7 +49,7 @@ class SymbolTable:
             if name in current:
                 # No hacer print aquí — el error semántico lo reporta handle_declaration
                 return False
-            current[name] = {'type': type_, 'scope': 'local', 'value': value, 'kind': 'variable'}
+            current[name] = {'type': type_, 'scope': 'local', 'value': value, 'kind': 'variable', 'metadata': {'mutable': True}}
             print(f" [LOCAL]  Variable '{name}' ({type_}) registrada")
             return True
 
@@ -60,6 +60,7 @@ class SymbolTable:
             'value': value,
             'kind': 'array',
             'size': size,
+            'metadata': {'size': size},
         }
         if scope == 'global':
             if name in self.global_scope:
@@ -82,6 +83,7 @@ class SymbolTable:
             'value': fields,
             'kind': 'struct_instance',
             'fields': fields,
+            'metadata': {'struct_type': struct_type, 'fields': len(fields)},
         }
         if scope == 'global':
             if name in self.global_scope:
@@ -95,6 +97,46 @@ class SymbolTable:
             return False
         current[name] = data
         print(f" [LOCAL]  Struct '{name}' ({struct_type}) registrado")
+        return True
+
+    def add_function_symbol(self, name, return_type, params=None):
+        if name in self.global_scope:
+            return False
+        params = params or []
+        self.global_scope[name] = {
+            'type': return_type,
+            'scope': 'global',
+            'value': None,
+            'kind': 'function',
+            'metadata': {'return_type': return_type, 'params': params, 'params_count': len(params)},
+        }
+        return True
+
+    def add_struct_type_symbol(self, name, fields=None):
+        if name in self.global_scope:
+            return False
+        fields = fields or {}
+        self.global_scope[name] = {
+            'type': 'struct',
+            'scope': 'global',
+            'value': None,
+            'kind': 'struct_type',
+            'metadata': {'fields': fields, 'fields_count': len(fields)},
+        }
+        return True
+
+    def add_parameter_symbol(self, name, type_, is_ref=False):
+        current = self.current_scope()
+        if current is None or name in current:
+            return False
+        current[name] = {
+            'type': type_,
+            'scope': 'local',
+            'value': None,
+            'kind': 'parameter',
+            'metadata': {'ref': bool(is_ref), 'mutable': True},
+        }
+        print(f" [PARAM]  Variable '{name}' ({type_}) registrada")
         return True
 
     def update_struct_field(self, name, field, value):
@@ -142,6 +184,8 @@ class SymbolTable:
 
         # Globales
         for name, info in self.global_scope.items():
+            if info.get('kind') in ('function', 'struct_type'):
+                continue
             result[name] = {
                 "type": info["type"],
                 "value": info.get("value"),
@@ -149,11 +193,14 @@ class SymbolTable:
                 "kind": info.get("kind", "variable"),
                 "size": info.get("size"),
                 "fields": info.get("fields"),
+                "metadata": info.get("metadata"),
             }
 
         # Locales aún activos
         for scope in self.scope_stack:
             for name, info in scope.items():
+                if info.get('kind') == 'parameter':
+                    continue
                 if name not in result:
                     result[name] = {
                         "type": info["type"],
@@ -162,12 +209,15 @@ class SymbolTable:
                         "kind": info.get("kind", "variable"),
                         "size": info.get("size"),
                         "fields": info.get("fields"),
+                        "metadata": info.get("metadata"),
                     }
 
         # Locales cerrados
         if hasattr(self, "closed_scopes"):
             for scope in self.closed_scopes:
                 for name, info in scope.items():
+                    if info.get('kind') == 'parameter':
+                        continue
                     if name not in result:
                         result[name] = {
                             "type": info["type"],
@@ -176,6 +226,7 @@ class SymbolTable:
                             "kind": info.get("kind", "variable"),
                             "size": info.get("size"),
                             "fields": info.get("fields"),
+                            "metadata": info.get("metadata"),
                         }
 
         return result
@@ -198,7 +249,7 @@ class SymbolTable:
             .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
         </style>
         <table class="sym-table">
-            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
+            <tr><th>Nombre</th><th>Tipo</th><th>Ambito</th><th>Clase simbolo</th><th>Valor</th><th>Metadata</th></tr>
         """
 
         if hasattr(self, 'final_snapshot'):
@@ -229,13 +280,33 @@ class SymbolTable:
                 return f'<span class="val-real">{{{", ".join(parts)}}}</span>'
             return f'<span class="val-real">{valor}</span>'
 
+        def _metadata(data):
+            meta = data.get('metadata') or {}
+            if data.get('kind') == 'array':
+                meta = {**meta, 'size': data.get('size')}
+            if data.get('kind') == 'struct_instance':
+                meta = {**meta, 'fields': len(data.get('fields') or {})}
+            if not meta:
+                return '<span class="val-dynamic">-</span>'
+            parts = []
+            for key, value in meta.items():
+                if key == 'params' and isinstance(value, list):
+                    parts.append(f"params={len(value)}")
+                elif key == 'fields' and isinstance(value, dict):
+                    parts.append(f"fields={len(value)}")
+                else:
+                    parts.append(f"{key}={value}")
+            return '<span class="val-real">' + ', '.join(parts) + '</span>'
+
         for identifier, data in global_data.items():
             html += (
                 f"<tr>"
                 f"<td>{identifier}</td>"
                 f"<td>{data['type']}</td>"
                 f"<td><span class='scope-global'>global</span></td>"
+                f"<td>{data.get('kind', 'variable')}</td>"
                 f"<td>{_display(data.get('value'), data.get('type'))}</td>"
+                f"<td>{_metadata(data)}</td>"
                 f"</tr>"
             )
 
@@ -247,7 +318,9 @@ class SymbolTable:
                         f"<td>{identifier}</td>"
                         f"<td>{data['type']}</td>"
                         f"<td><span class='scope-local'>local</span></td>"
+                        f"<td>{data.get('kind', 'variable')}</td>"
                         f"<td>{_display(data.get('value'), data.get('type'))}</td>"
+                        f"<td>{_metadata(data)}</td>"
                         f"</tr>"
                     )
 
@@ -259,7 +332,9 @@ class SymbolTable:
                     f"<td>{identifier}</td>"
                     f"<td>{data['type']}</td>"
                     f"<td><span class='scope-local'>local (cerrado)</span></td>"
+                    f"<td>{data.get('kind', 'variable')}</td>"
                     f"<td>{_display(data.get('value'), data.get('type'))}</td>"
+                    f"<td>{_metadata(data)}</td>"
                     f"</tr>"
                 )
 

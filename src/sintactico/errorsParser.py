@@ -19,6 +19,15 @@ SINTAXIS_CORRECTA = {
 }
 
 
+def _sync_after_error(self, p):
+    if p is not None and p.type not in {'SEMICOLON', 'RBRACE'}:
+        while True:
+            tok = self.lexer.lexer.token()
+            if tok is None or tok.type in {'SEMICOLON', 'RBRACE'}:
+                break
+    self.parser.errok()
+    return None
+
 def p_error(self, p):
     if p:
         try:
@@ -284,13 +293,19 @@ def p_error(self, p):
                     f"en fila {row}, col {col}."
                 )
 
+            return _sync_after_error(self, p)
+
         except Exception as e:
             self.errors.encolar_error(
                 f"Error interno al analizar token inesperado: {str(e)}"
             )
+            self.parser.errok()
+            return None
 
     else:
         self.errors.encolar_error(
-            "Error sintáctico: final inesperado del archivo. "
-            "¿Falta cerrar un bloque 'lc' o completar una instrucción?"
+            "Error sintactico: final inesperado del archivo. "
+            "Falta cerrar un bloque 'lc' o completar una instruccion?"
         )
+        self.parser.errok()
+        return None

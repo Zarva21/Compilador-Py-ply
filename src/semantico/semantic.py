@@ -61,6 +61,9 @@ class Semantic:
             'params':      params or [],
             'body':        body,
         }
+        add_function = getattr(self.symbol_table, 'add_function_symbol', None)
+        if callable(add_function):
+            add_function(name, return_type, params or [])
         print(f"[REGISTRO] Función '{name}' registrada con params={params}")
 
     def execute_function_declaration(self, name):

@@ -66,6 +66,28 @@ class Parser:
                      | print_statement'''
         p[0] = p[1] if p[1] is not None else (lambda: None)
 
+    def p_statement_error_semicolon(self, p):
+        'statement : error SEMICOLON'
+        fila = getattr(p.slice[2], 'lineno', None)
+        msg = "Error sintáctico: instrucción inválida descartada hasta 'pyc'"
+        if fila:
+            msg += f" en fila {fila}"
+        msg += "."
+        self.errors.encolar_error(msg)
+        self.parser.errok()
+        p[0] = lambda: None
+
+    def p_statement_error_rbrace(self, p):
+        'statement : error RBRACE'
+        fila = getattr(p.slice[2], 'lineno', None)
+        msg = "Error sintáctico: bloque inválido descartado hasta 'lc'"
+        if fila:
+            msg += f" en fila {fila}"
+        msg += "."
+        self.errors.encolar_error(msg)
+        self.parser.errok()
+        p[0] = lambda: None
+
     # ── Print ─────────────────────────────────
 
     def p_print_statement(self, p):
@@ -486,6 +508,29 @@ class Parser:
             line = None
         p[0] = handle_expression_statement(self.semantic, p[1], line)
 
+    def p_statement_incomplete_binary_expr(self, p):
+        'statement : expression incomplete_binary_operator SEMICOLON'
+        line = getattr(p.slice[3], 'lineno', None)
+        msg = f"Error sintáctico: expresión incompleta antes de 'pyc'"
+        if line:
+            msg += f" en fila {line}"
+        msg += ". Falta el operando derecho."
+        self.errors.encolar_error(msg)
+        p[0] = lambda: None
+
+    def p_incomplete_binary_operator(self, p):
+        '''incomplete_binary_operator : MAS
+                                      | MENOS
+                                      | MUL
+                                      | DIV
+                                      | MOD
+                                      | GT
+                                      | LT
+                                      | RELOP
+                                      | ANDOR
+                                      | OROR'''
+        p[0] = p[1]
+
     # ── Error ─────────────────────────────────
 
     def p_error(self, p):
@@ -496,7 +541,7 @@ class Parser:
             )
             return
         try:
-            p_error(self, p)
+            return p_error(self, p)
         except Exception as e:
             print("Error al llamar al metodo p_error:", e)
 

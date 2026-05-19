@@ -1,0 +1,14 @@
+suicune entei doble ps entei x pc ls
+    raikou x mu 2 pyc
+lc
+
+estructura Fecha ls
+    entei dia pyc
+    entei mes pyc
+lc pyc
+
+entei dias cora 3 corc as ls 1 co 2 co 3 lc pyc
+Fecha f pyc
+f pu dia as 15 pyc
+entei a as doble ps 10 pc pyc
+pikachu ps a pc pyc

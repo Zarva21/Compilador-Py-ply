@@ -40,6 +40,11 @@ def _save_iteration_state(self):
 
 # Sentinel especial — indica "modificado en loop, no actualizar tabla"
 _LOOP_MODIFIED = object()
+SEMANTIC_ERROR = '?'
+
+
+def _is_semantic_error(value):
+    return value == SEMANTIC_ERROR
 
 
 def make_literal(tipo, valor):
@@ -875,6 +880,9 @@ def handle_struct_declaration(self, name, fields):
             field_map[field_name] = field_type
 
         self.struct_types[name] = field_map
+        add_struct_type = getattr(self.symbol_table, 'add_struct_type_symbol', None)
+        if callable(add_struct_type):
+            add_struct_type(name, field_map)
         self.intercode_generator.emit(f"struct {name}")
         for field_name, field_type in field_map.items():
             self.intercode_generator.emit(f"field {name} {field_name} {field_type}")
@@ -1542,9 +1550,13 @@ def handle_method_declaration(self, name, body):
         print(f" [FUNC]  Función '{name}' registrada con return_type='{ret_type}' y params={params}")
         self.en_funcion = True
 
-        for param_type, param_name, _ in (_param_parts(p) for p in params):
-            self.symbol_table.add_symbol(param_name, param_type, 'local', None)
-            print(f" [PARAM]  Variable '{param_name}' ({param_type}) registrada")
+        for param_type, param_name, is_ref in (_param_parts(p) for p in params):
+            add_param = getattr(self.symbol_table, 'add_parameter_symbol', None)
+            if callable(add_param):
+                add_param(param_name, param_type, is_ref)
+            else:
+                self.symbol_table.add_symbol(param_name, param_type, 'local', None)
+                print(f" [PARAM]  Variable '{param_name}' ({param_type}) registrada")
 
         for stmt in flat_body:
             if callable(stmt):

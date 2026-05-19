@@ -87,7 +87,7 @@
 <tr><td>17</td><td>IDENTIFIER</td><td>activo</td><td>4</td><td>11</td></tr>
 <tr><td>18</td><td>EQUALS</td><td>as</td><td>4</td><td>18</td></tr>
 <tr><td>19</td><td>BOOLEAN_LITERAL</td><td>True</td><td>4</td><td>21</td></tr>
-<tr><td>20</td><td>SEMICOLON</td><td>pyc</td><td>4</td><td>30</td></tr>
+<tr><td>20</td><td>SEMICOLON</td><td>pyc</td><td>4</td><td>26</td></tr>
 <tr><td>21</td><td>STANTLER</td><td>stantler</td><td>5</td><td>1</td></tr>
 <tr><td>22</td><td>IDENTIFIER</td><td>nombre</td><td>5</td><td>10</td></tr>
 <tr><td>23</td><td>EQUALS</td><td>as</td><td>5</td><td>17</td></tr>
@@ -118,6 +118,11 @@
 
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
+        <p style='color: green;'>No se encontraron errores.</p>
+    </div>
+
+    <div class="section">
+        <h2 class="err"> Errores Semánticos</h2>
         <p style='color: green;'>No se encontraron errores.</p>
     </div>
 
@@ -158,19 +163,19 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>    string nombre;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    float promedio;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>        edad = 20;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>        promedio = 8.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>        letra = 'A';</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>        activo = true;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>        nombre = "Red";</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>        cout &lt;&lt; edad &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>        cout &lt;&lt; promedio &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>        cout &lt;&lt; nombre &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    edad = 20;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>    promedio = 8.5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>    letra = 'A';</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>    activo = true;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>    nombre = "Red";</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>    cout &lt;&lt; edad &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>    cout &lt;&lt; promedio &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>    cout &lt;&lt; nombre &lt;&lt; endl;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>    return 0;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>}</td></tr>
 
         </table>
-    </div>aja
+    </div>
     </div>
     
     <div class="section">
@@ -187,8 +192,8 @@
             .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
         </style>
         <table class="sym-table">
-            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>edad</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="val-real">20</span></td></tr><tr><td>promedio</td><td>floatzel</td><td><span class='scope-global'>global</span></td><td><span class="val-real">8.5</span></td></tr><tr><td>letra</td><td>charizar</td><td><span class='scope-global'>global</span></td><td><span class="val-real">'A'</span></td></tr><tr><td>activo</td><td>boofalant</td><td><span class='scope-global'>global</span></td><td><span class="val-real">true</span></td></tr><tr><td>nombre</td><td>stantler</td><td><span class='scope-global'>global</span></td><td><span class="val-real">"Red"</span></td></tr></table>
+            <tr><th>Nombre</th><th>Tipo</th><th>Ambito</th><th>Clase simbolo</th><th>Valor</th><th>Metadata</th></tr>
+        <tr><td>edad</td><td>entei</td><td><span class='scope-global'>global</span></td><td>variable</td><td><span class="val-real">20</span></td><td><span class="val-real">mutable=True</span></td></tr><tr><td>promedio</td><td>floatzel</td><td><span class='scope-global'>global</span></td><td>variable</td><td><span class="val-real">8.5</span></td><td><span class="val-real">mutable=True</span></td></tr><tr><td>letra</td><td>charizar</td><td><span class='scope-global'>global</span></td><td>variable</td><td><span class="val-real">'A'</span></td><td><span class="val-real">mutable=True</span></td></tr><tr><td>activo</td><td>boofalant</td><td><span class='scope-global'>global</span></td><td>variable</td><td><span class="val-real">true</span></td><td><span class="val-real">mutable=True</span></td></tr><tr><td>nombre</td><td>stantler</td><td><span class='scope-global'>global</span></td><td>variable</td><td><span class="val-real">"Red"</span></td><td><span class="val-real">mutable=True</span></td></tr></table>
     </div>
 
 </body>

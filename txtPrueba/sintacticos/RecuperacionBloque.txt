@@ -1,0 +1,10 @@
+entei a as 5 pyc
+
+evee ps a ma 1 pc ls
+    pikachu ps a pc pyc
+    a su pyc
+    entei b as 10 pyc
+lc
+
+entei c as 20 pyc
+pikachu ps c pc pyc

@@ -1,0 +1,17 @@
+gardevoir duplicar ps ref entei a co ref entei b pc ls
+    a as a mu 2 pyc
+    b as b mu 2 pyc
+lc
+
+entei nums cora 3 corc as ls 1 co 2 co 3 lc pyc
+estructura Fecha ls
+    entei dia pyc
+lc pyc
+
+Fecha f pyc
+f pu dia as 15 pyc
+entei a as nums cora 1 corc pyc
+entei b as 4 pyc
+boofalant ok as a me b andor not falinks pyc
+duplicar ps a co b pc pyc
+pikachu ps ok pc pyc
