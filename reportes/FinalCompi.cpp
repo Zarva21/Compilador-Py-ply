@@ -4,7 +4,9 @@ using namespace std;
 
 bool esBisiesto(int anio) {
     auto t0 = anio % 4;
+    auto t1 = t0 == 0;
     auto t2 = anio % 100;
+    auto t3 = t2 != 0;
     auto t4 = t1 && t3;
     if (t4) {
     return true;
@@ -75,7 +77,7 @@ int main() {
         cout << "Seleccione opcion" << endl;
         cin >> opcion;
         switch (opcion) {
-        case 1:
+        case 1: {
             a = 15.5;
             b = 4.5;
             suma = a + b;
@@ -86,51 +88,69 @@ int main() {
             cout << resta << endl;
             cout << multiplicacion << endl;
             cout << division << endl;
-        case 2:
-            contador = 1;
-            while (contador <= 5) {
-                cout << contador << endl;
-                contador = contador + 1;
-            }  // fin while
-        case 3:
-            i = 2;
-            i = 2;
-            while (i <= 10) {
-                cout << i << endl;
-                L14: ;
-                i = i + 2;
-            }  // fin for
-        case 4:
-            base = 2;
-            exponente = 4;
-            auto t19 = calcularPotencia(base, exponente);
-            resultado = t19;
-            cout << resultado << endl;
-        case 5:
-            num1 = 10;
-            num2 = 25;
-            duplicarValores(num1, num2);
-            cout << num1 << endl;
-            cout << num2 << endl;
-        case 6:
-            n = 7;
-            auto t2 = 1;
-            siguiente = 0;
-            j = 1;
-            j = 1;
-            while (j <= n) {
-                cout << t1 << endl;
-                siguiente = t1 + t2;
-                auto t2 = siguiente;
-                L17: ;
-                j = j + 1;
-            }  // fin for
-        case 7:
-            mostrarMensaje("Saliendo del programa");
-            opcion = 7;
-        default:
-            mostrarMensaje("Opcion invalida");
-        }  // fin switch
-    } while (opcion != 7);
+            break;
+        }
+    case 2: {
+        contador = 1;
+        while (contador <= 5) {
+            cout << contador << endl;
+            contador = contador + 1;
+        }  // fin while
+        break;
+    }
+case 3: {
+    i = 2;
+    i = 2;
+    while (i <= 10) {
+        cout << i << endl;
+        L14: ;
+        i = i + 2;
+    }  // fin for
+    break;
+}
+case 4: {
+base = 2;
+exponente = 4;
+auto t19 = calcularPotencia(base, exponente);
+resultado = t19;
+cout << resultado << endl;
+break;
+}
+case 5: {
+num1 = 10;
+num2 = 25;
+duplicarValores(num1, num2);
+cout << num1 << endl;
+cout << num2 << endl;
+break;
+}
+case 6: {
+n = 7;
+auto t1 = 0;
+auto t2 = 1;
+siguiente = 0;
+j = 1;
+j = 1;
+while (j <= n) {
+cout << t1 << endl;
+siguiente = t1 + t2;
+t1 = t2;
+t2 = siguiente;
+L17: ;
+j = j + 1;
+}  // fin for
+break;
+}
+case 7: {
+mostrarMensaje("Saliendo del programa");
+opcion = 7;
+break;
+}
+default: {
+mostrarMensaje("Opcion invalida");
+break;
+}
+}  // fin switch
+} while (opcion != 7);
     return 0;
 }

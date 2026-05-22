@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Reporte – Symbolos.txt</title>
+    <title>Reporte – FinalCompi.txt</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -64,7 +64,7 @@
 <body>
 
     <h1> Reporte del Compilador Pokémon</h1>
-    <p class="subtitle">Archivo analizado: <strong>Symbolos.txt</strong></p>
+    <p class="subtitle">Archivo analizado: <strong>FinalCompi.txt</strong></p>
 
     <div class="section">
         <h2 class="ok"> Análisis Léxico – Tokens encontrados</h2>
@@ -745,136 +745,156 @@
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>bool esBisiesto(int anio) {</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    auto t0 = anio % 4;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    auto t2 = anio % 100;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>    auto t4 = t1 &amp;&amp; t3;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>    if (t4) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    return true;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>auto t5 = anio % 400;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>if (t5 == 0) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>return true;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>return false;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>    auto t1 = t0 == 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>    auto t2 = anio % 100;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>    auto t3 = t2 != 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    auto t4 = t1 &amp;&amp; t3;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    if (t4) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    return true;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>auto t5 = anio % 400;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>if (t5 == 0) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>return true;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>float calcularPotencia(float base, int exponente) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>    float resultado = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>    int k = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>    k = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>    if (k &lt; exponente) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>    resultado = resultado * base;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>    L6: ;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>    k = k + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>return resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>return false;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>float calcularPotencia(float base, int exponente) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>    float resultado = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>    int k = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>    k = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>    if (k &lt; exponente) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>    resultado = resultado * base;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>    L6: ;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    k = k + 1;</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>void duplicarValores(int &amp;valorA, int &amp;valorB) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>    valorA = valorA * 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>    valorB = valorB * 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>void mostrarMensaje(string mensaje) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>    cout &lt;&lt; mensaje &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>int main() {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>    float a;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>    float b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>    float base;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>    int contador;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>    float division;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>    int exponente;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>    int i;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>    int j;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>    int k;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>    float multiplicacion;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>    int n;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>    int num1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>    int num2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>    int opcion;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>    float resta;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>    float resultado;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>    int siguiente;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>    float suma;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>    int t1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>    int t2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>    opcion = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td>    do {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>        cout &lt;&lt; "==================================" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>        cout &lt;&lt; "MENU DE OPERACIONES" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>return resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>void duplicarValores(int &amp;valorA, int &amp;valorB) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>    valorA = valorA * 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>    valorB = valorB * 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>void mostrarMensaje(string mensaje) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>    cout &lt;&lt; mensaje &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>int main() {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>    float a;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>    float b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>    float base;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>    int contador;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>    float division;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>    int exponente;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>    int i;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>    int j;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>    int k;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>    float multiplicacion;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>    int n;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>    int num1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>    int num2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>    int opcion;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>    float resta;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>    float resultado;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>    int siguiente;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>    float suma;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td>    int t1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>    int t2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td></td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>    opcion = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>    do {</td></tr>
 <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>67</td><td>        cout &lt;&lt; "==================================" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>        cout &lt;&lt; "1 Operaciones matematicas" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>        cout &lt;&lt; "2 While" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>        cout &lt;&lt; "3 For" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>        cout &lt;&lt; "4 Funciones" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>        cout &lt;&lt; "5 Referencias" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>        cout &lt;&lt; "6 Fibonacci" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>        cout &lt;&lt; "7 Salir" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>        cout &lt;&lt; "Seleccione opcion" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>        cin &gt;&gt; opcion;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>        switch (opcion) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>        case 1:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>            a = 15.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>            b = 4.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>            suma = a + b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>            resta = a - b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>            multiplicacion = a * b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>            division = a / b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>            cout &lt;&lt; suma &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>            cout &lt;&lt; resta &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>            cout &lt;&lt; multiplicacion &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>            cout &lt;&lt; division &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>        case 2:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>            contador = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>            while (contador &lt;= 5) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>                cout &lt;&lt; contador &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>                contador = contador + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>            }  // fin while</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>        case 3:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>            i = 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>            i = 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>98</td><td>            while (i &lt;= 10) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>99</td><td>                cout &lt;&lt; i &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>100</td><td>                L14: ;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>101</td><td>                i = i + 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>102</td><td>            }  // fin for</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>103</td><td>        case 4:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>104</td><td>            base = 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>105</td><td>            exponente = 4;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>106</td><td>            auto t19 = calcularPotencia(base, exponente);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>107</td><td>            resultado = t19;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>108</td><td>            cout &lt;&lt; resultado &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>109</td><td>        case 5:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>110</td><td>            num1 = 10;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>111</td><td>            num2 = 25;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>112</td><td>            duplicarValores(num1, num2);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>113</td><td>            cout &lt;&lt; num1 &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>114</td><td>            cout &lt;&lt; num2 &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>115</td><td>        case 6:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>116</td><td>            n = 7;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>117</td><td>            auto t2 = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>118</td><td>            siguiente = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>119</td><td>            j = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>120</td><td>            j = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>121</td><td>            while (j &lt;= n) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>122</td><td>                cout &lt;&lt; t1 &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>123</td><td>                siguiente = t1 + t2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>124</td><td>                auto t2 = siguiente;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>125</td><td>                L17: ;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>126</td><td>                j = j + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>127</td><td>            }  // fin for</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>128</td><td>        case 7:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>129</td><td>            mostrarMensaje("Saliendo del programa");</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>130</td><td>            opcion = 7;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>131</td><td>        default:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>132</td><td>            mostrarMensaje("Opcion invalida");</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>133</td><td>        }  // fin switch</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>134</td><td>    } while (opcion != 7);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>135</td><td>    return 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>136</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>        cout &lt;&lt; "MENU DE OPERACIONES" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>        cout &lt;&lt; "==================================" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>        cout &lt;&lt; "1 Operaciones matematicas" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>        cout &lt;&lt; "2 While" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>        cout &lt;&lt; "3 For" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>        cout &lt;&lt; "4 Funciones" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>        cout &lt;&lt; "5 Referencias" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>        cout &lt;&lt; "6 Fibonacci" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>        cout &lt;&lt; "7 Salir" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>        cout &lt;&lt; "Seleccione opcion" &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>        cin &gt;&gt; opcion;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>        switch (opcion) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>        case 1: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>            a = 15.5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>            b = 4.5;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>            suma = a + b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>            resta = a - b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>            multiplicacion = a * b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>            division = a / b;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>            cout &lt;&lt; suma &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>            cout &lt;&lt; resta &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>            cout &lt;&lt; multiplicacion &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>            cout &lt;&lt; division &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>            break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>        }</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>    case 2: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>        contador = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>        while (contador &lt;= 5) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>            cout &lt;&lt; contador &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>            contador = contador + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>98</td><td>        }  // fin while</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>99</td><td>        break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>100</td><td>    }</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>101</td><td>case 3: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>102</td><td>    i = 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>103</td><td>    i = 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>104</td><td>    while (i &lt;= 10) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>105</td><td>        cout &lt;&lt; i &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>106</td><td>        L14: ;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>107</td><td>        i = i + 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>108</td><td>    }  // fin for</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>109</td><td>    break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>110</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>111</td><td>case 4: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>112</td><td>base = 2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>113</td><td>exponente = 4;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>114</td><td>auto t19 = calcularPotencia(base, exponente);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>115</td><td>resultado = t19;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>116</td><td>cout &lt;&lt; resultado &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>117</td><td>break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>118</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>119</td><td>case 5: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>120</td><td>num1 = 10;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>121</td><td>num2 = 25;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>122</td><td>duplicarValores(num1, num2);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>123</td><td>cout &lt;&lt; num1 &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>124</td><td>cout &lt;&lt; num2 &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>125</td><td>break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>126</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>127</td><td>case 6: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>128</td><td>n = 7;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>129</td><td>auto t1 = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>130</td><td>auto t2 = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>131</td><td>siguiente = 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>132</td><td>j = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>133</td><td>j = 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>134</td><td>while (j &lt;= n) {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>135</td><td>cout &lt;&lt; t1 &lt;&lt; endl;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>136</td><td>siguiente = t1 + t2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>137</td><td>t1 = t2;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>138</td><td>t2 = siguiente;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>139</td><td>L17: ;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>140</td><td>j = j + 1;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>141</td><td>}  // fin for</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>142</td><td>break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>143</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>144</td><td>case 7: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>145</td><td>mostrarMensaje("Saliendo del programa");</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>146</td><td>opcion = 7;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>147</td><td>break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>148</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>149</td><td>default: {</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>150</td><td>mostrarMensaje("Opcion invalida");</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>151</td><td>break;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>152</td><td>}</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>153</td><td>}  // fin switch</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>154</td><td>} while (opcion != 7);</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>155</td><td>    return 0;</td></tr>
+<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>156</td><td>}</td></tr>
 
         </table>
     </div>

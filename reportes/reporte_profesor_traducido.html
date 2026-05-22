@@ -327,7 +327,7 @@
 <tr><td>257</td><td>NUMBER</td><td>3</td><td>62</td><td>26</td></tr>
 <tr><td>258</td><td>SEMICOLON</td><td>pyc</td><td>62</td><td>28</td></tr>
 <tr><td>259</td><td>FLOATZEL</td><td>floatzel</td><td>63</td><td>13</td></tr>
-<tr><td>260</td><td>IDENTIFIER</td><td>res</td><td>63</td><td>22</td></tr>
+<tr><td>260</td><td>REF</td><td>ref</td><td>63</td><td>22</td></tr>
 <tr><td>261</td><td>EQUALS</td><td>as</td><td>63</td><td>26</td></tr>
 <tr><td>262</td><td>IDENTIFIER</td><td>calcularPotencia</td><td>63</td><td>29</td></tr>
 <tr><td>263</td><td>LPAREN</td><td>ps</td><td>63</td><td>46</td></tr>
@@ -338,7 +338,7 @@
 <tr><td>268</td><td>SEMICOLON</td><td>pyc</td><td>63</td><td>64</td></tr>
 <tr><td>269</td><td>PIKACHU</td><td>pikachu</td><td>64</td><td>13</td></tr>
 <tr><td>270</td><td>LPAREN</td><td>ps</td><td>64</td><td>21</td></tr>
-<tr><td>271</td><td>IDENTIFIER</td><td>res</td><td>64</td><td>24</td></tr>
+<tr><td>271</td><td>REF</td><td>ref</td><td>64</td><td>24</td></tr>
 <tr><td>272</td><td>RPAREN</td><td>pc</td><td>64</td><td>28</td></tr>
 <tr><td>273</td><td>SEMICOLON</td><td>pyc</td><td>64</td><td>31</td></tr>
 <tr><td>274</td><td>BRELOOM</td><td>breloom</td><td>65</td><td>13</td></tr>
@@ -407,7 +407,23 @@
 
     <div class="section">
         <h2 class="err"> Errores Sintácticos</h2>
-        <p style='color: green;'>No se encontraron errores.</p>
+        <div class="error-section"><h2 style="color: red;">Errores Sintácticos</h2><table class="error-table"><tr><th>#</th><th>Tipo</th><th>Descripción</th><th>Fila</th><th>Columna</th></tr><tr><td>1</td><td>Sintáctico</td><td>token inesperado 'ref'</td><td>63</td><td>22</td></tr>
+<tr><td>2</td><td>Sintáctico</td><td>'pikachu' (print) mal formado Sintaxis correcta: pikachu ps expresion pc pyc</td><td>64</td><td>13</td></tr>
+<tr><td>3</td><td>Sintáctico</td><td>'breloom' (break) fuera de un ciclo o switch</td><td>65</td><td>13</td></tr>
+<tr><td>4</td><td>Sintáctico</td><td>falta ':' después de 'kecleon' (case) Sintaxis correcta: kecleon valor dp instrucciones</td><td>66</td><td>9</td></tr>
+<tr><td>5</td><td>Sintáctico</td><td>después del tipo 'entei' se esperaba un identificador Sintaxis correcta: entei nombreVariable as valor pyc</td><td>68</td><td>13</td></tr>
+<tr><td>6</td><td>Sintáctico</td><td>'ps' inesperado o sin cierre 'pc'</td><td>69</td><td>29</td></tr>
+<tr><td>7</td><td>Sintáctico</td><td>'breloom' (break) fuera de un ciclo o switch</td><td>70</td><td>13</td></tr>
+<tr><td>8</td><td>Sintáctico</td><td>falta ':' después de 'kecleon' (case) Sintaxis correcta: kecleon valor dp instrucciones</td><td>71</td><td>9</td></tr>
+<tr><td>9</td><td>Sintáctico</td><td>'breloom' (break) fuera de un ciclo o switch</td><td>73</td><td>13</td></tr>
+<tr><td>10</td><td>Sintáctico</td><td>'deoxys' (default) debe ir al final del switch</td><td>74</td><td>9</td></tr>
+<tr><td>11</td><td>Sintáctico</td><td>'breloom' (break) fuera de un ciclo o switch</td><td>76</td><td>13</td></tr>
+<tr><td>12</td><td>Sintáctico</td><td>'lc' sin apertura correspondiente</td><td>77</td><td>5</td></tr>
+<tr><td>13</td><td>Sintáctico</td><td>identificador inesperado 'opcion' ¿Falta un ';', un tipo de dato, o se cerró mal un bloque?</td><td>79</td><td>5</td></tr>
+<tr><td>14</td><td>Sintáctico</td><td>'lc' sin apertura correspondiente</td><td>80</td><td>1</td></tr>
+<tr><td>15</td><td>Sintáctico</td><td>'wailord' (while) mal formado Sintaxis correcta: wailord ps condicion pc ls ... lc</td><td>80</td><td>4</td></tr>
+<tr><td>16</td><td>Sintáctico</td><td>final inesperado del archivo. ¿Falta cerrar una llave '}' o completar una instrucción?</td><td>-</td><td>-</td></tr>
+</table></div>
     </div>
 
     <div class="section">
@@ -416,224 +432,7 @@
     </div>
 
     
-    <div class="section">
-        <h2 class="ok"> Código Intermedio</h2>
-        
-    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
-        <table style='width:100%;border-collapse:collapse;
-                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
-            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>function gardevoir  mostrarMensaje(stantler mensaje):</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>cout &lt;&lt; mensaje &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>end</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td>function floatzel  calcularPotencia(floatzel base, entei exponente):</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>resultado = 1.0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>i = 0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>// INICIO FOR</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td>L0:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>if i &gt;= exponente goto L1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>resultado = resultado * base</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>i = i + 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>goto L0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>L1:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>// FIN FOR</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>raikou resultado</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>end</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>function gardevoir  duplicarValores(entei valorA, entei valorB):</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td>valorA = valorA * 2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>valorB = valorB * 2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>cout &lt;&lt; valorA &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>cout &lt;&lt; valorB &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>end</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>opcion = 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>// INICIO DO-WHILE</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td>L2:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td>cout &lt;&lt; "MENU DE OPERACIONES C++" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>cout &lt;&lt; "1. Operaciones matematicas basicas" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>cout &lt;&lt; "2. Demostracion while" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>cout &lt;&lt; "3. Demostracion for" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>cout &lt;&lt; "4. Uso de funciones" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>cout &lt;&lt; "5. Uso de procedimientos" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>cout &lt;&lt; "9. Salir" &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>// SWITCH_START opcion</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>// CASE 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>a = 15.5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>b = 4.5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>suma = a + b</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>resta = a - b</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>multiplicacion = a * b</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>division = a / b</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>cout &lt;&lt; suma &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>cout &lt;&lt; resta &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>cout &lt;&lt; multiplicacion &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>cout &lt;&lt; division &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>// CASE 2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>contador = 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td>// INICIO WHILE</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>L5:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>if contador &gt; 5 goto L6</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>cout &lt;&lt; contador &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>contador = contador + 1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>goto L5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>L6:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>// FIN WHILE</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>// CASE 3</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>j = 2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>// INICIO FOR</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>L7:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>if j &gt; 10 goto L8</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td>cout &lt;&lt; j &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>j = j + 2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td>goto L7</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>L8:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>// FIN FOR</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>67</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>// CASE 4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>base = 2.0</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>exp = 3</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>param base</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>param exp</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>t13 = call calcularPotencia(base, exp)</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>res = t13</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>cout &lt;&lt; res &lt;&lt; endl</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>// CASE 5</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>num1 = 10</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>num2 = 25</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>param num1</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>param num2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>t14 = call duplicarValores(num1, num2)</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>// CASE 9</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>param "saliendo del programa con exito"</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>t15 = call mostrarMensaje("saliendo del programa con exito")</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>// DEFAULT</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>param "opcion invalida intente de nuevo"</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>t16 = call mostrarMensaje("opcion invalida intente de nuevo")</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>goto L4</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>L4:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>// SWITCH_END</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>opcion = 9</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>if opcion != 9 goto L2</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>L3:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>// FIN DO-WHILE</td></tr>
-
-        </table>
-    </div>
-    </div>
     
-    <div class="section">
-        <h2 class="ok"> Código C++ Generado</h2>
-        
-    <div style='background:#1e1e1e;border-radius:8px;padding:20px;overflow-x:auto;'>
-        <table style='width:100%;border-collapse:collapse;
-                      font-family:monospace;font-size:0.85rem;color:#d4d4d4;'>
-            <tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>1</td><td>#include &lt;iostream&gt;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>2</td><td>#include &lt;string&gt;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>3</td><td>using namespace std;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>4</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>5</td><td>void mostrarMensaje(string mensaje) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>6</td><td>    cout &lt;&lt; mensaje &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>7</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>8</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>9</td><td>float calcularPotencia(float base, int exponente) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>10</td><td>    float resultado = 1.0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>11</td><td>    int i = 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>12</td><td>    if (i &lt; exponente) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>13</td><td>    resultado = resultado * base;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>14</td><td>    i = i + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>15</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>16</td><td>return resultado;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>17</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>18</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>19</td><td>void duplicarValores(int valorA, int valorB) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>20</td><td>    valorA = valorA * 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>21</td><td>    valorB = valorB * 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>22</td><td>    cout &lt;&lt; valorA &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>23</td><td>    cout &lt;&lt; valorB &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>24</td><td>}</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>25</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>26</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>27</td><td>int main() {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>28</td><td>    float a;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>29</td><td>    float b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>30</td><td>    float base;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>31</td><td>    int contador;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>32</td><td>    float division;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>33</td><td>    int exp;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>34</td><td>    int exponente;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>35</td><td>    int i;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>36</td><td>    int j;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>37</td><td>    string mensaje;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>38</td><td>    float multiplicacion;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>39</td><td>    int num1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>40</td><td>    int num2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>41</td><td>    int opcion;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>42</td><td>    float res;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>43</td><td>    float resta;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>44</td><td>    float resultado;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>45</td><td>    float suma;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>46</td><td>    int valorA;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>47</td><td>    int valorB;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>48</td><td></td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>49</td><td>    opcion = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>50</td><td>    do {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>51</td><td>        cout &lt;&lt; "MENU DE OPERACIONES C++" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>52</td><td>        cout &lt;&lt; "1. Operaciones matematicas basicas" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>53</td><td>        cout &lt;&lt; "2. Demostracion while" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>54</td><td>        cout &lt;&lt; "3. Demostracion for" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>55</td><td>        cout &lt;&lt; "4. Uso de funciones" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>56</td><td>        cout &lt;&lt; "5. Uso de procedimientos" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>57</td><td>        cout &lt;&lt; "9. Salir" &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>58</td><td>        switch (opcion) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>59</td><td>        case 1:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>60</td><td>            a = 15.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>61</td><td>            b = 4.5;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>62</td><td>            suma = a + b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>63</td><td>            resta = a - b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>64</td><td>            multiplicacion = a * b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>65</td><td>            division = a / b;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>66</td><td>            cout &lt;&lt; suma &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>67</td><td>            cout &lt;&lt; resta &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>68</td><td>            cout &lt;&lt; multiplicacion &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>69</td><td>            cout &lt;&lt; division &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>70</td><td>        case 2:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>71</td><td>            contador = 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>72</td><td>            while (contador &lt;= 5) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>73</td><td>                cout &lt;&lt; contador &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>74</td><td>                contador = contador + 1;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>75</td><td>            }  // fin while</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>76</td><td>        case 3:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>77</td><td>            j = 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>78</td><td>            while (j &lt;= 10) {</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>79</td><td>                cout &lt;&lt; j &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>80</td><td>                j = j + 2;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>81</td><td>            }  // fin for</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>82</td><td>        case 4:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>83</td><td>            base = 2.0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>84</td><td>            exp = 3;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>85</td><td>            auto t13 = calcularPotencia(base, exp);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>86</td><td>            res = t13;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>87</td><td>            cout &lt;&lt; res &lt;&lt; endl;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>88</td><td>        case 5:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>89</td><td>            num1 = 10;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>90</td><td>            num2 = 25;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>91</td><td>            auto t14 = duplicarValores(num1, num2);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>92</td><td>        case 9:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>93</td><td>            auto t15 = mostrarMensaje("saliendo del programa con exito");</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>94</td><td>        default:</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>95</td><td>            auto t16 = mostrarMensaje("opcion invalida intente de nuevo");</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>96</td><td>        }  // fin switch</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>97</td><td>        opcion = 9;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>98</td><td>    } while (opcion != 9);</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>99</td><td>    return 0;</td></tr>
-<tr><td style='color:#999;user-select:none;padding-right:16px;width:40px'>100</td><td>}</td></tr>
-
-        </table>
-    </div>
-    </div>
     
     <div class="section">
         <h2 class="ok"> Tabla de Símbolos</h2>
@@ -649,8 +448,8 @@
             .val-real     { color:#1a5276; font-weight:500; font-family: monospace; }
         </style>
         <table class="sym-table">
-            <tr><th>Nombre</th><th>Tipo</th><th>Ámbito</th><th>Valor</th></tr>
-        <tr><td>opcion</td><td>entei</td><td><span class='scope-global'>global</span></td><td><span class="val-real">1</span></td></tr><tr><td>mensaje</td><td>stantler</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>base</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>exponente</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>resultado</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">1.0</span></td></tr><tr><td>i</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">0</span></td></tr><tr><td>valorA</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>valorB</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>a</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">15.5</span></td></tr><tr><td>b</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">4.5</span></td></tr><tr><td>suma</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">20.0</span></td></tr><tr><td>resta</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">11.0</span></td></tr><tr><td>multiplicacion</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">69.75</span></td></tr><tr><td>division</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">3.4444444444444446</span></td></tr><tr><td>contador</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">1</span></td></tr><tr><td>j</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">2</span></td></tr><tr><td>base</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">2.0</span></td></tr><tr><td>exp</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">3</span></td></tr><tr><td>res</td><td>floatzel</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-dynamic">?</span></td></tr><tr><td>num1</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">10</span></td></tr><tr><td>num2</td><td>entei</td><td><span class='scope-local'>local (cerrado)</span></td><td><span class="val-real">25</span></td></tr></table>
+            <tr><th>Nombre</th><th>Tipo</th><th>Ambito</th><th>Clase simbolo</th><th>Valor</th><th>Metadata</th></tr>
+        <tr><td>mostrarMensaje</td><td>gardevoir</td><td><span class='scope-global'>global</span></td><td>function</td><td><span class="val-dynamic">?</span></td><td><span class="val-real">return_type=gardevoir, params=1, params_count=1</span></td></tr><tr><td>calcularPotencia</td><td>floatzel</td><td><span class='scope-global'>global</span></td><td>function</td><td><span class="val-dynamic">?</span></td><td><span class="val-real">return_type=floatzel, params=2, params_count=2</span></td></tr><tr><td>duplicarValores</td><td>gardevoir</td><td><span class='scope-global'>global</span></td><td>function</td><td><span class="val-dynamic">?</span></td><td><span class="val-real">return_type=gardevoir, params=2, params_count=2</span></td></tr></table>
     </div>
 
 </body>

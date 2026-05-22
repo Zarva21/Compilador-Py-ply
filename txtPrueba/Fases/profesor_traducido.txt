@@ -60,8 +60,8 @@ doduo ls
         kecleon 4 dp
             floatzel base as 2.0 pyc
             entei exp as 3 pyc
-            floatzel res as calcularPotencia ps base co exp pc pyc
-            pikachu ps res pc pyc
+            floatzel ref as calcularPotencia ps base co exp pc pyc
+            pikachu ps ref pc pyc
             breloom pyc
         kecleon 5 dp
             entei num1 as 10 pyc

@@ -42,6 +42,7 @@ class ccodeGen:
         self._next_goto_is_continue = False
         self._next_label_is_continue_target = False
         self._declared_vars   = set()
+        self._declared_temps  = set()
         self._main_locals = set()
 
         self._func_params = set()
@@ -212,7 +213,6 @@ class ccodeGen:
                 rel_ops = ['<', '>', '==', '!=', '<=', '>=']
                 if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
                     self.temp_conditions[left] = right_cpp
-                    continue
             filtered_main.append(line)
 
         # Extraer temporales de condición de funciones
@@ -288,6 +288,7 @@ class ccodeGen:
         indent       = 1
         open_blocks  = []   # pila de bloques abiertos dentro de la función actual
         func_temp_conditions = {}
+        declared_temps = set()
         next_goto_is_continue = False
         next_label_is_continue_target = False
 
@@ -442,24 +443,8 @@ class ccodeGen:
                 # No emitir goto en C++ — la estructura la manejan los comentarios
                 i += 1; continue
 
-            # ── Saltar temporales de condición ──
-            if ('=' in line
-                    and not line.startswith('if')
-                    and not line.startswith('goto')
-                    and not line.endswith(':')
-                    and not line.startswith('//')):
-                parts = line.split('=', 1)
-                if len(parts) == 2:
-                    left, right = map(str.strip, parts)
-                    right_cpp   = self._translate_ops(right)
-                    rel_ops = ['<', '>', '==', '!=', '<=', '>=']
-                    if left.startswith('t') and left[1:].isdigit() and any(op in right_cpp for op in rel_ops):
-                        func_temp_conditions[left] = right_cpp
-                        i += 1
-                        continue
-
             prefix     = '    ' * indent
-            translated = self._translate_func_line(line, func_temp_conditions, indent, open_blocks)
+            translated = self._translate_func_line(line, func_temp_conditions, indent, open_blocks, declared_temps)
 
             if isinstance(translated, list):
                 # Puede devolver múltiples líneas (e.g. if abre bloque)
@@ -473,7 +458,9 @@ class ccodeGen:
 
         return result
 
-    def _translate_func_line(self, line, temp_conds, indent, open_blocks):
+    def _translate_func_line(self, line, temp_conds, indent, open_blocks, declared_temps=None):
+        if declared_temps is None:
+            declared_temps = set()
         prefix = '    ' * indent
 
         if line.startswith('raikou '):
@@ -488,7 +475,14 @@ class ccodeGen:
 
         if '= call ' in line:
             left, right = line.split('= call ', 1)
-            return f'auto {left.strip()} = {right.strip()};'
+            left = left.strip()
+            right = right.strip()
+            if left.startswith('t') and left[1:].isdigit():
+                if left in declared_temps:
+                    return f'{left} = {right};'
+                declared_temps.add(left)
+                return f'auto {left} = {right};'
+            return f'auto {left} = {right};'
 
         if '= new ' in line:
             return None
@@ -529,13 +523,13 @@ class ccodeGen:
             left, right = map(str.strip, line.split('=', 1))
             right_cpp   = self._translate_ops(right)
 
-            if left.startswith('t') and left[1:].isdigit() and left in temp_conds:
-                return None
-
             if ('[' in left and ']' in left) or '.' in left:
                 return f'{left} = {right_cpp};'
 
             if left.startswith('t') and left[1:].isdigit():
+                if left in declared_temps:
+                    return f'{left} = {right_cpp};'
+                declared_temps.add(left)
                 return f'auto {left} = {right_cpp};'
 
             if left not in self._func_params and left not in self._func_locals:
@@ -617,13 +611,20 @@ class ccodeGen:
                     self.cpp_code.append(f'{self._indent()}switch ({var}) {{')
                     self.indent_level += 1
                     open_blocks.append('switch')
+                    self._case_open = False
                     i += 1; continue
 
                 elif tag.startswith('// CASE'):
                     val = tag.split('CASE')[1].strip()
+                    if self._case_open:
+                        self.cpp_code.append(f'{self._indent()}break;')
+                        self.indent_level -= 1
+                        self.cpp_code.append(f'{self._indent()}}}')
+                        self._case_open = False
                     self.indent_level -= 1
-                    self.cpp_code.append(f'{self._indent()}case {val}:')
+                    self.cpp_code.append(f'{self._indent()}case {val}: {{')
                     self.indent_level += 1
+                    self._case_open = True
                     i += 1; continue
 
                 elif tag == '// BREAK':
@@ -631,12 +632,23 @@ class ccodeGen:
                     i += 1; continue
 
                 elif tag == '// DEFAULT':
+                    if self._case_open:
+                        self.cpp_code.append(f'{self._indent()}break;')
+                        self.indent_level -= 1
+                        self.cpp_code.append(f'{self._indent()}}}')
+                        self._case_open = False
                     self.indent_level -= 1
-                    self.cpp_code.append(f'{self._indent()}default:')
+                    self.cpp_code.append(f'{self._indent()}default: {{')
                     self.indent_level += 1
+                    self._case_open = True
                     i += 1; continue
 
                 elif tag == '// SWITCH_END':
+                    if self._case_open:
+                        self.cpp_code.append(f'{self._indent()}break;')
+                        self.indent_level -= 1
+                        self.cpp_code.append(f'{self._indent()}}}')
+                        self._case_open = False
                     if open_blocks and open_blocks[-1] == 'switch':
                         open_blocks.pop()
                         self.indent_level -= 1
@@ -729,7 +741,7 @@ class ccodeGen:
                         open_blocks.append('if')
                         self.indent_level += 1
                     else:
-                        self.cpp_code.append(f'{self._indent()}while ({cond_real}) {{')
+                        self.cpp_code.append(f'{self._indent()}while ({self._invert_condition(cond_raw)}) {{')
                         open_blocks.append('while')
                         self.indent_level += 1
                 i += 1; continue
@@ -769,7 +781,13 @@ class ccodeGen:
                 left, right = line.split('= call ', 1)
                 left  = left.strip()
                 right = right.strip()
-                if left in self._declared_vars:
+                if left.startswith('t') and left[1:].isdigit():
+                    if left in self._declared_temps:
+                        self.cpp_code.append(f'{self._indent()}{left} = {right};')
+                    else:
+                        self._declared_temps.add(left)
+                        self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
+                elif left in self._declared_vars:
                     self.cpp_code.append(f'{self._indent()}{left} = {right};')
                 else:
                     self.cpp_code.append(f'{self._indent()}auto {left} = {right};')
@@ -786,17 +804,17 @@ class ccodeGen:
                 left, right = map(str.strip, line.split('=', 1))
                 right_cpp   = self._translate_ops(right)
 
-                if left.startswith('t') and left[1:].isdigit() and left in self.temp_conditions:
-                    i += 1
-                    continue
-
                 if ('[' in left and ']' in left) or '.' in left:
                     self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
                     i += 1
                     continue
 
                 if left.startswith('t') and left[1:].isdigit():
-                    self.cpp_code.append(f'{self._indent()}auto {left} = {right_cpp};')
+                    if left in self._declared_temps:
+                        self.cpp_code.append(f'{self._indent()}{left} = {right_cpp};')
+                    else:
+                        self._declared_temps.add(left)
+                        self.cpp_code.append(f'{self._indent()}auto {left} = {right_cpp};')
                     i += 1
                     continue
 
