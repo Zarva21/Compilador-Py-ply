@@ -1,0 +1,5 @@
+entei numeros cora 5 corc pyc
+entei i as 0 pyc
+numeros cora i corc as 10 pyc
+entei r as numeros cora i corc pyc
+pikachu ps r pc pyc

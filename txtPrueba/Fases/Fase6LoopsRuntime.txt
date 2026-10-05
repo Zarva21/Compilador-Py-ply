@@ -1,0 +1,7 @@
+entei x as 0 pyc
+
+wailord ps x me 5 pc ls
+    x as x su 1 pyc
+lc
+
+pikachu ps x pc pyc

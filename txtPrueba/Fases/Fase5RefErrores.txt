@@ -1,0 +1,9 @@
+gardevoir cambiar ps ref entei x pc ls
+    x as x su 1 pyc
+lc
+
+entei a as 10 pyc
+
+cambiar ps 5 pc pyc
+cambiar ps a su 1 pc pyc
+cambiar ps desconocida pc pyc

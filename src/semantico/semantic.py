@@ -1,0 +1,260 @@
+from ast import expr
+from cProfile import label
+
+from src.intercode.optimize import Optimize
+from src.semantico.handle import handle_declaration
+from src.semantico.handle import handle_assignment
+from src.semantico.handle import handle_expression
+from src.semantico.handle import handle_expression_statement   # nuevo
+from src.semantico.handle import handle_print
+from src.semantico.handle import handle_input
+from src.semantico.handle import handle_increment
+from src.semantico.handle import handle_array_declaration
+from src.semantico.handle import handle_array_assignment
+from src.semantico.handle import make_array_access
+from src.semantico.handle import handle_struct_declaration
+from src.semantico.handle import handle_struct_instance_declaration
+from src.semantico.handle import handle_field_assignment
+from src.semantico.handle import make_field_access
+from src.semantico.handle import _get_value
+from src.semantico.handle import _apply_operator
+from src.semantico.handle import _evaluate_runtime
+from src.semantico.handle import evaluate_condition_dynamic
+from src.semantico.handle import handle_for
+from src.semantico.handle import handle_do_while
+from src.semantico.handle import handle_while
+from src.semantico.handle import handle_method_declaration
+from src.semantico.handle import handle_method_call
+from src.semantico.handle import handle_if
+from src.semantico.handle import handle_switch
+from src.semantico.handle import _save_iteration_state
+from src.semantico.handle import _resolve_ir
+from src.semantico.handle import validate_boolean_expression
+from src.semantico.handle import _infer_type
+
+
+class Semantic:
+    def __init__(self, symbol_table, errors, lexer, interCodeGenerator):
+        self.symbol_table        = symbol_table
+        self.errors              = errors
+        self.lexer               = lexer
+        self.methods             = {}
+        self.intercode_generator = interCodeGenerator
+        self.en_funcion          = False
+        self.en_loop             = False   # FIX: flag para detectar contexto de loop
+        self.current_function = None
+        self.current_return_type = None
+        self.current_function_has_return = False
+        self.break_context_stack = []
+        self.continue_context_stack = []
+        self.positions = {}
+        self.struct_types = {}
+        self.partial_eval_env_stack = []
+        self.partial_eval_call_stack = []
+
+
+
+    # ── Registro inmediato de función ─────────────────────────────────────
+    def register_function(self, name, return_type, params, body):
+        self.methods[name] = {
+            'return_type': return_type,
+            'params':      params or [],
+            'body':        body,
+        }
+        add_function = getattr(self.symbol_table, 'add_function_symbol', None)
+        if callable(add_function):
+            add_function(name, return_type, params or [])
+        print(f"[REGISTRO] Función '{name}' registrada con params={params}")
+
+    def execute_function_declaration(self, name):
+        if name not in self.methods:
+            return
+        info = self.methods[name]
+        handle_method_declaration(self, name, info['body'])()
+
+    # ── Delegación a handle.py ────────────────────────────────────────────
+
+    def handle_declaration(self, name, var_type, value=None):
+        return handle_declaration(self, name, var_type, value)
+
+    def handle_assignment(self, name, value):
+        return handle_assignment(self, name, value)
+
+    def handle_expression(self, left, operator, right):
+        return handle_expression(self, left, operator, right)
+
+    def handle_term(self, left, operator, right):
+        return self.handle_expression(left, operator, right)
+
+    def validate_boolean_expression(self, expr):
+        return validate_boolean_expression(self, expr)
+
+    def handle_factor(self, value):
+        return value
+
+    def set_position(self, name, line=None, col=None):
+        if isinstance(name, str) and line:
+            self.positions[name] = (line, col or 1)
+
+    def get_position(self, name):
+        return self.positions.get(name)
+
+    def handle_print(self, value):
+        return handle_print(self, value)
+
+    def handle_input(self, name):
+        return handle_input(self, name)
+
+    def handle_increment(self, name, delta=1):
+        return handle_increment(self, name, delta)
+
+    def handle_array_declaration(self, name, var_type, size_expr, values=None):
+        return handle_array_declaration(self, name, var_type, size_expr, values)
+
+    def handle_array_assignment(self, name, index_expr, value):
+        return handle_array_assignment(self, name, index_expr, value)
+
+    def make_array_access(self, name, index_expr):
+        return make_array_access(name, index_expr)
+
+    def handle_struct_declaration(self, name, fields):
+        return handle_struct_declaration(self, name, fields)
+
+    def handle_struct_instance_declaration(self, struct_name, var_name):
+        return handle_struct_instance_declaration(self, struct_name, var_name)
+
+    def handle_field_assignment(self, var_name, field_name, value):
+        return handle_field_assignment(self, var_name, field_name, value)
+
+    def make_field_access(self, var_name, field_name):
+        return make_field_access(var_name, field_name)
+
+    def _get_value(self, item):
+        return _get_value(self, item)
+
+    def _apply_operator(self, a, op, b):
+        return _apply_operator(self, a, op, b)
+
+    def _evaluate_runtime(self, val):
+        return _evaluate_runtime(self, val)
+
+    def _check_numeric(self, a, b):
+        return isinstance(a, (int, float)) and isinstance(b, (int, float))
+
+    def _op_error(self, op, a, b):
+        self.errors.encolar_error(
+            f"No se puede aplicar '{op}' entre {type(a).__name__} y {type(b).__name__}"
+        )
+        return None
+
+    def evaluate_condition_dynamic(self, left, op, right):
+        return evaluate_condition_dynamic(self, left, op, right)
+
+    def handle_for(self, init_stmt, condition_fn, update_stmt, body):
+        return handle_for(self, init_stmt, condition_fn, update_stmt, body)
+
+    def handle_do_while(self, condition_fn, body):
+        return handle_do_while(self, condition_fn, body)
+
+    def handle_while(self, condition_fn, body):
+        return handle_while(self, condition_fn, body)
+
+    def handle_method_declaration(self, name, return_type, body, params=None):
+        self.register_function(name, return_type, params or [], body)
+        return handle_method_declaration(self, name, body)
+
+    def handle_method_call(self, name, args=None):
+        return handle_method_call(self, name, args or [])
+
+    def handle_if(self, condition_fn, if_body, else_body):
+        return handle_if(self, condition_fn, if_body, else_body)
+
+    def handle_switch(self, var_name, cases, default_body):
+        return handle_switch(self, var_name, cases, default_body)
+
+    def handle_break(self):
+        def action():
+            target = self.current_break_context()
+            if target is None:
+                self.errors.encolar_error(
+                    "Error semántico: 'breloom' solo puede usarse dentro de switch, while, for o do-while."
+                )
+                return
+            self.intercode_generator.emit(f"goto {target}")
+        return action
+
+    def handle_continue(self, line=None, col=None):
+        def action():
+            target = self.current_continue_context()
+            if target is None:
+                pos = f" en fila {line}, col {col}" if line else ""
+                self.errors.encolar_error(
+                    f"Error semántico: 'pidgey' solo puede usarse dentro de while, for o do-while{pos}."
+                )
+                return
+            self.intercode_generator.emit("// CONTINUE")
+            self.intercode_generator.emit(f"goto {target}")
+        return action
+
+    def handle_return(self, value):
+        def action():
+            if self.current_return_type is None:
+                self.errors.encolar_error("Error semántico: 'raikou' fuera de una función.")
+                return
+
+            inferred = _infer_type(self, value)
+
+            if self.current_return_type == 'gardevoir':
+                self.errors.encolar_error(
+                    f"Error semántico: la función '{self.current_function}' es 'gardevoir' y no debe retornar un valor."
+                )
+                return
+
+            if inferred != 'unknown' and inferred != self.current_return_type:
+                numeric = {'entei', 'floatzel'}
+                if not (inferred in numeric and self.current_return_type in numeric):
+                    self.errors.encolar_error(
+                        f"Error semántico: la función '{self.current_function}' debe retornar '{self.current_return_type}', "
+                        f"pero se encontró '{inferred}'."
+                    )
+                    return
+
+            self.current_function_has_return = True
+            ir_val = _resolve_ir(self, value)
+            self.intercode_generator.emit(f"raikou {ir_val}")
+        return action
+
+    def getInterCode(self):
+        return self.intercode_generator.code
+
+    def optimize_intermediate_code(self):
+        print("Ejecutando optimización del código intermedio...")
+        optimizer = Optimize(self.intercode_generator.code)
+        optimizer.optimize()
+        self.intercode_generator.code = optimizer.get_optimized_ir()
+        print("Código intermedio optimizado.")
+
+    def _save_iteration_state(self):
+        _save_iteration_state(self)
+
+
+
+    def push_break_context(self, label):
+        self.break_context_stack.append(label)
+
+    def pop_break_context(self):
+        if self.break_context_stack:
+            self.break_context_stack.pop()
+
+    def current_break_context(self):
+        return self.break_context_stack[-1] if self.break_context_stack else None
+
+    def push_continue_context(self, label):
+        self.continue_context_stack.append(label)
+
+    def pop_continue_context(self):
+        if self.continue_context_stack:
+            self.continue_context_stack.pop()
+
+    def current_continue_context(self):
+        return self.continue_context_stack[-1] if self.continue_context_stack else None

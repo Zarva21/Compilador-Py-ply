@@ -1,0 +1,27 @@
+entei contador as 0 pyc
+
+suicune entei cuadrado ps entei n pc ls
+    raikou n mu n pyc
+lc
+
+wailord ps contador me 5 pc ls
+
+    entei valor as cuadrado ps contador pc pyc
+
+    swello ps valor pc ls
+
+        kecleon 0 dp
+            pikachu ps valor pc pyc
+            breloom pyc
+
+        kecleon 1 dp
+            pikachu ps valor pc pyc
+            breloom pyc
+
+        deoxys dp
+            pikachu ps valor pc pyc
+            breloom pyc
+    lc
+
+    contador as contador su 1 pyc
+lc

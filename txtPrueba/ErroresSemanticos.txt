@@ -1,0 +1,18 @@
+cm Variable no declarada
+b as 10 pyc
+
+cm Expresion sin efecto
+entei a as 5 pyc
+a su 1 pyc
+
+cm Redeclaracion
+entei c as 5 pyc
+entei c as 10 pyc
+
+cm Tipos incompatibles
+entei n as 5 pyc
+stantler texto as cdholacd pyc
+n as n su texto pyc
+
+cm Print variable no declarada
+pikachu ps x pc pyc

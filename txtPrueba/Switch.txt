@@ -1,0 +1,16 @@
+entei opcion as 2 pyc
+
+swello ps opcion pc ls
+
+    kecleon 1 dp
+        pikachu ps opcion pc pyc
+        breloom pyc
+
+    kecleon 2 dp
+        pikachu ps opcion pc pyc
+        breloom pyc
+
+    deoxys dp
+        pikachu ps 0 pc pyc
+        breloom pyc
+lc

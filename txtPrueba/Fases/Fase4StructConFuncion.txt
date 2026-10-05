@@ -1,0 +1,11 @@
+cm Limitacion Fase 4:
+cm Los structs simples ya existen, pero pasar structs como parametro queda para una fase futura.
+estructura Fecha ls
+    entei dia pyc
+    entei mes pyc
+    entei anio pyc
+lc pyc
+
+Fecha f pyc
+f pu dia as 15 pyc
+pikachu ps f pu dia pc pyc

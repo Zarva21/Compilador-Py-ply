@@ -1,0 +1,8 @@
+boofalant activo as trumbeak pyc
+boofalant permiso as falinks pyc
+
+evee ps activo andor not permiso pc ls
+    pikachu cdAcceso permitidocd pyc
+lc ekans ls
+    pikachu cdAcceso denegadocd pyc
+lc

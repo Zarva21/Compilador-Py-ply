@@ -1,0 +1,4 @@
+entei dias cora 13 corc as ls 0 co 31 co 28 co 31 co 30 co 31 lc pyc
+entei mes as 2 pyc
+entei resultado as dias cora mes corc pyc
+pikachu ps resultado pc pyc

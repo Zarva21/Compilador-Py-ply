@@ -1,0 +1,17 @@
+entei x as 5 pyc
+entei y as 3 pyc
+entei resultado as 0 pyc
+
+resultado as x su y pyc
+pikachu ps resultado pc pyc
+
+evee ps resultado ma 5 pc ls
+    entei bandera as 1 pyc
+lc ekans ls
+    entei bandera2 as 0 pyc
+lc
+
+wailord ps x ma 0 pc ls
+    x as x re 1 pyc
+    pikachu ps x pc pyc
+lc

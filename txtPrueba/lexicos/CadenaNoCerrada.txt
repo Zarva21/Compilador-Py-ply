@@ -1,0 +1,3 @@
+entei a as 5 pyc
+stantler texto as cdhola pyc
+entei b as 10 pyc

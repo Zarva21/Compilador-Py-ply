@@ -1,0 +1,10 @@
+entei i as 0 pyc
+
+doduo ls
+    pikachu ps i pc pyc
+    i as i su 1 pyc
+lc wailord ps i me 3 pc pyc
+
+forretres ps entei j as 0 pyc j me 5 pyc j as j su 1 pc ls
+    pikachu ps j pc pyc
+lc

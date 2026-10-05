@@ -1,0 +1,17 @@
+suicune entei sumar ps entei a co entei b pc ls
+    entei resultado as a su b pyc
+    raikou resultado pyc
+lc
+
+gardevoir imprimirMensaje ps pc ls
+    stantler mensaje as cdHolacd pyc
+    pikachu ps mensaje pc pyc
+lc
+
+entei x as 10 pyc
+entei y as 20 pyc
+
+entei total as sumar ps x co y pc pyc
+pikachu ps total pc pyc
+
+imprimirMensaje ps pc pyc

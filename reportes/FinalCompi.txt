@@ -1,0 +1,250 @@
+
+
+cm ==========================================
+cm FUNCIONES
+cm ==========================================
+
+cm Verificar si un anio es bisiesto
+suicune boofalant esBisiesto ps entei anio pc ls
+
+    evee ps anio mo 4 ig 0 andor anio mo 100 ni 0 pc ls
+        raikou trumbeak pyc
+    lc
+
+    evee ps anio mo 400 ig 0 pc ls
+        raikou trumbeak pyc
+    lc
+
+    raikou falinks pyc
+
+lc
+
+
+cm ==========================================
+cm Potencia usando FOR
+cm ==========================================
+
+suicune floatzel calcularPotencia ps floatzel base co entei exponente pc ls
+
+    floatzel resultado as 1 pyc
+
+    entei k as 0 pyc
+
+    forretres ps
+        k as 0 pyc
+        k me exponente pyc
+        k as k su 1
+    pc
+    ls
+
+        resultado as resultado mu base pyc
+
+    lc
+
+    raikou resultado pyc
+
+lc
+
+
+cm ==========================================
+cm Procedimiento por referencia
+cm ==========================================
+
+gardevoir duplicarValores ps ref entei valorA co ref entei valorB pc ls
+
+    valorA as valorA mu 2 pyc
+    valorB as valorB mu 2 pyc
+
+lc
+
+
+cm ==========================================
+cm Funcion mostrar
+cm ==========================================
+
+gardevoir mostrarMensaje ps stantler mensaje pc ls
+
+    pikachu ps mensaje pc pyc
+
+lc
+
+
+cm ==========================================
+cm PROGRAMA PRINCIPAL
+cm ==========================================
+
+entei opcion as 1 pyc
+
+doduo ls
+
+    pikachu ps cd==================================cd pc pyc
+    pikachu ps cdMENU DE OPERACIONEScd pc pyc
+    pikachu ps cd==================================cd pc pyc
+
+    pikachu ps cd1 Operaciones matematicascd pc pyc
+    pikachu ps cd2 Whilecd pc pyc
+    pikachu ps cd3 Forcd pc pyc
+    pikachu ps cd4 Funcionescd pc pyc
+    pikachu ps cd5 Referenciascd pc pyc
+    pikachu ps cd6 Fibonaccicd pc pyc
+    pikachu ps cd7 Salircd pc pyc
+
+    pikachu ps cdSeleccione opcioncd pc pyc
+
+    psyduck ps opcion pc pyc
+
+    swello ps opcion pc ls
+
+        cm ==========================================
+        cm CASE 1
+        cm ==========================================
+
+        kecleon 1 dp
+
+            floatzel a as 15.5 pyc
+            floatzel b as 4.5 pyc
+
+            floatzel suma as a su b pyc
+            floatzel resta as a re b pyc
+            floatzel multiplicacion as a mu b pyc
+            floatzel division as a di b pyc
+
+            pikachu ps suma pc pyc
+            pikachu ps resta pc pyc
+            pikachu ps multiplicacion pc pyc
+            pikachu ps division pc pyc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm CASE 2
+        cm ==========================================
+
+        kecleon 2 dp
+
+            entei contador as 1 pyc
+
+            wailord ps contador mei 5 pc ls
+
+                pikachu ps contador pc pyc
+
+                contador masmas pyc
+
+            lc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm CASE 3
+        cm ==========================================
+
+        kecleon 3 dp
+
+            entei i as 2 pyc
+
+            forretres ps
+                i as 2 pyc
+                i mei 10 pyc
+                i as i su 2
+            pc
+            ls
+
+                pikachu ps i pc pyc
+
+            lc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm CASE 4
+        cm ==========================================
+
+        kecleon 4 dp
+
+            floatzel base as 2 pyc
+            entei exponente as 4 pyc
+
+            floatzel resultado as calcularPotencia ps base co exponente pc pyc
+
+            pikachu ps resultado pc pyc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm CASE 5
+        cm ==========================================
+
+        kecleon 5 dp
+
+            entei num1 as 10 pyc
+            entei num2 as 25 pyc
+
+            duplicarValores ps num1 co num2 pc pyc
+
+            pikachu ps num1 pc pyc
+            pikachu ps num2 pc pyc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm CASE 6
+        cm ==========================================
+
+        kecleon 6 dp
+
+            entei n as 7 pyc
+
+            entei t1 as 0 pyc
+            entei t2 as 1 pyc
+            entei siguiente as 0 pyc
+
+            entei j as 1 pyc
+
+            forretres ps
+                j as 1 pyc
+                j mei n pyc
+                j as j su 1
+            pc
+            ls
+
+                pikachu ps t1 pc pyc
+
+                siguiente as t1 su t2 pyc
+                t1 as t2 pyc
+                t2 as siguiente pyc
+
+            lc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm SALIR
+        cm ==========================================
+
+        kecleon 7 dp
+
+            mostrarMensaje ps cdSaliendo del programacd pc pyc
+
+            opcion as 7 pyc
+
+            breloom pyc
+
+
+        cm ==========================================
+        cm DEFAULT
+        cm ==========================================
+
+        deoxys dp
+
+            mostrarMensaje ps cdOpcion invalidacd pc pyc
+
+    lc
+
+lc
+wailord ps opcion ni 7 pc pyc

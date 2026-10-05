@@ -1,0 +1,26 @@
+cm Ejemplo 1 Variable no declarada
+b as 10 pyc
+
+cm Ejemplo 2 Expresion sin efecto
+entei a as 5 pyc
+a su 1 pyc
+
+cm Error redeclaracion
+entei c as 5 pyc
+entei c as 10 pyc
+
+cm Error de tipos incompatibles
+entei n as 5 pyc
+stantler texto as cdholacd pyc
+n as n su texto pyc
+
+cm Char largo
+charizar d as csholacs pyc
+
+cm Print variable no declarada
+pikachu ps x pc pyc
+
+cm Ejemplo final: Falta cerrar bloque
+entei z as 5 pyc
+evee ps z ma 3 pc ls
+    pikachu cdhola cd pyc

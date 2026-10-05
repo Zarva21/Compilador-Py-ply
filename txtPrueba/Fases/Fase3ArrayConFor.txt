@@ -1,0 +1,8 @@
+entei numeros cora 5 corc pyc
+
+forretres ps entei i as 0 pyc i me 5 pyc i masmas pc ls
+    numeros cora i corc as i mu 2 pyc
+lc
+
+entei r as numeros cora 3 corc pyc
+pikachu ps r pc pyc

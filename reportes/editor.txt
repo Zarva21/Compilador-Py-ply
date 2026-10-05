@@ -1,0 +1,3 @@
+entei a as 5 pyc
+entei b as 10 pyc
+boofalant flag as a ma b pyc

@@ -1,0 +1,10 @@
+suicune entei factorial ps entei n pc ls
+    evee ps n ig 0 pc ls
+        raikou 1 pyc
+    lc ekans ls
+        raikou n mu factorial ps n re 1 pc pyc
+    lc
+lc
+
+entei r as factorial ps 5 pc pyc
+pikachu ps r pc pyc

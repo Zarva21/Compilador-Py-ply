@@ -1,0 +1,40 @@
+entei x as 10 pyc
+pikachu ps x pc pyc
+
+entei y as 3 pyc
+stantler z as csholacs pyc
+
+evee ps x ma 5 pc ls
+    entei a as 20 pyc
+lc ekans ls
+    entei b as 30 pyc
+lc
+
+entei globalvar as 100 pyc
+
+suicune entei doble ps entei x pc ls
+    raikou x mu 2 pyc
+lc
+
+suicune entei triple ps entei x pc ls
+    raikou doble ps x pc su x pyc
+lc
+
+wailord ps x ma 0 pc ls
+    evee ps x su 2 ig 0 pc ls
+        pikachu ps x pc pyc
+    lc ekans ls
+        pikachu ps 0 pc pyc
+    lc
+    x as x re 1 pyc
+lc
+
+entei resultado as ps x su y pc mu ps x re 2 pc di 3 pyc
+
+suicune entei factorial ps entei n pc ls
+    evee ps n ig 0 pc ls
+        raikou 1 pyc
+    lc ekans ls
+        raikou n mu factorial ps n re 1 pc pyc
+    lc
+lc

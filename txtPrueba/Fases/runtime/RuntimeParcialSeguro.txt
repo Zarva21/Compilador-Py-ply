@@ -1,0 +1,12 @@
+suicune entei doble ps entei x pc ls
+    raikou x mu 2 pyc
+lc
+
+entei a as 10 pyc
+entei b as 20 pyc
+entei r as a su b pyc
+entei f as doble ps r pc pyc
+
+wailord ps a me 15 pc ls
+    a masmas pyc
+lc
